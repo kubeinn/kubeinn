@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pilgrim-node-port-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30000
+  selector:
+    component: pilgrim-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pilgrim-ui-deployment
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+          component: pilgrim-ui
+  template:
+      metadata:
+          labels:
+              component: pilgrim-ui
+      spec:
+          containers:
+              - name: pilgrim
+                image: jordan396/pilgrim-ui
+                ports:
+                  - containerPort: 80
+                env:
+                  - name: PILGRIM_CLUSTER_IP_SERVICE
+                    value: $(PILGRIM_CLUSTER_IP_SERVICE)
+                command: ["./app"]
+                args: ["start"]

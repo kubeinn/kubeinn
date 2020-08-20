@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: innkeeper-go-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: innkeeper-go
+  ports:
+    - port: 5000
+      targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: innkeeper-go-deployment
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+          component: innkeeper-go
+  template:
+      metadata:
+          labels:
+              component: innkeeper-go
+      spec:
+          containers:
+              - name: innkeeper
+                image: jordan396/innkeeper-go
+                ports:
+                  - containerPort: 5000
+                env:
+                  - name: PGHOST
+                    value: $(POSTGRES_CLUSTER_IP_SERVICE)
+                  - name: PGUSER
+                    valueFrom:
+                      configMapKeyRef:
+                        name: postgres-conf
+                        key: PGUSER
+                  - name: PGPORT
+                    valueFrom:
+                      configMapKeyRef:
+                        name: postgres-conf
+                        key: PGPORT
+                  - name: PGDATABASE
+                    valueFrom:
+                      configMapKeyRef:
+                        name: postgres-conf
+                        key: PGDATABASE
+                  - name: PGPASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: pgpassword
+                        key: POSTGRES_PASSWORD
+                command: ["./bin/main"]
+                args: ["--kubecfg", "/app/configs/.kube/config"]

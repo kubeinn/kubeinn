@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pilgrim-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: pilgrim-go
+  ports:
+    - port: 5000
+      targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pilgrim-go-deployment
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+          component: pilgrim-go
+  template:
+      metadata:
+          labels:
+              component: pilgrim-go
+      spec:
+          containers:
+              - name: pilgrim
+                image: jordan396/pilgrim-go
+                ports:
+                  - containerPort: 5000
+                env:
+                  - name: PGHOST
+                    value: $(POSTGRES_CLUSTER_IP_SERVICE)
+                  - name: PGUSER
+                    valueFrom:
+                      configMapKeyRef:
+                        name: postgres-conf
+                        key: PGUSER
+                  - name: PGPORT
+                    valueFrom:
+                      configMapKeyRef:
+                        name: postgres-conf
+                        key: PGPORT
+                  - name: PGDATABASE
+                    valueFrom:
+                      configMapKeyRef:
+                        name: postgres-conf
+                        key: PGDATABASE
+                  - name: PGPASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: pgpassword
+                        key: POSTGRES_PASSWORD
+                command: ["./bin/main"]
+                args: ["--kubecfg", "/app/configs/.kube/config"]
