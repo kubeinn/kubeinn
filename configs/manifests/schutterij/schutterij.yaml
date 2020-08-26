@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: innkeeper-go-cluster-ip-service
+  name: schutterij-cluster-ip-service
 spec:
   type: ClusterIP
   selector:
-    component: innkeeper-go
+    component: schutterij
   ports:
     - port: 5000
       targetPort: 5000
@@ -13,20 +13,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: innkeeper-go-deployment
+  name: schutterij-deployment
 spec:
   replicas: 1
   selector:
       matchLabels:
-          component: innkeeper-go
+          component: schutterij
   template:
       metadata:
           labels:
-              component: innkeeper-go
+              component: schutterij
       spec:
           containers:
-              - name: innkeeper
-                image: jordan396/innkeeper-go
+              - name: schutterij
+                image: jordan396/schutterij
                 ports:
                   - containerPort: 5000
                 env:

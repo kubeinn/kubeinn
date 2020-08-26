@@ -38,14 +38,17 @@ nameSuffix: -v1.0.0-a.1
 resources:
 - ./manifests/base.yaml
 - ./manifests/postgres/postgres.yaml
+- ./manifests/postgrest/postgrest.yaml
 - ./manifests/metrics/prometheus.yaml
 - ./manifests/metrics/kube-state-metrics.yaml
 - ./manifests/metrics/node-exporter.yaml
 - ./manifests/metrics/grafana.yaml
-- ./manifests/innkeeper/innkeeper-go.yaml
-- ./manifests/innkeeper/innkeeper-ui.yaml
-- ./manifests/pilgrim/pilgrim-go.yaml
-- ./manifests/pilgrim/pilgrim-ui.yaml
+- ./manifests/innkeeper/innkeeper.yaml
+- ./manifests/pilgrim/pilgrim.yaml
+- ./manifests/schutterij/schutterij.yaml
+- ./manifests/nginx/ingress-controller.yaml
+- ./manifests/nginx/ingress-service.yaml
+
 
 # Each entry in this list results in the creation of
 # one ConfigMap resource (it's a generator of n maps).
@@ -61,7 +64,10 @@ configMapGenerator:
   - ./config_map_data/postgres/postgres.properties
 - name: postgres-init-db-conf
   files:
-  - ./config_map_data/postgres/init-db.sql
+  - ./config_map_data/postgres/10-init.sql
+- name: postgrest-conf
+  files:
+  - ./config_map_data/postgrest/postgrest.conf
 - name: prometheus-conf
   files:
   - ./config_map_data/prometheus/prometheus.yaml
@@ -219,6 +225,11 @@ vars:
   objref:
     kind: Service
     name: pilgrim-cluster-ip-service
+    apiVersion: v1
+- name: SCHUTTERIJ_CLUSTER_IP_SERVICE
+  objref:
+    kind: Service
+    name: schutterij-cluster-ip-service
     apiVersion: v1
   # fieldref:
   #   fieldpath: metadata.name

@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+            - path: /innkeeper/
+              backend:
+                serviceName: innkeeper-cluster-ip-service
+                servicePort: 8080
+            - path: /pilgrim/
+              backend:
+                serviceName: pilgrim-cluster-ip-service
+                servicePort: 8080
+            - path: /grafana/
+              backend:
+                serviceName: grafana-cluster-ip-service
+                servicePort: 8080
+            - path: /api/
+              backend:
+                serviceName: schutterij-cluster-ip-service
+                servicePort: 8080

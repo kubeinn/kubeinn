@@ -7,9 +7,8 @@ spec:
   selector:
     component: grafana
   ports:
-  - protocol: TCP
-    port: 3000
-    targetPort: 3000
+  - port: 8080
+    targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,4 +28,4 @@ spec:
             - name: grafana
               image: grafana/grafana:7.1.0
               ports:
-              - containerPort: 3000
+              - containerPort: 8080
