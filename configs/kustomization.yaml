@@ -231,6 +231,11 @@ vars:
     kind: Service
     name: schutterij-cluster-ip-service
     apiVersion: v1
+- name: POSTGREST_CLUSTER_IP_SERVICE
+  objref:
+    kind: Service
+    name: postgrest-cluster-ip-service
+    apiVersion: v1
   # fieldref:
   #   fieldpath: metadata.name
   # - name: SOME_SECRET_NAME
