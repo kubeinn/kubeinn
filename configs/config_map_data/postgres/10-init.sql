@@ -24,6 +24,13 @@ CREATE TABLE IF NOT EXISTS projects (
     memory INTEGER NOT NULL,
     storage INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS tickets (
+    ticketID SERIAL PRIMARY KEY,
+    email VARCHAR(30) NOT NULL,
+    topic VARCHAR(30) NOT NULL,
+    details TEXT NOT NULL,
+    isOpen BOOLEAN NOT NULL
+);
 CREATE TABLE IF NOT EXISTS usage (
     projectID INTEGER NOT NULL,
     pilgrimID INTEGER NOT NULL,

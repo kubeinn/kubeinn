@@ -46,6 +46,7 @@ resources:
 - ./manifests/innkeeper/innkeeper.yaml
 - ./manifests/pilgrim/pilgrim.yaml
 - ./manifests/schutterij/schutterij.yaml
+- ./manifests/crossroads/crossroads.yaml
 - ./manifests/nginx/ingress-controller.yaml
 - ./manifests/nginx/ingress-service.yaml
 
@@ -211,10 +212,10 @@ generatorOptions:
 # To do so, add an entry to `vars:` as follows:
 #
 vars:
-- name: POSTGRES_CLUSTER_IP_SERVICE
+- name: CROSSROADS_CLUSTER_IP_SERVICE
   objref:
     kind: Service
-    name: postgres-cluster-ip-service
+    name: crossroads-cluster-ip-service
     apiVersion: v1
 - name: INNKEEPER_CLUSTER_IP_SERVICE
   objref:
@@ -235,6 +236,11 @@ vars:
   objref:
     kind: Service
     name: postgrest-cluster-ip-service
+    apiVersion: v1
+- name: POSTGRES_CLUSTER_IP_SERVICE
+  objref:
+    kind: Service
+    name: postgres-cluster-ip-service
     apiVersion: v1
   # fieldref:
   #   fieldpath: metadata.name
