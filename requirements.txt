@@ -1,0 +1,2 @@
+go get k8s.io/client-go@master
+go get github.com/jackc/pgx/v4

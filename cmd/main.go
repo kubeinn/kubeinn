@@ -2,19 +2,22 @@ package main
 
 import (
 	// "context"
+	// "net/http"
 	"fmt"
 	"log"
-	// "net/http"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
-	global "github.com/kubeinn/pilgrim-go/internal/global"
-	handlers "github.com/kubeinn/pilgrim-go/internal/handlers"
-	postgres "github.com/kubeinn/pilgrim-go/internal/postgres"
+	// innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
+	// pilgrim_handler "github.com/kubeinn/schutterij/internal/api/pilgrim"
+	db_controller "github.com/kubeinn/schutterij/internal/controllers/DBController"
+	global "github.com/kubeinn/schutterij/internal/global"
+	// middleware "github.com/kubeinn/schutterij/internal/middleware"
 
 	cors "github.com/gin-contrib/cors"
-	static "github.com/gin-gonic/contrib/static"
 	gin "github.com/gin-gonic/gin"
 	urfavecli "github.com/urfave/cli/v2"
 	clientcmd "k8s.io/client-go/tools/clientcmd"
@@ -22,23 +25,15 @@ import (
 )
 
 func main() {
-	var port string
+	initialize()
+
 	var kubecfg string
 
-	// Instantiate global variables
-	global.PostgresController = pg.NewPostgresController()
-
+	// Run the application
 	app := &urfavecli.App{
-		Name:  "Administration Portal",
-		Usage: "Starts the Asi@Connect Administration Portal.",
+		Name:  "Schutterij",
+		Usage: "API endpoint for kubeinn multi-tenancy manager for Kubernetes.",
 		Flags: []urfavecli.Flag{
-			&urfavecli.StringFlag{
-				Name:        "port",
-				Value:       "30000",
-				Usage:       "Specify the container port to listen on.",
-				Destination: &port,
-				Required:    true,
-			},
 			&urfavecli.StringFlag{
 				Name:        "kubecfg",
 				Value:       filepath.Join(homedir.HomeDir(), ".kube", "config"),
@@ -49,7 +44,7 @@ func main() {
 		},
 		Action: func(c *urfavecli.Context) error {
 			for {
-				fmt.Print("Waiting for kubeconfig to be uploaded...\n")
+				fmt.Println("Waiting for kubeconfig to be uploaded...")
 				if _, err := os.Stat(c.String("kubecfg")); !os.IsNotExist(err) {
 					break
 				}
@@ -58,7 +53,7 @@ func main() {
 
 			// Read in kube config
 			var err error
-			global.Kubeconfig, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
+			global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
 			if err != nil {
 				panic(err)
 			}
@@ -68,19 +63,24 @@ func main() {
 			router := gin.Default()
 			router.Use(cors.Default())
 
-			// Serve frontend static files
-			router.Use(static.Serve("/", static.LocalFile("./web/build", true)))
+			// Setup route group for the innkeeper API endpoint
+			// innkeeperAPI := router.Group(global.INNKEEPER_API_ENDPOINT_PREFIX)
+			// innkeeperAPI.Use(middleware.TokenAuthMiddleware())
+			// {
+			// 	// innkeeperAPI.POST("/resources/extra", innkeeper_handler.PostExtraResourcesHandler)
+			// }
 
-			// Setup route group for the API
-			api := router.Group("/api")
-			{
-				api.GET("/users", handlers.GetUsersHandler)
-				api.GET("/resources/summary", handlers.GetResourceSummaryHandler)
-				api.POST("/resources/register", handlers.PostRegisterUserHandler)
-				api.POST("/resources/extra", handlers.PostExtraResourcesHandler)
-			}
+			// Setup route group for the pilgrim API endpoint
+			// pilgrimAPI := router.Group(global.PILGRIM_API_ENDPOINT_PREFIX)
+
+			// Setup route group for the authentication API endpoint
+			// authAPI := router.Group(global.AUTH_API_ENDPOINT_PREFIX)
+			// {
+			// 	// authAPI.POST()
+			// }
+
 			// Start and run the server
-			router.Run(":5000")
+			router.Run(":8080")
 			return nil
 		},
 	}
@@ -88,4 +88,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func initialize() {
+	// Instantiate global variables
+	global.JWT_SIGNING_KEY = make([]byte, 32)
+	rand.Seed(time.Now().UnixNano())
+	rand.Read(global.JWT_SIGNING_KEY)
+	fmt.Print("global.JWT_SIGNING_KEY: ", string(global.JWT_SIGNING_KEY))
+
+	// Create Postgres Controller
+	dbName := os.Getenv("PGDATABASE")
+	dbHost := os.Getenv("PGHOST")
+	dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
+	dbUser := os.Getenv("PGUSER")
+	dbPassword := os.Getenv("PGDATABASE")
+	global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
 }
