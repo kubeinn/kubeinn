@@ -8,12 +8,12 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - name: http-metrics
-    port: 8080
-    targetPort: http-metrics
-  - name: telemetry
-    port: 8081
-    targetPort: telemetry
+    - name: http-metrics
+      port: 8080
+      targetPort: http-metrics
+    - name: telemetry
+      port: 8081
+      targetPort: telemetry
   selector:
     app.kubernetes.io/name: kube-state-metrics
 ---
@@ -45,10 +45,10 @@ spec:
             timeoutSeconds: 5
           name: kube-state-metrics
           ports:
-          - containerPort: 8080
-            name: http-metrics
-          - containerPort: 8081
-            name: telemetry
+            - containerPort: 8080
+              name: http-metrics
+            - containerPort: 8081
+              name: telemetry
           readinessProbe:
             httpGet:
               path: /

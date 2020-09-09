@@ -1,0 +1,68 @@
+# # NodePort is for debugging purposes
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: crossroads-node-port-service
+# spec:
+#   type: NodePort
+#   ports:
+#     - port: 80
+#       targetPort: 80
+#       nodePort: 30000
+#   selector:
+#     component: crossroads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crossroads-cluster-ip-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    component: crossroads
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crossroads-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: crossroads
+  template:
+    metadata:
+      labels:
+        component: crossroads
+    spec:
+      containers:
+        - name: crossroads
+          image: jordan396/crossroads
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: tmp-files
+              mountPath: "/usr/share/nginx/html/config"
+      initContainers:
+        - name: create-env-config
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              "cp /configmap/.env /tmp/files/ && cp /configmap/env.sh /tmp/files/ && cd /tmp/files/ && /bin/sh ./env.sh",
+            ]
+          volumeMounts:
+            - name: react-env-volume
+              mountPath: "/configmap"
+              readOnly: true
+            - name: tmp-files
+              mountPath: "/tmp/files"
+      volumes:
+        - name: react-env-volume
+          configMap:
+            name: react-env-conf
+        - name: tmp-files
+          emptyDir: {}

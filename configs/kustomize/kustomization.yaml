@@ -16,7 +16,7 @@ namePrefix: kubeinn-
 # "wordpress" becomes "wordpress-v2".
 # The suffix is appended before content hash
 # if resource type is ConfigMap or Secret.
-nameSuffix: -v1.0.0-a.1
+nameSuffix: -v-1-0-0-a-1
 
 # Labels to add to all resources and selectors.
 # commonLabels:
@@ -36,20 +36,18 @@ nameSuffix: -v1.0.0-a.1
 # YAML string, with resources separated by document
 # markers ("---").
 resources:
-- ./manifests/base.yaml
-- ./manifests/postgres/postgres.yaml
-- ./manifests/postgrest/postgrest.yaml
-- ./manifests/metrics/prometheus.yaml
-- ./manifests/metrics/kube-state-metrics.yaml
-- ./manifests/metrics/node-exporter.yaml
-- ./manifests/metrics/grafana.yaml
-- ./manifests/innkeeper/innkeeper.yaml
-- ./manifests/pilgrim/pilgrim.yaml
-- ./manifests/schutterij/schutterij.yaml
-- ./manifests/crossroads/crossroads.yaml
-- ./manifests/nginx/ingress-controller.yaml
-- ./manifests/nginx/ingress-service.yaml
-
+  - ./manifests/base.yaml
+  - ./manifests/postgres/postgres.yaml
+  - ./manifests/postgrest/postgrest.yaml
+  - ./manifests/metrics/prometheus.yaml
+  - ./manifests/metrics/kube-state-metrics.yaml
+  - ./manifests/metrics/node-exporter.yaml
+  - ./manifests/metrics/grafana.yaml
+  - ./manifests/innkeeper/innkeeper.yaml
+  - ./manifests/pilgrim/pilgrim.yaml
+  - ./manifests/schutterij/schutterij.yaml
+  - ./manifests/crossroads/crossroads.yaml
+  - ./manifests/ingress/ingress-service.yaml
 
 # Each entry in this list results in the creation of
 # one ConfigMap resource (it's a generator of n maps).
@@ -60,25 +58,28 @@ resources:
 # behavior: [create|replace|merge]. This allows an overlay to modify or
 # replace an existing configMap from the parent.
 configMapGenerator:
-- name: postgres-conf
-  files:
-  - ./config_map_data/postgres/postgres.properties
-- name: postgres-init-db-conf
-  files:
-  - ./config_map_data/postgres/10-init.sql
-- name: postgrest-conf
-  files:
-  - ./config_map_data/postgrest/postgrest.conf
-- name: prometheus-conf
-  files:
-  - ./config_map_data/prometheus/prometheus.yaml
+  - name: postgres-conf
+    env: ./config_map_data/postgres/postgres.env
+  - name: postgres-init-db-conf
+    files:
+      - ./config_map_data/postgres/10-init.sql
+  - name: postgrest-conf
+    files:
+      - ./config_map_data/postgrest/postgrest.conf
+  - name: prometheus-conf
+    files:
+      - ./config_map_data/prometheus/prometheus.yaml
+  - name: react-env-conf
+    files:
+      - ./config_map_data/react-env/.env
+      - ./config_map_data/react-env/env.sh
 
 # Each entry in this list results in the creation of
 # one Secret resource (it's a generator of n secrets).
 secretGenerator:
-- name: pgpassword
-  literals:
-  - POSTGRES_PASSWORD=pgpassword
+  - name: pgpassword
+    literals:
+      - POSTGRES_PASSWORD=pgpassword
 
 # generatorOptions modify behavior of all ConfigMap and Secret generators
 generatorOptions:
@@ -200,69 +201,74 @@ generatorOptions:
 # object in a container's command line, and the name of a
 # k8s Secret object in a container's environment variable,
 # so that the following would work:
-# 
+#
 #   containers:
 #     - image: myimage
 #       command: ["start", "--host", "$(MY_SERVICE_NAME)"]
 #       env:
 #         - name: SECRET_TOKEN
 #           value: $(SOME_SECRET_NAME)
-# 
+#
 #
 # To do so, add an entry to `vars:` as follows:
 #
 vars:
-- name: CROSSROADS_CLUSTER_IP_SERVICE
-  objref:
-    kind: Service
-    name: crossroads-cluster-ip-service
-    apiVersion: v1
-- name: INNKEEPER_CLUSTER_IP_SERVICE
-  objref:
-    kind: Service
-    name: innkeeper-cluster-ip-service
-    apiVersion: v1
-- name: PILGRIM_CLUSTER_IP_SERVICE
-  objref:
-    kind: Service
-    name: pilgrim-cluster-ip-service
-    apiVersion: v1
-- name: SCHUTTERIJ_CLUSTER_IP_SERVICE
-  objref:
-    kind: Service
-    name: schutterij-cluster-ip-service
-    apiVersion: v1
-- name: POSTGREST_CLUSTER_IP_SERVICE
-  objref:
-    kind: Service
-    name: postgrest-cluster-ip-service
-    apiVersion: v1
-- name: POSTGRES_CLUSTER_IP_SERVICE
-  objref:
-    kind: Service
-    name: postgres-cluster-ip-service
-    apiVersion: v1
-  # fieldref:
-  #   fieldpath: metadata.name
-  # - name: SOME_SECRET_NAME
-  #   objref:
-  #     kind: Secret
-  #     name: my-secret
-  #     apiVersion: v1
-  # - name: MY_SERVICE_NAME
-  #   objref:
-  #     kind: Service
-  #     name: my-service
-  #     apiVersion: v1
-  #   fieldref:
-  #     fieldpath: metadata.name
-  # - name: ANOTHER_DEPLOYMENTS_POD_RESTART_POLICY
-  #   objref:
-  #     kind: Deployment
-  #     name: my-deployment
-  #     apiVersion: apps/v1
-  #   fieldref:
-  #     fieldpath: spec.template.spec.restartPolicy
+  - name: CROSSROADS_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: crossroads-cluster-ip-service
+      apiVersion: v1
+  - name: INNKEEPER_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: innkeeper-cluster-ip-service
+      apiVersion: v1
+  - name: PILGRIM_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: pilgrim-cluster-ip-service
+      apiVersion: v1
+  - name: SCHUTTERIJ_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: schutterij-cluster-ip-service
+      apiVersion: v1
+  - name: POSTGREST_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: postgrest-cluster-ip-service
+      apiVersion: v1
+  - name: POSTGRES_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: postgres-cluster-ip-service
+      apiVersion: v1
+  - name: GRAFANA_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: grafana-cluster-ip-service
+      apiVersion: v1
+    # fieldref:
+    #   fieldpath: metadata.name
+    # - name: SOME_SECRET_NAME
+    #   objref:
+    #     kind: Secret
+    #     name: my-secret
+    #     apiVersion: v1
+    # - name: MY_SERVICE_NAME
+    #   objref:
+    #     kind: Service
+    #     name: my-service
+    #     apiVersion: v1
+    #   fieldref:
+    #     fieldpath: metadata.name
+    # - name: ANOTHER_DEPLOYMENTS_POD_RESTART_POLICY
+    #   objref:
+    #     kind: Deployment
+    #     name: my-deployment
+    #     apiVersion: apps/v1
+    #   fieldref:
+    #     fieldpath: spec.template.spec.restartPolicy
 #
 # A var is a tuple of variable name, object reference and field
 # reference within that object.  That's where the text is found.
@@ -291,10 +297,9 @@ vars:
 # if kustomize changes the name of a ConfigMap, it knows
 # to change the name reference in the Deployment.
 
-
 # # Images modify the name, tags and/or digest for images without creating patches.
 # # E.g. Given this kubernetes Deployment fragment:
-# # 
+# #
 # #  containers:
 # #    - name: mypostgresdb
 # #      image: postgres:8
@@ -306,7 +311,7 @@ vars:
 # #      image: alpine:3.7
 # #
 # # one can change the `image` in the following ways:
-# # 
+# #
 # # - `postgres:8` to `my-registry/my-postgres:v1`,
 # # - nginx tag `1.7.9` to `1.8.0`,
 # # - image name `my-demo-app` to `my-app`,

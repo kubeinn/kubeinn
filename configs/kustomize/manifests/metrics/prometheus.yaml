@@ -3,15 +3,15 @@ kind: Service
 metadata:
   name: prometheus-cluster-ip-service
   annotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port:   '9090'
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
 spec:
-    type: ClusterIP
-    selector:
-      app: prometheus
-    ports:
-        - port: 8080
-          targetPort: 9090
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+    - port: 8080
+      targetPort: 9090
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,7 +31,7 @@ spec:
         - name: prometheus
           image: prom/prometheus:v2.2.1
           args:
-            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--config.file=/etc/prometheus/prometheus.yaml"
             # - "--storage.tsdb.path=/prometheus/"
           ports:
             - containerPort: 9090

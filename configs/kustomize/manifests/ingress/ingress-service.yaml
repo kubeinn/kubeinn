@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /innkeeper
+            backend:
+              serviceName: innkeeper-cluster-ip-service
+              servicePort: 80
+          - path: /pilgrim
+            backend:
+              serviceName: pilgrim-cluster-ip-service
+              servicePort: 80
+          - path: /grafana
+            backend:
+              serviceName: grafana-cluster-ip-service
+              servicePort: 3000
+          - path: /api
+            backend:
+              serviceName: schutterij-cluster-ip-service
+              servicePort: 8080
+          - path: /
+            backend:
+              serviceName: crossroads-cluster-ip-service
+              servicePort: 80

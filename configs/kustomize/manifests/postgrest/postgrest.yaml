@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgrest-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: postgrest
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgrest-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgrest
+  template:
+    metadata:
+      labels:
+        component: postgrest
+    spec:
+      containers:
+        - name: postgrest
+          image: postgrest/postgrest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: tmp-files
+              mountPath: "/etc/postgrest.conf"
+              subPath: "postgrest.conf"
+      initContainers:
+        - name: set-db-uri
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              cp /configmap/postgrest.conf /tmp/files/ && echo "db-uri = \"postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)\"" >> /tmp/files/postgrest.conf,
+            ]
+          env:
+            - name: PGHOST
+              value: $(POSTGRES_CLUSTER_IP_SERVICE)
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGUSER
+            - name: PGPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGPORT
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGDATABASE
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgrest-conf
+              mountPath: "/configmap"
+              readOnly: true
+            - name: tmp-files
+              mountPath: "/tmp/files"
+      volumes:
+        - name: postgrest-conf
+          configMap:
+            name: postgrest-conf
+        - name: tmp-files
+          emptyDir: {}
