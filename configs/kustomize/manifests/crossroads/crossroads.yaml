@@ -38,6 +38,7 @@ spec:
       labels:
         component: crossroads
     spec:
+      serviceAccountName: service-account
       containers:
         - name: crossroads
           image: jordan396/crossroads

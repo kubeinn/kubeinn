@@ -39,10 +39,10 @@ resources:
   - ./manifests/base.yaml
   - ./manifests/postgres/postgres.yaml
   - ./manifests/postgrest/postgrest.yaml
-  - ./manifests/metrics/prometheus.yaml
   - ./manifests/metrics/kube-state-metrics.yaml
   - ./manifests/metrics/node-exporter.yaml
-  - ./manifests/metrics/grafana.yaml
+  - ./manifests/metrics/prometheus.yaml
+  - ./manifests/grafana/grafana.yaml
   - ./manifests/innkeeper/innkeeper.yaml
   - ./manifests/pilgrim/pilgrim.yaml
   - ./manifests/schutterij/schutterij.yaml
@@ -73,6 +73,15 @@ configMapGenerator:
     files:
       - ./config_map_data/react-env/.env
       - ./config_map_data/react-env/env.sh
+  - name: grafana-dashboards-prov-conf
+    files:
+      - ./config_map_data/grafana/provisioning/dashboards.yaml
+  - name: grafana-datasources-prov-conf
+    files:
+      - ./config_map_data/grafana/provisioning/datasources.yaml
+  - name: grafana-dashboards-data-conf
+    files:
+      - ./config_map_data/grafana/data/node-exporter.json
 
 # Each entry in this list results in the creation of
 # one Secret resource (it's a generator of n secrets).
@@ -247,6 +256,11 @@ vars:
     objref:
       kind: Service
       name: grafana-cluster-ip-service
+      apiVersion: v1
+  - name: PROMETHEUS_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: prometheus-cluster-ip-service
       apiVersion: v1
     # fieldref:
     #   fieldpath: metadata.name

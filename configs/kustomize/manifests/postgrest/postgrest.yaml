@@ -24,6 +24,7 @@ spec:
       labels:
         component: postgrest
     spec:
+      serviceAccountName: service-account
       containers:
         - name: postgrest
           image: postgrest/postgrest

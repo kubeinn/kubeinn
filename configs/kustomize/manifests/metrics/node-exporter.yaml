@@ -30,6 +30,7 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
+      serviceAccountName: service-account
       containers:
         - image: prom/node-exporter:v1.0.1
           name: node-exporter

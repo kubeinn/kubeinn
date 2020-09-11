@@ -16,3 +16,5 @@
 
 # Application specific
 generated_config.yaml
+./configs/kustomize/config_map_data/grafana/data
+configs/kustomize/config_map_data/grafana/data

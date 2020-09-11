@@ -1,3 +1,17 @@
+# NodePort is for debugging purposes
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-node-port-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30001
+  selector:
+    app: prometheus
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,7 +24,7 @@ spec:
   selector:
     app: prometheus
   ports:
-    - port: 8080
+    - port: 9090
       targetPort: 9090
 ---
 apiVersion: apps/v1
@@ -27,6 +41,7 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccountName: service-account
       containers:
         - name: prometheus
           image: prom/prometheus:v2.2.1

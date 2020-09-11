@@ -24,6 +24,7 @@ spec:
       labels:
         component: schutterij
     spec:
+      serviceAccountName: service-account
       containers:
         - name: schutterij
           image: jordan396/schutterij

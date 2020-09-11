@@ -38,6 +38,7 @@ spec:
       labels:
         component: pilgrim
     spec:
+      serviceAccountName: service-account
       containers:
         - name: pilgrim
           image: jordan396/pilgrim

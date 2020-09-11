@@ -35,6 +35,7 @@ spec:
       labels:
         component: postgres
     spec:
+      serviceAccountName: service-account
       containers:
         - name: postgres
           image: postgres
@@ -46,6 +47,11 @@ spec:
                 secretKeyRef:
                   name: pgpassword
                   key: POSTGRES_PASSWORD
+            - name: PGDATA
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGDATA
           volumeMounts:
             - name: postgres-data-volume
               mountPath: /var/lib/postgresql/data

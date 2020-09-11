@@ -38,6 +38,7 @@ spec:
       labels:
         component: innkeeper
     spec:
+      serviceAccountName: service-account
       containers:
         - name: innkeeper
           image: jordan396/innkeeper

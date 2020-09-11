@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: grafana
+  template:
+    metadata:
+      labels:
+        component: grafana
+    spec:
+      serviceAccountName: service-account
+      initContainers:
+        - name: set-datasource-uri
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              cp /configmap/datasources.yaml /tmp/files/ && echo "http://$(PROMETHEUS_CLUSTER_IP_SERVICE):9090" >> /tmp/files/datasources.yaml,
+            ]
+          env:
+            - name: PROMETHEUS_CLUSTER_IP_SERVICE
+              value: $(PROMETHEUS_CLUSTER_IP_SERVICE)
+          volumeMounts:
+            - name: grafana-datasources-prov-conf
+              mountPath: "/configmap"
+              readOnly: true
+            - name: tmp-files
+              mountPath: "/tmp/files"
+      containers:
+        - name: grafana
+          image: grafana/grafana:7.1.5
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ALLOW_EMBEDDING
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_SERVER_ROOT_URL
+              value: "http://localhost:3000/grafana"
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+          volumeMounts:
+            - name: tmp-files
+              mountPath: "/etc/grafana/provisioning/datasources"
+              readOnly: true
+            - name: grafana-dashboards-prov-conf
+              mountPath: "/etc/grafana/provisioning/dashboards"
+              readOnly: true
+            - name: grafana-dashboards-data-conf
+              mountPath: "/var/lib/grafana/dashboards"
+              readOnly: true
+      volumes:
+        - name: grafana-dashboards-prov-conf
+          configMap:
+            name: grafana-dashboards-prov-conf
+        - name: grafana-datasources-prov-conf
+          configMap:
+            name: grafana-datasources-prov-conf
+        - name: grafana-dashboards-data-conf
+          configMap:
+            name: grafana-dashboards-data-conf
+        - name: tmp-files
+          emptyDir: {}
