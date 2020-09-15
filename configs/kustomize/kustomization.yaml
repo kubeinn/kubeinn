@@ -63,6 +63,7 @@ configMapGenerator:
   - name: postgres-init-db-conf
     files:
       - ./config_map_data/postgres/10-init.sql
+      - ./config_map_data/postgres/20-insert.sql
   - name: postgrest-conf
     files:
       - ./config_map_data/postgrest/postgrest.conf

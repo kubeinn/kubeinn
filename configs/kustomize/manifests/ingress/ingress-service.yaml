@@ -1,19 +1,10 @@
-# Strip prefix /postgrest 
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: ingress-stripprefix
-spec:
-  stripPrefix:
-    prefixes:
-      - /postgrest
----
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress-service
   annotations:
-    kubernetes.io/ingress.class: traefik
+    kubernetes.io/ingress.class: "traefik"
+    # traefik.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
     - http:
@@ -30,13 +21,9 @@ spec:
             backend:
               serviceName: grafana-cluster-ip-service
               servicePort: 3000
-          - path: /api
+          - path: /schutterij
             backend:
               serviceName: schutterij-cluster-ip-service
-              servicePort: 8080
-          - path: /postgrest
-            backend:
-              serviceName: postgrest-cluster-ip-service
               servicePort: 8080
           - path: /
             backend:
