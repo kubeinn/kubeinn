@@ -1,12 +1,13 @@
-# pilgrim-ui
+# pilgrim
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Building the Image
 ```
-docker build -t jordan396/pilgrim-ui .
-docker run jordan396/pilgrim-ui
-docker push jordan396/pilgrim-ui
+npm run build ./build/
+docker build -t jordan396/pilgrim .
+docker run jordan396/pilgrim
+docker push jordan396/pilgrim
 ```
 
 ## Available Scripts
