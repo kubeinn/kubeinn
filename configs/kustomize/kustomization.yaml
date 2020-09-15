@@ -79,9 +79,6 @@ configMapGenerator:
   - name: grafana-datasources-prov-conf
     files:
       - ./config_map_data/grafana/provisioning/datasources.yaml
-  - name: grafana-dashboards-data-conf
-    files:
-      - ./config_map_data/grafana/data/node-exporter.json
 
 # Each entry in this list results in the creation of
 # one Secret resource (it's a generator of n secrets).

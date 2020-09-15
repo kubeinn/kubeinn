@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS api.pilgrims (
     email VARCHAR(30) NOT NULL,
     passwd CHAR(60) NOT NULL,
     villageID INTEGER,
-    CONSTRAINT fk_village FOREIGN KEY(villageID) REFERENCES villages(villageID)
+    CONSTRAINT fk_village FOREIGN KEY(villageID) REFERENCES api.villages(villageID)
 );
 CREATE TABLE IF NOT EXISTS api.innkeepers (
     innkeeperID SERIAL PRIMARY KEY,
