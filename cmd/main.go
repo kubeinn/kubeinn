@@ -4,6 +4,7 @@ import (
 	// "context"
 	// "net/http"
 	"fmt"
+	// "http"
 	"log"
 	"math/rand"
 	"os"
@@ -20,7 +21,7 @@ import (
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
 	urfavecli "github.com/urfave/cli/v2"
-	clientcmd "k8s.io/client-go/tools/clientcmd"
+	// clientcmd "k8s.io/client-go/tools/clientcmd"
 	homedir "k8s.io/client-go/util/homedir"
 )
 
@@ -43,20 +44,20 @@ func main() {
 			},
 		},
 		Action: func(c *urfavecli.Context) error {
-			for {
-				fmt.Println("Waiting for kubeconfig to be uploaded...")
-				if _, err := os.Stat(c.String("kubecfg")); !os.IsNotExist(err) {
-					break
-				}
-				time.Sleep(5 * time.Second)
-			}
+			// for {
+			// 	fmt.Println("Waiting for kubeconfig to be uploaded...")
+			// 	if _, err := os.Stat(c.String("kubecfg")); !os.IsNotExist(err) {
+			// 		break
+			// 	}
+			// 	time.Sleep(5 * time.Second)
+			// }
 
 			// Read in kube config
-			var err error
-			global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
-			if err != nil {
-				panic(err)
-			}
+			// var err error
+			// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
+			// if err != nil {
+			// 	panic(err)
+			// }
 
 			// Start web server
 			// Set the router as the default one shipped with Gin
@@ -78,6 +79,10 @@ func main() {
 			// {
 			// 	// authAPI.POST()
 			// }
+
+			router.GET("/", func(c *gin.Context) {
+				c.String(200, "ok")
+			})
 
 			// Start and run the server
 			router.Run(":8080")
