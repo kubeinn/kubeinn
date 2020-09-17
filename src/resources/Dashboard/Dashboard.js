@@ -12,7 +12,7 @@ class Dashboard extends React.Component {
                 <Card>
                     <Title title="Dashboard" />
                     <CardContent min-height="100vh">
-                        <iframe title="grafana" src={window._env_.KUBEINN_GRAFANA_URL} style={{width: "100%", height: "100vh"}}/>
+                        {/* <iframe title="grafana" src={window._env_.KUBEINN_GRAFANA_URL} style={{width: "100%", height: "100vh"}}/> */}
                     </CardContent>
                 </Card >
             </div>

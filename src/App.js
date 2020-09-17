@@ -1,30 +1,34 @@
 import * as React from "react";
 import './App.css';
-import { Admin, Resource, ListGuesser } from 'react-admin';
-import simpleRestProvider from 'ra-data-simple-rest';
-import createHistory from 'history/createBrowserHistory';
+import history from "./history";
+import { Admin, Resource } from 'react-admin';
 // import customRoutes from './routes';
 
-import Dashboard from './Components/Dashboard/Dashboard';
-import AuthProvider from './Components/AuthProvider/AuthProvider';
+import Dashboard from './resources/Dashboard/Dashboard';
+import DataProvider from './api/DataProvider/DataProvider';
+import AuthProvider from './api/AuthProvider/AuthProvider';
+import { InnkeeperList, InnkeeperEdit } from './resources/Innkeepers/Innkeeper';
+import { PilgrimList } from './resources/Pilgrims/PilgrimList';
+import { VillageList } from './resources/Villages/VillageList';
+import { TicketList } from './resources/Tickets/TicketList';
+import { ProjectList } from './resources/Projects/ProjectList';
 
-import GroupIcon from '@material-ui/icons/Group';
+import HouseIcon from '@material-ui/icons/House';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 
-const dataProvider = simpleRestProvider(window._env_.KUBEINN_POSTGREST_URL);
-const history = createHistory({ basename: 'innkeeper' });
+const dataProvider = DataProvider;
 
 function App() {
   return (
     <Admin history={history} dashboard={Dashboard} authProvider={AuthProvider} dataProvider={dataProvider}>
-      <Resource name="villages" icon={GroupIcon} list={ListGuesser} />
-      <Resource name="pilgrims" icon={SupervisedUserCircleIcon} list={ListGuesser} />
-      <Resource name="innkeepers" icon={SupervisorAccountIcon} list={ListGuesser} />
-      <Resource name="projects" icon={LibraryBooksIcon} list={ListGuesser} />
-      <Resource name="tickets" icon={ContactSupportIcon} list={ListGuesser} />
+      <Resource name="villages" icon={HouseIcon} list={VillageList} />
+      <Resource name="pilgrims" icon={SupervisedUserCircleIcon} list={PilgrimList} />
+      <Resource name="innkeepers" icon={SupervisorAccountIcon} list={InnkeeperList} edit={InnkeeperEdit} />
+      <Resource name="projects" icon={LibraryBooksIcon} list={ProjectList} />
+      <Resource name="tickets" icon={ContactSupportIcon} list={TicketList} />
     </Admin>
   );
 }
