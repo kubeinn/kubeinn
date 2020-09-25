@@ -20,21 +20,9 @@ import {
     SelectInput,
     SimpleForm,
     TextInput,
+    PasswordInput,
     Filter,
 } from 'react-admin';
-
-export const InnkeeperEdit = props => (
-    <Edit {...props}>
-        <SimpleForm>
-            <TextInput disabled source="id" />
-            <ReferenceInput source="id" reference="id">
-                <SelectInput optionText="name" />
-            </ReferenceInput>
-            <TextInput source="username" />
-            <TextInput source="email" />
-        </SimpleForm>
-    </Edit>
-);
 
 export const InnkeeperList = props => (
     <List {...props} >
@@ -42,7 +30,32 @@ export const InnkeeperList = props => (
             <NumberField source="id" />
             <TextField source="username" />
             <EmailField source="email" />
-            <EditButton />
         </Datagrid>
     </List>
 );
+
+export const InnkeeperCreate = props => (
+    <Create {...props}>
+        <SimpleForm>
+            {/* <ReferenceInput source="userId" reference="users">
+                <SelectInput optionText="name" />
+            </ReferenceInput> */}
+            <TextInput source="username" />
+            <TextInput source="email" />
+            <PasswordInput title="password" source="passwd" />
+        </SimpleForm>
+    </Create>
+);
+
+// export const InnkeeperEdit = props => (
+//     <Edit {...props}>
+//         <SimpleForm>
+//             <TextInput disabled source="id" />
+//             <ReferenceInput source="id" reference="id">
+//                 <SelectInput optionText="name" />
+//             </ReferenceInput>
+//             <TextInput source="username" />
+//             <TextInput source="email" />
+//         </SimpleForm>
+//     </Edit>
+// );

@@ -7,7 +7,7 @@ import { Admin, Resource } from 'react-admin';
 import Dashboard from './resources/Dashboard/Dashboard';
 import DataProvider from './api/DataProvider/DataProvider';
 import AuthProvider from './api/AuthProvider/AuthProvider';
-import { InnkeeperList, InnkeeperEdit } from './resources/Innkeepers/Innkeeper';
+import { InnkeeperList, InnkeeperEdit, InnkeeperCreate } from './resources/Innkeepers/Innkeeper';
 import { PilgrimList } from './resources/Pilgrims/PilgrimList';
 import { VillageList } from './resources/Villages/VillageList';
 import { TicketList } from './resources/Tickets/TicketList';
@@ -26,7 +26,7 @@ function App() {
     <Admin history={history} dashboard={Dashboard} authProvider={AuthProvider} dataProvider={dataProvider}>
       <Resource name="villages" icon={HouseIcon} list={VillageList} />
       <Resource name="pilgrims" icon={SupervisedUserCircleIcon} list={PilgrimList} />
-      <Resource name="innkeepers" icon={SupervisorAccountIcon} list={InnkeeperList} edit={InnkeeperEdit} />
+      <Resource name="innkeepers" icon={SupervisorAccountIcon} list={InnkeeperList} create={InnkeeperCreate} />
       <Resource name="projects" icon={LibraryBooksIcon} list={ProjectList} />
       <Resource name="tickets" icon={ContactSupportIcon} list={TicketList} />
     </Admin>
