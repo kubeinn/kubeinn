@@ -11,10 +11,9 @@ var PG_CONTROLLER dbcontroller.PostgresController
 
 var KUBE_CONFIG *rest.Config
 
-const JWT_SUBJECT_INNKEEPER string = "innkeeper"
-const JWT_SUBJECT_PILGRIM string = "pilgrim"
-const JWT_SUBJECT_AUTH string = "auth"
+const JWT_AUDIENCE_INNKEEPER string = "innkeeper"
+const JWT_AUDIENCE_PILGRIM string = "pilgrim"
 
-const INNKEEPER_API_ENDPOINT_PREFIX string = "/api/innkeeper"
-const PILGRIM_API_ENDPOINT_PREFIX string = "/api/pilgrim"
-const AUTH_API_ENDPOINT_PREFIX string = "/api/auth"
+const AUTHENTICATION_ROUTE_PREFIX string = "/auth"
+const INNKEEPER_ROUTE_PREFIX string = "/innkeeper"
+const PILGRIM_ROUTE_PREFIX string = "/pilgrim"

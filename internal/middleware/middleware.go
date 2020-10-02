@@ -1,24 +1,26 @@
 package middleware
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	gin "github.com/gin-gonic/gin"
 	global "github.com/kubeinn/schutterij/internal/global"
+	"log"
 	"net/http"
 	"strings"
 )
-
-func respondWithError(c *gin.Context, code int, message interface{}) {
-	c.AbortWithStatusJSON(code, gin.H{"error": message})
-}
 
 // TokenAuthMiddleware is ...
 func TokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Retrieve token from header
 		tokenString := c.Request.Header.Get("Authorization")
+		if tokenString == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "No Authorization header provided."})
+			return
+		}
+
 		claims := jwt.MapClaims{}
 		urlPath := c.Request.URL.Path
 
@@ -33,35 +35,41 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			})
 
 		if err != nil {
-			c.AbortWithError(http.StatusUnauthorized, err)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": err.Error()})
+			return
 		}
 
 		// Parse claims
 		claims, ok := token.Claims.(jwt.MapClaims)
-
 		if ok && token.Valid {
 			// Check if sub is present in claims
-			subject, ok := claims["sub"]
+			audience, ok := claims["aud"]
 			if !ok {
-				c.AbortWithError(http.StatusUnauthorized, errors.New("jwt does not contain the subject field"))
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the audience field."})
+				return
 			}
+			str := fmt.Sprintf("%v", claims["aud"])
+			log.Println("audience: " + str)
 
 			// Validate innkeeper privileges
-			if strings.HasPrefix(urlPath, global.INNKEEPER_API_ENDPOINT_PREFIX) {
-				if subject != global.JWT_SUBJECT_INNKEEPER {
-					c.AbortWithError(http.StatusUnauthorized, errors.New("JWT does not contain the necessary privileges"))
+			if strings.HasPrefix(urlPath, global.INNKEEPER_ROUTE_PREFIX) {
+				if audience != global.JWT_AUDIENCE_INNKEEPER {
+					c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the necessary privileges."})
+					return
 				}
 			}
 
 			// Validate pilgrim privileges
-			if strings.HasPrefix(urlPath, global.PILGRIM_API_ENDPOINT_PREFIX) {
-				if subject == global.JWT_SUBJECT_INNKEEPER || subject == global.JWT_SUBJECT_PILGRIM {
+			if strings.HasPrefix(urlPath, global.PILGRIM_ROUTE_PREFIX) {
+				if audience == global.JWT_AUDIENCE_INNKEEPER || audience == global.JWT_AUDIENCE_PILGRIM {
 				} else {
-					c.AbortWithError(http.StatusUnauthorized, errors.New("JWT does not contain the necessary privileges"))
+					c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the necessary privileges."})
+					return
 				}
 			}
 		} else {
-			c.AbortWithError(http.StatusUnauthorized, errors.New("invalid subject provided in JWT"))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid audience provided in the JWT."})
+			return
 		}
 	}
 }

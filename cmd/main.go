@@ -3,20 +3,20 @@ package main
 import (
 	// "context"
 	// "net/http"
-	"fmt"
 	// "http"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"strconv"
+	// "strconv"
 	"time"
 
-	// innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
+	innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
 	// pilgrim_handler "github.com/kubeinn/schutterij/internal/api/pilgrim"
-	db_controller "github.com/kubeinn/schutterij/internal/controllers/DBController"
+	auth_handler "github.com/kubeinn/schutterij/internal/api/auth"
+	// db_controller "github.com/kubeinn/schutterij/internal/controllers/DBController"
 	global "github.com/kubeinn/schutterij/internal/global"
-	// middleware "github.com/kubeinn/schutterij/internal/middleware"
+	middleware "github.com/kubeinn/schutterij/internal/middleware"
 
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
@@ -33,7 +33,7 @@ func main() {
 	// Run the application
 	app := &urfavecli.App{
 		Name:  "Schutterij",
-		Usage: "API endpoint for kubeinn multi-tenancy manager for Kubernetes.",
+		Usage: "API endpoint for KubeInn multi-tenancy manager for Kubernetes.",
 		Flags: []urfavecli.Flag{
 			&urfavecli.StringFlag{
 				Name:        "kubecfg",
@@ -52,7 +52,7 @@ func main() {
 			// 	time.Sleep(5 * time.Second)
 			// }
 
-			// Read in kube config
+			// // Read in kube config
 			// var err error
 			// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
 			// if err != nil {
@@ -65,24 +65,24 @@ func main() {
 			router.Use(cors.Default())
 
 			// Setup route group for the innkeeper API endpoint
-			// innkeeperAPI := router.Group(global.INNKEEPER_API_ENDPOINT_PREFIX)
+			innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX)
+			innkeeperAPI.Use(middleware.TokenAuthMiddleware())
+			{
+				innkeeperAPI.GET("/test", innkeeper_handler.GetTestValidation)
+			}
+
+			// // Setup route group for the pilgrim API endpoint
+			// innkeeperAPI := router.Group(global.PILGRIM_ROUTE_PREFIX)
 			// innkeeperAPI.Use(middleware.TokenAuthMiddleware())
 			// {
-			// 	// innkeeperAPI.POST("/resources/extra", innkeeper_handler.PostExtraResourcesHandler)
+			// 	innkeeperAPI.POST("/", innkeeper_handler.PostExtraResourcesHandler)
 			// }
-
-			// Setup route group for the pilgrim API endpoint
-			// pilgrimAPI := router.Group(global.PILGRIM_API_ENDPOINT_PREFIX)
 
 			// Setup route group for the authentication API endpoint
-			// authAPI := router.Group(global.AUTH_API_ENDPOINT_PREFIX)
-			// {
-			// 	// authAPI.POST()
-			// }
-
-			router.GET("/", func(c *gin.Context) {
-				c.String(200, "ok")
-			})
+			authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
+			{
+				authAPI.POST("/validate-user", auth_handler.PostValidateCredentialsHandler)
+			}
 
 			// Start and run the server
 			router.Run(":8080")
@@ -100,13 +100,13 @@ func initialize() {
 	global.JWT_SIGNING_KEY = make([]byte, 32)
 	rand.Seed(time.Now().UnixNano())
 	rand.Read(global.JWT_SIGNING_KEY)
-	fmt.Print("global.JWT_SIGNING_KEY: ", string(global.JWT_SIGNING_KEY))
+	log.Println("global.JWT_SIGNING_KEY: ", string(global.JWT_SIGNING_KEY))
 
 	// Create Postgres Controller
-	dbName := os.Getenv("PGDATABASE")
-	dbHost := os.Getenv("PGHOST")
-	dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
-	dbUser := os.Getenv("PGUSER")
-	dbPassword := os.Getenv("PGDATABASE")
-	global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
+	// dbName := os.Getenv("PGDATABASE")
+	// dbHost := os.Getenv("PGHOST")
+	// dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
+	// dbUser := os.Getenv("PGUSER")
+	// dbPassword := os.Getenv("PGDATABASE")
+	// global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
 }
