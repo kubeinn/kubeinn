@@ -20,6 +20,7 @@ import {
     SelectInput,
     SimpleForm,
     TextInput,
+    PasswordInput,
     Filter,
 } from 'react-admin';
 
@@ -31,4 +32,14 @@ export const PilgrimList = props => (
             <EmailField source="email" />
         </Datagrid>
     </List>
+);
+
+export const PilgrimCreate = props => (
+    <Create {...props}>
+        <SimpleForm>
+            <TextInput source="username" />
+            <TextInput source="email" />
+            <PasswordInput label="Password" source="passwd" helperText="Default password: pilgrim" initiallyVisible />
+        </SimpleForm>
+    </Create>
 );

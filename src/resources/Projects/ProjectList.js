@@ -20,6 +20,7 @@ import {
     SelectInput,
     SimpleForm,
     TextInput,
+    NumberInput,
     Filter,
 } from 'react-admin';
 
@@ -34,4 +35,16 @@ export const ProjectList = props => (
             <NumberField source="storage" />
         </Datagrid>
     </List>
+);
+
+export const ProjectCreate = props => (
+    <Create {...props}>
+        <SimpleForm>
+            <TextInput source="title" />
+            <TextInput source="details" fullWidth='true' />
+            <NumberInput source="cpu" />
+            <NumberInput source="memory" />
+            <NumberInput source="storage" />
+        </SimpleForm>
+    </Create>
 );

@@ -37,12 +37,9 @@ export const InnkeeperList = props => (
 export const InnkeeperCreate = props => (
     <Create {...props}>
         <SimpleForm>
-            {/* <ReferenceInput source="userId" reference="users">
-                <SelectInput optionText="name" />
-            </ReferenceInput> */}
             <TextInput source="username" />
             <TextInput source="email" />
-            <PasswordInput title="password" source="passwd" />
+            <PasswordInput label="Password" source="passwd" helperText="Default password: innkeeper" initiallyVisible/>
         </SimpleForm>
     </Create>
 );

@@ -32,3 +32,12 @@ export const VillageList = props => (
         </Datagrid>
     </List>
 );
+
+export const VillageCreate = props => (
+    <Create {...props}>
+        <SimpleForm>
+            <TextInput source="title" />
+            <TextInput source="details" fullWidth='true'/>
+        </SimpleForm>
+    </Create>
+);

@@ -3,18 +3,18 @@ import { stringify } from 'query-string';
 import axios from 'axios';
 
 // Production
-// const apiUrl = window._env_.KUBEINN_POSTGREST_URL;
-
+// const dataProviderUrl = window._env_.KUBEINN_POSTGREST_URL;
 // Local
-const apiUrl = process.env.REACT_APP_KUBEINN_POSTGREST_URL;
+const dataProviderUrl = process.env.REACT_APP_KUBEINN_POSTGREST_URL;
 
+// Instantiate httpClient
 const httpClient = fetchUtils.fetchJson;
 
 export default {
     getList: (resource, params) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
-        const url = `${apiUrl}/${resource}`;
+        const url = `${dataProviderUrl}/${resource}`;
 
         return axios.get(url, {
             headers: { 'Prefer': 'count=exact' },
@@ -34,7 +34,7 @@ export default {
     },
 
     create: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}`, {
+        httpClient(`${dataProviderUrl}/${resource}`, {
             method: 'POST',
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({
@@ -42,7 +42,7 @@ export default {
         })),
 
     delete: (resource, params) => {
-        const url = `${apiUrl}/${resource}`;
+        const url = `${dataProviderUrl}/${resource}`;
         const paramsId = "eq." + params.id;
 
         return axios.delete(url, {
@@ -60,7 +60,7 @@ export default {
     },
 
     deleteMany: (resource, params) => {
-        const url = `${apiUrl}/${resource}`;
+        const url = `${dataProviderUrl}/${resource}`;
 
         var arrayLength = params.ids.length;
         var paramsId = "(id.eq." + params.ids[0];
@@ -88,14 +88,14 @@ export default {
     //     const query = {
     //         filter: JSON.stringify({ id: params.ids }),
     //     };
-    //     return httpClient(`${apiUrl}/${resource}?${stringify(query)}`, {
+    //     return httpClient(`${dataProviderUrl}/${resource}?${stringify(query)}`, {
     //         method: 'DELETE',
     //         body: JSON.stringify(params.data),
     //     }).then(({ json }) => ({ data: json }));
     // },
 
     // getOne: (resource, params) =>
-    //     httpClient(`${apiUrl}/${resource}/${params.id}`)
+    //     httpClient(`${dataProviderUrl}/${resource}/${params.id}`)
     //     .then(({ json }) => ({
     //         data: json,
     //     })),
@@ -104,7 +104,7 @@ export default {
     //     const query = {
     //         filter: JSON.stringify({ id: params.ids }),
     //     };
-    //     const url = `${apiUrl}/${resource}?${stringify(query)}`;
+    //     const url = `${dataProviderUrl}/${resource}?${stringify(query)}`;
     //     return httpClient(url).then(({ json }) => ({ data: json }));
     // },
 
@@ -119,7 +119,7 @@ export default {
     //             [params.target]: params.id,
     //         }),
     //     };
-    //     const url = `${apiUrl}/${resource}?${stringify(query)}`;
+    //     const url = `${dataProviderUrl}/${resource}?${stringify(query)}`;
 
     //     return httpClient(url).then(({ headers, json }) => ({
     //         data: json,
@@ -128,7 +128,7 @@ export default {
     // },
 
     // update: (resource, params) =>
-    //     httpClient(`${apiUrl}/${resource}/${params.id}`, {
+    //     httpClient(`${dataProviderUrl}/${resource}/${params.id}`, {
     //         method: 'PUT',
     //         body: JSON.stringify(params.data),
     //     }).then(({ json }) => ({ data: json })),
@@ -137,7 +137,7 @@ export default {
     //     const query = {
     //         filter: JSON.stringify({ id: params.ids }),
     //     };
-    //     return httpClient(`${apiUrl}/${resource}?${stringify(query)}`, {
+    //     return httpClient(`${dataProviderUrl}/${resource}?${stringify(query)}`, {
     //         method: 'PUT',
     //         body: JSON.stringify(params.data),
     //     }).then(({ json }) => ({ data: json }));
