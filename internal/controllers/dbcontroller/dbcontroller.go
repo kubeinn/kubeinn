@@ -1,4 +1,4 @@
-package DBController
+package dbcontroller
 
 import (
 	"context"
@@ -25,7 +25,7 @@ func NewPostgresController(dbName string, dbHost string, dbPort int, dbUser stri
 	pg.dbPort = dbPort
 	pg.dbUser = dbUser
 	pg.dbPassword = dbPassword
-	pg.connURL = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbName, dbHost, dbPort, dbUser, dbPassword)
+	pg.connURL = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbName, dbPassword, dbHost, dbPort, dbUser)
 	return &pg
 }
 
@@ -33,7 +33,7 @@ func NewPostgresController(dbName string, dbHost string, dbPort int, dbUser stri
 PILGRIM
 */
 
-func (pg *PostgresController) GetPilgrimPassword(email string) (string, error) {
+func (pg *PostgresController) SelectPilgrimPasswordByUsername(username string) (string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -43,7 +43,7 @@ func (pg *PostgresController) GetPilgrimPassword(email string) (string, error) {
 
 	var password string
 	err = dbpool.QueryRow(context.Background(),
-		"SELECT passwd FROM pilgrims WHERE email=$1", email).Scan(&password)
+		"SELECT passwd FROM api.pilgrims WHERE username=$1", username).Scan(&password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
@@ -55,7 +55,7 @@ func (pg *PostgresController) GetPilgrimPassword(email string) (string, error) {
 INNKEEPER
 */
 
-func (pg *PostgresController) GetInnkeeperPassword(email string) (string, error) {
+func (pg *PostgresController) SelectInnkeeperPasswordByUsername(username string) (string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -65,7 +65,7 @@ func (pg *PostgresController) GetInnkeeperPassword(email string) (string, error)
 
 	var password string
 	err = dbpool.QueryRow(context.Background(),
-		"SELECT passwd FROM innkeepers WHERE email=$1", email).Scan(&password)
+		"SELECT passwd FROM api.innkeepers WHERE username=$1", username).Scan(&password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}

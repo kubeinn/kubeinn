@@ -8,15 +8,16 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	// "strconv"
+	"strconv"
 	"time"
 
 	innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
 	// pilgrim_handler "github.com/kubeinn/schutterij/internal/api/pilgrim"
 	auth_handler "github.com/kubeinn/schutterij/internal/api/auth"
-	// db_controller "github.com/kubeinn/schutterij/internal/controllers/DBController"
+	db_controller "github.com/kubeinn/schutterij/internal/controllers/dbcontroller"
 	global "github.com/kubeinn/schutterij/internal/global"
 	middleware "github.com/kubeinn/schutterij/internal/middleware"
+	test "github.com/kubeinn/schutterij/test"
 
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
@@ -26,7 +27,14 @@ import (
 )
 
 func main() {
+	// Testing
+	test.TestInitEnvironmentVars()
+
+	// Initialize variables
 	initialize()
+
+	// Testing
+	test.TestDatabaseConnection()
 
 	var kubecfg string
 
@@ -100,13 +108,13 @@ func initialize() {
 	global.JWT_SIGNING_KEY = make([]byte, 32)
 	rand.Seed(time.Now().UnixNano())
 	rand.Read(global.JWT_SIGNING_KEY)
-	log.Println("global.JWT_SIGNING_KEY: ", string(global.JWT_SIGNING_KEY))
+	// log.Println("global.JWT_SIGNING_KEY: ", string(global.JWT_SIGNING_KEY))
 
 	// Create Postgres Controller
-	// dbName := os.Getenv("PGDATABASE")
-	// dbHost := os.Getenv("PGHOST")
-	// dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
-	// dbUser := os.Getenv("PGUSER")
-	// dbPassword := os.Getenv("PGDATABASE")
-	// global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
+	dbName := os.Getenv("PGDATABASE")
+	dbHost := os.Getenv("PGHOST")
+	dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
+	dbUser := os.Getenv("PGUSER")
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
 }

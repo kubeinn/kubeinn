@@ -49,13 +49,15 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 
 }
 
+// Internal functions
+
 func validatePilgrimCredentials(username string, password string) (string, error) {
 	// Get password from database
-	// Testing
-	dbPassword := []byte("test-password")
-	dbPasswordHash, err := bcrypt.GenerateFromPassword(dbPassword, bcrypt.DefaultCost)
-	suppliedPassword := []byte(password)
-	err = bcrypt.CompareHashAndPassword(dbPasswordHash, suppliedPassword)
+	dbPassword, err := global.PG_CONTROLLER.SelectPilgrimPasswordByUsername(username)
+	if err != nil {
+		log.Println(err)
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
 	if err != nil {
 		log.Println("Failed to authenticate user: " + username)
 		return "", err
@@ -79,11 +81,11 @@ func validatePilgrimCredentials(username string, password string) (string, error
 
 func validateInnkeeperCredentials(username string, password string) (string, error) {
 	// Get password from database
-	// Testing
-	dbPassword := []byte("test-password")
-	dbPasswordHash, err := bcrypt.GenerateFromPassword(dbPassword, bcrypt.DefaultCost)
-	suppliedPassword := []byte(password)
-	err = bcrypt.CompareHashAndPassword(dbPasswordHash, suppliedPassword)
+	dbPassword, err := global.PG_CONTROLLER.SelectInnkeeperPasswordByUsername(username)
+	if err != nil {
+		log.Println(err)
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
 	if err != nil {
 		log.Println("Failed to authenticate user: " + username)
 		return "", err

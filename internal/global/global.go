@@ -1,7 +1,7 @@
 package global
 
 import (
-	dbcontroller "github.com/kubeinn/schutterij/internal/controllers/DBController"
+	dbcontroller "github.com/kubeinn/schutterij/internal/controllers/dbcontroller"
 	rest "k8s.io/client-go/rest"
 )
 
