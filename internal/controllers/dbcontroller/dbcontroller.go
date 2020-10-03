@@ -47,8 +47,35 @@ func (pg *PostgresController) SelectPilgrimPasswordByUsername(username string) (
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-	fmt.Println(password)
 	return password, err
+}
+
+func (pg *PostgresController) InsertPilgrim(username string, email string, password string) error {
+	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	tx, err := dbpool.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	// Rollback is safe to call even if the tx is already closed, so if
+	// the tx commits successfully, this is a no-op
+	defer tx.Rollback(context.Background())
+
+	_, err = tx.Exec(context.Background(), "INSERT INTO api.pilgrims (username, email, passwd) VALUES ($1, $2, $3)", username, email, password)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /*
@@ -69,6 +96,5 @@ func (pg *PostgresController) SelectInnkeeperPasswordByUsername(username string)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-	fmt.Println(password)
 	return password, err
 }

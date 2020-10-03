@@ -46,7 +46,30 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
 		return
 	}
+}
 
+// PostRegisterPilgrim is ...
+func PostRegisterPilgrim(c *gin.Context) {
+	subject := c.GetHeader("Subject")
+	username := c.Query("username")
+	email := c.Query("email")
+	password := c.Query("password")
+
+	log.Println("===============================")
+	log.Println("subject: " + subject)
+	log.Println("username: " + username)
+	log.Println("email: " + email)
+	log.Println("password: " + password)
+	log.Println("===============================")
+
+	err := registerPilgrim(username, email, password)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
+		return
+	}
+	// Registration successful
+	c.JSON(http.StatusOK, gin.H{"Message": "User registered successfully."})
 }
 
 // Internal functions
@@ -107,7 +130,19 @@ func validateInnkeeperCredentials(username string, password string) (string, err
 	return ss, nil
 }
 
-func registerPilgrim(username string, password string) (bool, error) {
+func registerPilgrim(username string, email string, password string) error {
+	// Hash password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println("Failed to hash password: " + err.Error())
+		return err
+	}
+	err = global.PG_CONTROLLER.InsertPilgrim(username, email, string(passwordHash))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	// Add user to database
-	return true, nil
+	return nil
 }

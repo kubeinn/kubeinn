@@ -70,7 +70,13 @@ func main() {
 			// Start web server
 			// Set the router as the default one shipped with Gin
 			router := gin.Default()
-			router.Use(cors.Default())
+			router.Use(cors.New(cors.Config{
+				AllowOrigins:     []string{"*"},
+				AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+				AllowHeaders:     []string{"Origin", "Subject", "Authorization"},
+				ExposeHeaders:    []string{"Content-Length"},
+				AllowCredentials: true,
+			}))
 
 			// Setup route group for the innkeeper API endpoint
 			innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX)
@@ -90,6 +96,7 @@ func main() {
 			authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
 			{
 				authAPI.POST("/validate-user", auth_handler.PostValidateCredentialsHandler)
+				authAPI.POST("/register", auth_handler.PostRegisterPilgrim)
 			}
 
 			// Start and run the server

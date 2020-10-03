@@ -6,6 +6,10 @@ Backend and middleware component
 ```
 go build -o ./build ./cmd/main.go
 ```
+### Run
+```
+./build/main.go
+```
 
 ### Testing with Postgres
 ```
