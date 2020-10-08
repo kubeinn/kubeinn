@@ -1,21 +1,74 @@
 package auth
 
 import (
+	"encoding/json"
 	jwt "github.com/dgrijalva/jwt-go"
 	gin "github.com/gin-gonic/gin"
 	global "github.com/kubeinn/schutterij/internal/global"
+	go_cache "github.com/patrickmn/go-cache"
 	bcrypt "golang.org/x/crypto/bcrypt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
+// LoginRequest is...
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// CustomClaims is...
+type CustomClaims struct {
+	Role string `json:"role"`
+	jwt.StandardClaims
+}
+
 // URL Handlers
+
+//PostCheckAuthHandler is ...
+func PostCheckAuthHandler(c *gin.Context) {
+	// Retrieve token from header
+	reqToken := c.Request.Header.Get("Authorization")
+	if reqToken == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "No Authorization header provided."})
+		return
+	}
+	splitToken := strings.Split(reqToken, "Bearer")
+	if len(splitToken) != 2 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid authorization token."})
+		return
+	}
+	tokenString := strings.TrimSpace(strings.Split(reqToken, "Bearer")[1])
+	log.Println("Fetching from cache: " + tokenString)
+	_, found := global.SESSION_CACHE.Get(tokenString)
+	if found {
+		c.JSON(http.StatusOK, gin.H{"Message": "Cache entry valid."})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"Message": "Cache entry invalid."})
+	}
+}
 
 // PostValidateCredentialsHandler is ...
 func PostValidateCredentialsHandler(c *gin.Context) {
 	subject := c.GetHeader("Subject")
-	username := c.Query("username")
-	password := c.Query("password")
+	var loginRequest LoginRequest
+	b, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Unable to read request body."})
+		return
+	}
+	log.Println("body: " + string(b))
+	err = json.Unmarshal(b, &loginRequest)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Unable to unmarshall username and password."})
+		return
+	}
+	username := loginRequest.Username
+	password := loginRequest.Password
 
 	log.Println("===============================")
 	log.Println("subject: " + subject)
@@ -31,6 +84,8 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 			return
 		}
 		// Authentication successful
+		log.Println("Inserting into cache: " + jwt)
+		global.SESSION_CACHE.Set(jwt, "true", go_cache.DefaultExpiration)
 		c.JSON(http.StatusOK, gin.H{"Authorization": jwt})
 
 	} else if subject == "Pilgrim" {
@@ -41,6 +96,8 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 			return
 		}
 		// Authentication successful
+		log.Println("Inserting into cache: " + jwt)
+		global.SESSION_CACHE.Set(jwt, "true", go_cache.DefaultExpiration)
 		c.JSON(http.StatusOK, gin.H{"Authorization": jwt})
 	} else {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
@@ -76,10 +133,12 @@ func PostRegisterPilgrim(c *gin.Context) {
 
 func validatePilgrimCredentials(username string, password string) (string, error) {
 	// Get password from database
-	dbPassword, err := global.PG_CONTROLLER.SelectPilgrimPasswordByUsername(username)
+	dbID, dbPassword, err := global.PG_CONTROLLER.SelectPilgrimByUsername(username)
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println("dbID: " + string(dbID))
+	log.Println("dbPassword: " + dbPassword)
 	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
 	if err != nil {
 		log.Println("Failed to authenticate user: " + username)
@@ -88,9 +147,13 @@ func validatePilgrimCredentials(username string, password string) (string, error
 	log.Println("Successfully authenticated user: " + username)
 
 	// Password matches, proceed to create a JWT
-	claims := &jwt.StandardClaims{
-		Subject:  username,
-		Audience: global.JWT_AUDIENCE_PILGRIM,
+	claims := CustomClaims{
+		strconv.Itoa(dbID),
+		jwt.StandardClaims{
+			Subject:   strconv.Itoa(dbID),
+			Audience:  global.JWT_AUDIENCE_PILGRIM,
+			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(global.JWT_SIGNING_KEY)
@@ -104,7 +167,7 @@ func validatePilgrimCredentials(username string, password string) (string, error
 
 func validateInnkeeperCredentials(username string, password string) (string, error) {
 	// Get password from database
-	dbPassword, err := global.PG_CONTROLLER.SelectInnkeeperPasswordByUsername(username)
+	dbID, dbPassword, err := global.PG_CONTROLLER.SelectInnkeeperByUsername(username)
 	if err != nil {
 		log.Println(err)
 	}
@@ -116,9 +179,13 @@ func validateInnkeeperCredentials(username string, password string) (string, err
 	log.Println("Successfully authenticated user: " + username)
 
 	// Password matches, proceed to create a JWT
-	claims := &jwt.StandardClaims{
-		Subject:  username,
-		Audience: global.JWT_AUDIENCE_INNKEEPER,
+	claims := CustomClaims{
+		"postgres",
+		jwt.StandardClaims{
+			Subject:   strconv.Itoa(dbID),
+			Audience:  global.JWT_AUDIENCE_INNKEEPER,
+			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(global.JWT_SIGNING_KEY)
@@ -137,12 +204,11 @@ func registerPilgrim(username string, email string, password string) error {
 		log.Println("Failed to hash password: " + err.Error())
 		return err
 	}
+	// Add user to database
 	err = global.PG_CONTROLLER.InsertPilgrim(username, email, string(passwordHash))
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-
-	// Add user to database
 	return nil
 }

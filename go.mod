@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jackc/pgx/v4 v4.8.1
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect

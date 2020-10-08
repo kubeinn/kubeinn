@@ -2,19 +2,16 @@
 Backend and middleware component
 
 ## Local
-### Build
+### Build and run
 ```
 go build -o ./build ./cmd/main.go
-```
-### Run
-```
-./build/main.go
+./build/main --kubecfg ""
 ```
 
 ### Testing with Postgres
 ```
 # Create a postgres instance
-docker run -d -p 5432:5432 \
+docker run --rm -d -p 5432:5432 \
     --name postgres \
     -e POSTGRES_PASSWORD=pgpassword \
     -e PGDATA=/var/lib/postgresql/data/pgdata \
@@ -23,7 +20,17 @@ docker run -d -p 5432:5432 \
 
 # Get shell into the Postgres container
 docker exec -it <mycontainer> bash
+
+# Start psql
 psql -U postgres
+
+# Create postgrest
+docker run --rm --net=host -p 3000:3000 \
+  -e PGRST_DB_URI="postgres://postgres:pgpassword@localhost:5432/postgres" \
+  -e PGRST_DB_ANON_ROLE="none" \
+  -e PGRST_DB_SCHEMA="api" \
+  -e PGRST_JWT_SECRET="bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK" \
+  postgrest/postgrest:v7.0.1
 ```
 
 ## Production

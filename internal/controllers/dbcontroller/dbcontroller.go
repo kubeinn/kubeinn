@@ -33,7 +33,7 @@ func NewPostgresController(dbName string, dbHost string, dbPort int, dbUser stri
 PILGRIM
 */
 
-func (pg *PostgresController) SelectPilgrimPasswordByUsername(username string) (string, error) {
+func (pg *PostgresController) SelectPilgrimByUsername(username string) (int, string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -41,13 +41,14 @@ func (pg *PostgresController) SelectPilgrimPasswordByUsername(username string) (
 	}
 	defer dbpool.Close()
 
+	var id int
 	var password string
 	err = dbpool.QueryRow(context.Background(),
-		"SELECT passwd FROM api.pilgrims WHERE username=$1", username).Scan(&password)
+		"SELECT id,passwd FROM api.pilgrims WHERE username=$1", username).Scan(&id, &password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-	return password, err
+	return id, password, err
 }
 
 func (pg *PostgresController) InsertPilgrim(username string, email string, password string) error {
@@ -82,7 +83,7 @@ func (pg *PostgresController) InsertPilgrim(username string, email string, passw
 INNKEEPER
 */
 
-func (pg *PostgresController) SelectInnkeeperPasswordByUsername(username string) (string, error) {
+func (pg *PostgresController) SelectInnkeeperByUsername(username string) (int, string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -90,11 +91,12 @@ func (pg *PostgresController) SelectInnkeeperPasswordByUsername(username string)
 	}
 	defer dbpool.Close()
 
+	var id int
 	var password string
 	err = dbpool.QueryRow(context.Background(),
-		"SELECT passwd FROM api.innkeepers WHERE username=$1", username).Scan(&password)
+		"SELECT id,passwd FROM api.innkeepers WHERE username=$1", username).Scan(&id, &password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-	return password, err
+	return id, password, err
 }

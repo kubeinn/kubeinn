@@ -15,11 +15,17 @@ import (
 func TokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Retrieve token from header
-		tokenString := c.Request.Header.Get("Authorization")
-		if tokenString == "" {
+		reqToken := c.Request.Header.Get("Authorization")
+		if reqToken == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "No Authorization header provided."})
 			return
 		}
+		splitToken := strings.Split(reqToken, "Bearer")
+		if len(splitToken) != 2 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid authorization token."})
+			return
+		}
+		tokenString := strings.TrimSpace(strings.Split(reqToken, "Bearer")[1])
 
 		claims := jwt.MapClaims{}
 		urlPath := c.Request.URL.Path
@@ -62,8 +68,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			// Validate pilgrim privileges
 			if strings.HasPrefix(urlPath, global.PILGRIM_ROUTE_PREFIX) {
 				// Innkeepers can send requests to both innkeeper and pilgrim endpoints
-				if audience == global.JWT_AUDIENCE_INNKEEPER || audience == global.JWT_AUDIENCE_PILGRIM {
-				} else {
+				if audience != global.JWT_AUDIENCE_PILGRIM {
 					c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the necessary privileges."})
 					return
 				}

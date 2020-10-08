@@ -12,17 +12,18 @@ func TestInitEnvironmentVars() {
 	os.Setenv("PGPORT", "5432")
 	os.Setenv("PGUSER", "postgres")
 	os.Setenv("POSTGRES_PASSWORD", "pgpassword")
+	os.Setenv("JWT_SIGNING_KEY", "bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK")
 }
 
 func TestDatabaseConnection() {
-	password, err := global.PG_CONTROLLER.SelectInnkeeperPasswordByUsername("test-user-01")
+	userID, password, err := global.PG_CONTROLLER.SelectInnkeeperByUsername("test-user-01")
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Innkeeper password: " + password)
-	password, err = global.PG_CONTROLLER.SelectPilgrimPasswordByUsername("test-user-01")
+	log.Println("Innkeeper: " + string(userID) + " " + password)
+	userID, password, err = global.PG_CONTROLLER.SelectPilgrimByUsername("test-user-01")
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Pilgrim password: " + password)
+	log.Println("Pilgrim password: " + string(userID) + " " + password)
 }

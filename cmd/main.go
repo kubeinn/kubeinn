@@ -1,11 +1,7 @@
 package main
 
 import (
-	// "context"
-	// "net/http"
-	// "http"
 	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -18,6 +14,7 @@ import (
 	global "github.com/kubeinn/schutterij/internal/global"
 	middleware "github.com/kubeinn/schutterij/internal/middleware"
 	test "github.com/kubeinn/schutterij/test"
+	go_cache "github.com/patrickmn/go-cache"
 
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
@@ -73,7 +70,7 @@ func main() {
 			router.Use(cors.New(cors.Config{
 				AllowOrigins:     []string{"*"},
 				AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-				AllowHeaders:     []string{"Origin", "Subject", "Authorization"},
+				AllowHeaders:     []string{"*"},
 				ExposeHeaders:    []string{"Content-Length"},
 				AllowCredentials: true,
 			}))
@@ -95,8 +92,9 @@ func main() {
 			// Setup route group for the authentication API endpoint
 			authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
 			{
-				authAPI.POST("/validate-user", auth_handler.PostValidateCredentialsHandler)
+				authAPI.POST("/login", auth_handler.PostValidateCredentialsHandler)
 				authAPI.POST("/register", auth_handler.PostRegisterPilgrim)
+				authAPI.POST("/check-auth", auth_handler.PostCheckAuthHandler)
 			}
 
 			// Start and run the server
@@ -112,12 +110,11 @@ func main() {
 
 func initialize() {
 	// Instantiate global variables
-	global.JWT_SIGNING_KEY = make([]byte, 32)
-	rand.Seed(time.Now().UnixNano())
-	rand.Read(global.JWT_SIGNING_KEY)
-	// log.Println("global.JWT_SIGNING_KEY: ", string(global.JWT_SIGNING_KEY))
-
-	// Create Postgres Controller
+	// Create a cache with a default expiration time of 5 minutes, and which
+	// purges expired items every 10 minutes
+	global.SESSION_CACHE = go_cache.New(15*time.Minute, 5*time.Minute)
+	// Import signing key
+	global.JWT_SIGNING_KEY = []byte(os.Getenv("JWT_SIGNING_KEY"))
 	dbName := os.Getenv("PGDATABASE")
 	dbHost := os.Getenv("PGHOST")
 	dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
