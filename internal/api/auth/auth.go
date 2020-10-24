@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -99,6 +98,17 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		log.Println("Inserting into cache: " + jwt)
 		global.SESSION_CACHE.Set(jwt, "true", go_cache.DefaultExpiration)
 		c.JSON(http.StatusOK, gin.H{"Authorization": jwt})
+	} else if subject == "Reeve" {
+		jwt, err := validateReeveCredentials(username, password)
+		if err != nil {
+			// Authentication failed
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
+			return
+		}
+		// Authentication successful
+		log.Println("Inserting into cache: " + jwt)
+		global.SESSION_CACHE.Set(jwt, "true", go_cache.DefaultExpiration)
+		c.JSON(http.StatusOK, gin.H{"Authorization": jwt})
 	} else {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
 		return
@@ -108,18 +118,55 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 // PostRegisterPilgrim is ...
 func PostRegisterPilgrim(c *gin.Context) {
 	subject := c.GetHeader("Subject")
+	vic := c.Query("vic")
 	username := c.Query("username")
 	email := c.Query("email")
 	password := c.Query("password")
 
 	log.Println("===============================")
 	log.Println("subject: " + subject)
+	log.Println("vic: " + vic)
 	log.Println("username: " + username)
 	log.Println("email: " + email)
 	log.Println("password: " + password)
 	log.Println("===============================")
 
-	err := registerPilgrim(username, email, password)
+	err := RegisterPilgrim(vic, username, email, password)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
+		return
+	}
+	// Registration successful
+	c.JSON(http.StatusOK, gin.H{"Message": "User registered successfully."})
+}
+
+// PostRegisterVillage is ...
+func PostRegisterVillage(c *gin.Context) {
+	subject := c.GetHeader("Subject")
+	organization := c.Query("organization")
+	description := c.Query("description")
+	username := c.Query("username")
+	email := c.Query("email")
+	password := c.Query("password")
+
+	log.Println("===============================")
+	log.Println("subject: " + subject)
+	log.Println("organization: " + organization)
+	log.Println("description: " + description)
+	log.Println("username: " + username)
+	log.Println("email: " + email)
+	log.Println("password: " + password)
+	log.Println("===============================")
+
+	err := RegisterVillage(organization, description)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
+		return
+	}
+
+	err = RegisterReeve(organization, username, email, password)
 	if err != nil {
 		// Registration failed
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
@@ -130,7 +177,6 @@ func PostRegisterPilgrim(c *gin.Context) {
 }
 
 // Internal functions
-
 func validatePilgrimCredentials(username string, password string) (string, error) {
 	// Get password from database
 	dbID, dbPassword, err := global.PG_CONTROLLER.SelectPilgrimByUsername(username)
@@ -148,10 +194,44 @@ func validatePilgrimCredentials(username string, password string) (string, error
 
 	// Password matches, proceed to create a JWT
 	claims := CustomClaims{
-		strconv.Itoa(dbID),
+		dbID,
 		jwt.StandardClaims{
-			Subject:   strconv.Itoa(dbID),
+			Subject:   dbID,
 			Audience:  global.JWT_AUDIENCE_PILGRIM,
+			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString(global.JWT_SIGNING_KEY)
+	if err != nil {
+		log.Println("Failed to generate JWT: " + err.Error())
+		return "", err
+	}
+	log.Println("JWT: " + ss)
+	return ss, nil
+}
+
+func validateReeveCredentials(username string, password string) (string, error) {
+	// Get password from database
+	dbID, dbPassword, err := global.PG_CONTROLLER.SelectReeveByUsername(username)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("dbID: " + string(dbID))
+	log.Println("dbPassword: " + dbPassword)
+	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
+	if err != nil {
+		log.Println("Failed to authenticate user: " + username)
+		return "", err
+	}
+	log.Println("Successfully authenticated user: " + username)
+
+	// Password matches, proceed to create a JWT
+	claims := CustomClaims{
+		dbID,
+		jwt.StandardClaims{
+			Subject:   dbID,
+			Audience:  global.JWT_AUDIENCE_REEVE,
 			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
 		},
 	}
@@ -182,7 +262,7 @@ func validateInnkeeperCredentials(username string, password string) (string, err
 	claims := CustomClaims{
 		"postgres",
 		jwt.StandardClaims{
-			Subject:   strconv.Itoa(dbID),
+			Subject:   dbID,
 			Audience:  global.JWT_AUDIENCE_INNKEEPER,
 			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
 		},
@@ -197,7 +277,42 @@ func validateInnkeeperCredentials(username string, password string) (string, err
 	return ss, nil
 }
 
-func registerPilgrim(username string, email string, password string) error {
+func RegisterPilgrim(vic string, username string, email string, password string) error {
+	villageID, err := global.PG_CONTROLLER.SelectVillageByVIC(vic)
+	if err != nil {
+		log.Println("Failed to retrieve corresponding villageID: " + err.Error())
+		return err
+	}
+
+	// Hash password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println("Failed to hash password: " + err.Error())
+		return err
+	}
+
+	// Add user to database
+	err = global.PG_CONTROLLER.InsertPilgrim(username, email, string(passwordHash), villageID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func RegisterVillage(organization string, description string) error {
+	// Add village to database
+	err := global.PG_CONTROLLER.InsertVillage(organization, description)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+// Test
+// RegisterInnkeeper is ...
+func RegisterInnkeeper(username string, email string, password string) error {
 	// Hash password
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -205,7 +320,29 @@ func registerPilgrim(username string, email string, password string) error {
 		return err
 	}
 	// Add user to database
-	err = global.PG_CONTROLLER.InsertPilgrim(username, email, string(passwordHash))
+	err = global.PG_CONTROLLER.InsertInnkeeper(username, email, string(passwordHash))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func RegisterReeve(organization string, username string, email string, password string) error {
+	villageID, err := global.PG_CONTROLLER.SelectVillageByOrganization(organization)
+	if err != nil {
+		log.Println("Failed to retrieve corresponding villageID: " + err.Error())
+		return err
+	}
+
+	// Hash password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println("Failed to hash password: " + err.Error())
+		return err
+	}
+	// Add user to database
+	err = global.PG_CONTROLLER.InsertReeve(username, email, string(passwordHash), villageID)
 	if err != nil {
 		log.Println(err)
 		return err

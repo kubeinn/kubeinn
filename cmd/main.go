@@ -1,9 +1,7 @@
 package main
 
 import (
-	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -18,9 +16,8 @@ import (
 
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
-	urfavecli "github.com/urfave/cli/v2"
 	// clientcmd "k8s.io/client-go/tools/clientcmd"
-	homedir "k8s.io/client-go/util/homedir"
+	// homedir "k8s.io/client-go/util/homedir"
 )
 
 func main() {
@@ -31,81 +28,48 @@ func main() {
 	initialize()
 
 	// Testing
-	test.TestDatabaseConnection()
+	test.TestCreateDefaultInnkeeper()
+	test.TestCreateDefaultReeve()
 
-	var kubecfg string
+	// Get kubecfg
+	// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
 
-	// Run the application
-	app := &urfavecli.App{
-		Name:  "Schutterij",
-		Usage: "API endpoint for KubeInn multi-tenancy manager for Kubernetes.",
-		Flags: []urfavecli.Flag{
-			&urfavecli.StringFlag{
-				Name:        "kubecfg",
-				Value:       filepath.Join(homedir.HomeDir(), ".kube", "config"),
-				Usage:       "Specify the filepath of kubeconfig.",
-				Destination: &kubecfg,
-				Required:    true,
-			},
-		},
-		Action: func(c *urfavecli.Context) error {
-			// for {
-			// 	fmt.Println("Waiting for kubeconfig to be uploaded...")
-			// 	if _, err := os.Stat(c.String("kubecfg")); !os.IsNotExist(err) {
-			// 		break
-			// 	}
-			// 	time.Sleep(5 * time.Second)
-			// }
+	// Start web server
+	// Set the router as the default one shipped with Gin
+	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
-			// // Read in kube config
-			// var err error
-			// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
-			// if err != nil {
-			// 	panic(err)
-			// }
-
-			// Start web server
-			// Set the router as the default one shipped with Gin
-			router := gin.Default()
-			router.Use(cors.New(cors.Config{
-				AllowOrigins:     []string{"*"},
-				AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-				AllowHeaders:     []string{"*"},
-				ExposeHeaders:    []string{"Content-Length"},
-				AllowCredentials: true,
-			}))
-
-			// Setup route group for the innkeeper API endpoint
-			innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX)
-			innkeeperAPI.Use(middleware.TokenAuthMiddleware())
-			{
-				innkeeperAPI.GET("/test", innkeeper_handler.GetTestValidation)
-			}
-
-			// // Setup route group for the pilgrim API endpoint
-			// innkeeperAPI := router.Group(global.PILGRIM_ROUTE_PREFIX)
-			// innkeeperAPI.Use(middleware.TokenAuthMiddleware())
-			// {
-			// 	innkeeperAPI.POST("/", innkeeper_handler.PostExtraResourcesHandler)
-			// }
-
-			// Setup route group for the authentication API endpoint
-			authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
-			{
-				authAPI.POST("/login", auth_handler.PostValidateCredentialsHandler)
-				authAPI.POST("/register", auth_handler.PostRegisterPilgrim)
-				authAPI.POST("/check-auth", auth_handler.PostCheckAuthHandler)
-			}
-
-			// Start and run the server
-			router.Run(":8080")
-			return nil
-		},
+	// Setup route group for the innkeeper API endpoint
+	innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX)
+	innkeeperAPI.Use(middleware.TokenAuthMiddleware())
+	{
+		innkeeperAPI.GET("/test", innkeeper_handler.GetTestValidation)
 	}
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
+
+	// // Setup route group for the pilgrim API endpoint
+	// innkeeperAPI := router.Group(global.PILGRIM_ROUTE_PREFIX)
+	// innkeeperAPI.Use(middleware.TokenAuthMiddleware())
+	// {
+	// 	innkeeperAPI.POST("/", innkeeper_handler.PostExtraResourcesHandler)
+	// }
+
+	// Setup route group for the authentication API endpoint
+	authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
+	{
+		authAPI.POST("/login", auth_handler.PostValidateCredentialsHandler)
+		authAPI.POST("/register-pilgrim", auth_handler.PostRegisterPilgrim)
+		authAPI.POST("/register-village", auth_handler.PostRegisterVillage)
+		authAPI.POST("/check-auth", auth_handler.PostCheckAuthHandler)
 	}
+
+	// Start and run the server
+	router.Run(":8080")
 }
 
 func initialize() {

@@ -5,7 +5,7 @@ Backend and middleware component
 ### Build and run
 ```
 go build -o ./build ./cmd/main.go
-./build/main --kubecfg ""
+./build/main
 ```
 
 ### Testing with Postgres
@@ -31,6 +31,9 @@ docker run --rm --net=host -p 3000:3000 \
   -e PGRST_DB_SCHEMA="api" \
   -e PGRST_JWT_SECRET="bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK" \
   postgrest/postgrest:v7.0.1
+
+go build -o ./build ./cmd/main.go
+./build/main
 ```
 
 ## Production
