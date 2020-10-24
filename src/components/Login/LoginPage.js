@@ -4,6 +4,8 @@ import { useLogin, useNotify, Notification } from 'react-admin';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
@@ -50,53 +52,57 @@ const LoginPage = () => {
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
-                <Typography component="h1" variant="h5">Pilgrim User Portal</Typography>
-                <form className={classes.form} onSubmit={submit} noValidate>
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        autoComplete="username"
-                        autoFocus
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        LOG IN
+                <Card className={classes.root}>
+                    <CardContent>
+                        <Typography component="h1" variant="h5">Pilgrim User Portal</Typography>
+                        <form className={classes.form} onSubmit={submit} noValidate>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="username"
+                                label="Username"
+                                name="username"
+                                autoComplete="username"
+                                autoFocus
+                                value={username}
+                                onChange={e => setUsername(e.target.value)}
+                            />
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="password"
+                                label="Password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                            />
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                className={classes.submit}
+                            >
+                                LOG IN
                 </Button>
-                    <Grid container>
-                        <Grid item xs></Grid>
-                        <Grid item>
-                            <Link href="register" variant="body2">
-                                {"Don't have an account? Register"}
-                            </Link>
-                        </Grid>
-                    </Grid>
-                </form>
-                <Notification />
+                            <Grid container>
+                                <Grid item xs></Grid>
+                                <Grid item>
+                                    <Link href="register" variant="body2">
+                                        {"Don't have an account? Register"}
+                                    </Link>
+                                </Grid>
+                            </Grid>
+                        </form>
+                        <Notification />
+                    </CardContent>
+                </Card>
             </div>
         </Container>
 

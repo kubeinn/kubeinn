@@ -6,8 +6,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ```
 npm run build ./build/
 docker build -t jordan396/pilgrim .
-docker run jordan396/pilgrim
 docker push jordan396/pilgrim
+docker run jordan396/pilgrim
 ```
 
 ## Available Scripts

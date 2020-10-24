@@ -1,4 +1,3 @@
-// in src/MyLogoutButton.js
 import * as React from 'react';
 import { forwardRef } from 'react';
 import { useLogout } from 'react-admin';

@@ -17,7 +17,11 @@ export default {
         const url = `${dataProviderUrl}/${resource}`;
 
         return axios.get(url, {
-            headers: { 'Prefer': 'count=exact' },
+            headers: { 
+                'Prefer': 'count=exact',
+                'Authorization': getCookie("Authorization"),
+                'Content-Type': 'application/json'
+            },
             params: {
                 offset: JSON.stringify((page - 1) * perPage),
                 limit: JSON.stringify(perPage),
@@ -142,6 +146,22 @@ export default {
     //         body: JSON.stringify(params.data),
     //     }).then(({ json }) => ({ data: json }));
     // },
-
-
 };
+
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+function eraseCookie(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}

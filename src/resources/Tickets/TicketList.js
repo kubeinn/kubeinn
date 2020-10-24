@@ -20,31 +20,33 @@ import {
     SelectInput,
     SimpleForm,
     TextInput,
-    NumberInput,
+    RadioButtonGroupInput,
     Filter,
 } from 'react-admin';
 
-export const ProjectList = props => (
+export const TicketList = props => (
     <List {...props} >
         <Datagrid>
             <NumberField source="id" />
-            <TextField source="title" />
+            <TextField source="pilgrimID" />
+            <EmailField source="email" />
+            <TextField source="topic" />
             <TextField source="details" />
-            <NumberField source="cpu" />
-            <NumberField source="memory" />
-            <NumberField source="storage" />
+            <TextField source="status" />
         </Datagrid>
     </List>
 );
 
-export const ProjectCreate = props => (
+export const TicketCreate = props => (
     <Create {...props}>
         <SimpleForm>
-            <TextInput source="title" />
+            <TextInput source="email" />
+            <TextInput source="topic" />
             <TextInput source="details" fullWidth='true' />
-            <NumberInput source="cpu" />
-            <NumberInput source="memory" />
-            <NumberInput source="storage" />
+            <RadioButtonGroupInput source="status" choices={[
+                { id: 'Open', name: 'Open' },
+                { id: 'Closed', name: 'Closed' },
+            ]} />
         </SimpleForm>
     </Create>
 );
