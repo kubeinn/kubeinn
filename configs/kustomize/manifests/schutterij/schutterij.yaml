@@ -1,16 +1,16 @@
-# # NodePort is for debugging purposes
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: schutterij-node-port-service
-# spec:
-#   type: NodePort
-#   ports:
-#     - port: 8080
-#       targetPort: 8080
-#       nodePort: 30005
-#   selector:
-#     component: schutterij
+# Schutterij is exposed on a NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: schutterij-node-port-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30001
+  selector:
+    component: schutterij
 ---
 apiVersion: v1
 kind: Service
@@ -62,10 +62,15 @@ spec:
                 configMapKeyRef:
                   name: postgres-conf
                   key: PGDATABASE
-            - name: PGPASSWORD
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: pgpassword
                   key: POSTGRES_PASSWORD
+            - name: JWT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-signing-key
+                  key: JWT_SIGNING_KEY
           command: ["/app/main"]
           args: ["--kubecfg", "/app/configs/.kube/config"]

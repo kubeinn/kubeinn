@@ -1,4 +1,4 @@
-# NodePort is for debugging purposes
+# PostgREST is exposed on a NodePort
 apiVersion: v1
 kind: Service
 metadata:
@@ -53,9 +53,7 @@ spec:
           image: busybox
           command: ["/bin/sh", "-c"]
           args:
-            [
-              cp /configmap/postgrest.conf /tmp/files/ && echo "db-uri = \"postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)\"" >> /tmp/files/postgrest.conf,
-            ]
+            - cp /configmap/postgrest.conf /tmp/files/; echo -e "db-uri = \"postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)\" \njwt-secret = \"$(JWT_SIGNING_KEY)\"" >> /tmp/files/postgrest.conf;
           env:
             - name: PGHOST
               value: $(POSTGRES_CLUSTER_IP_SERVICE)
@@ -79,6 +77,11 @@ spec:
                 secretKeyRef:
                   name: pgpassword
                   key: POSTGRES_PASSWORD
+            - name: JWT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-signing-key
+                  key: JWT_SIGNING_KEY
           volumeMounts:
             - name: postgrest-conf
               mountPath: "/configmap"

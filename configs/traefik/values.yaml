@@ -1,3 +1,0 @@
-# values.yaml
-additionalArguments:
-  - "--providers.kubernetesIngress"

@@ -12,7 +12,7 @@ kubectl patch storageclass rook-cephfs  -p '{"metadata": {"annotations":{"storag
 ## e.g. Using traefik ingress controller
 helm repo add traefik https://containous.github.io/traefik-helm-chart
 helm repo update
-helm install --namespace kubeinn traefik traefik/traefik --values ./configs/traefik/values.yaml
+helm install --namespace kubeinn traefik traefik/traefik
 ```
 
 ## Installation
@@ -23,11 +23,16 @@ kubectl kustomize ./configs/kustomize > generated_config.yaml
 kubectl apply -k ./configs/kustomize
 ```
 
+## Uninstall
+```
+kubectl delete -k ./configs/kustomize
+```
+
 ## Debugging
 ```
-kubectl exec --stdin --tty -n kubeinn kubeinn-postgres-deployment-v-1-0-0-a-1-6bcb5f84c-mwxhk -- /bin/bash
+kubectl exec --stdin --tty -n kubeinn kubeinn-postgres-deployment-v-1-0-0-a-1-6bcb5f84c-mpsvv -- /bin/bash
 psql -U postgres
-kubectl logs kubeinn-postgrest-deployment-v-1-0-0-a-1-655c5b8ff8-gg6qv -n kubeinn
+kubectl logs kubeinn-postgres-deployment-v-1-0-0-a-1-6bcb5f84c-jvkrt -n kubeinn
 
 May need to wait for pvc to be bound before creating Postgres deployment
 
