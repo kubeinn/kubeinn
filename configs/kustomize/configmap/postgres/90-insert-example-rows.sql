@@ -242,15 +242,6 @@ VALUES ('village-1', 'test-user-29', 'test-email-15', 'test-password');
 -- Populate api.projects
 INSERT INTO api.projects (pilgrimID, title, details, cpu, memory, storage)
 VALUES (
-        1,
-        'test-project-2',
-        'This is an example project.',
-        1,
-        2,
-        3
-    );
-INSERT INTO api.projects (pilgrimID, title, details, cpu, memory, storage)
-VALUES (
         'pilgrim-1',
         'test-project-3',
         'This is an example project.',
