@@ -6,6 +6,8 @@ import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useLogin, useNotify, Notification } from 'react-admin';
 import axios from 'axios';
 
@@ -16,15 +18,27 @@ const authProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/auth';
 
 const RegisterVillageForm = (props) => {
     const notify = useNotify();
+    const form = props.form;
 
     const [organization, setOrganization] = useState('');
     const [description, setDescription] = useState('');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [checkedTerms, setCheckedTerms] = useState(false);
+
+    const handleChangeCheckbox = (event) => {
+        setCheckedTerms(event.target.checked);
+    };
 
     const submit = (event) => {
         event.preventDefault();
+
+        if (!checkedTerms) {
+            notify('Registration failed. You must agree to the T&Cs above.')
+            return;
+        }
+
         notify('Registering new village...')
         return axios({
             method: 'POST',
@@ -45,87 +59,95 @@ const RegisterVillageForm = (props) => {
                     notify(response.statusText);
                 } else {
                     notify(response.data["Message"]);
+                    props.onSuccessfulRegistration();
                 }
                 return;
             })
             .catch(() => notify('Registration failed. Please contact administrator.'));;
     }
 
-
-    return (
-        <div className={props.classes.section}>
-            <form className={props.classes.form} onSubmit={submit} noValidate>
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="organization"
-                    label="Organization"
-                    name="organization"
-                    autoComplete="organization"
-                    value={organization}
-                    onChange={e => setOrganization(e.target.value)}
-                />
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="description"
-                    label="Description of Organization"
-                    name="description"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                />
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="username"
-                    label="Username"
-                    name="username"
-                    autoComplete="username"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                />
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email"
-                    name="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                />
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                />
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={props.classes.submit}
-                >
-                    Submit
+    if (form) {
+        return (
+            <div className={props.classes.section}>
+                <form className={props.classes.form} onSubmit={submit} noValidate>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="organization"
+                        label="Organization"
+                        name="organization"
+                        autoComplete="organization"
+                        value={organization}
+                        onChange={e => setOrganization(e.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="description"
+                        label="Description of Organization"
+                        name="description"
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="username"
+                        label="Username"
+                        name="username"
+                        autoComplete="username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="email"
+                        label="Email"
+                        name="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                    />
+                    <FormControlLabel
+                        control={<Checkbox checked={checkedTerms} onChange={handleChangeCheckbox} name="checkbox" />}
+                        label="I understand that I am responsible for users registered under my VIC."
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className={props.classes.submit}
+                    >
+                        Submit
                     </Button>
-            </form>
-        </div>
-    );
+                </form>
+            </div>
+        );
+    } else {
+        return null;
+    }
 }
 
 export default RegisterVillageForm;

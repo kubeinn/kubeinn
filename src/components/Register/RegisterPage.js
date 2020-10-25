@@ -37,12 +37,20 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(3, 2),
     },
     card: {
-        margin: theme.spacing(4, 2),
+        margin: theme.spacing(4, 0),
     }
 }));
 
 const RegisterPage = () => {
     const classes = useStyles();
+
+    const [registrationNotice, setRegistrationNotice] = useState(false);
+    const [form, setForm] = useState(true);
+
+    const handleChange = () => {
+        setForm(false);
+        setRegistrationNotice(true);
+    }
 
     return (
         <Container component="main" maxWidth="xs" >
@@ -59,12 +67,12 @@ const RegisterPage = () => {
                             <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
                                 To use this platform, organization representatives must first request for a Village Identification Code (VIC).
                             </Typography>
-                            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                                By submitting this form, I understand that I am responsible for all users registered under my VIC.
-                            </Typography>
                         </div>
                         <Divider variant="middle" />
-                        <RegisterVillageForm classes={classes} />
+                        <div className={classes.section}>
+                            <RegisterVillageForm classes={classes} form={form} onSuccessfulRegistration={handleChange} />
+                            <DisplayRegistrationNotice classes={classes} registrationNotice={registrationNotice} />
+                        </div>
                         <div className={classes.section}>
                             <Grid container justify="flex-end">
                                 <Grid item>
@@ -78,6 +86,19 @@ const RegisterPage = () => {
             </div>
         </Container>
     );
+}
+
+function DisplayRegistrationNotice(props) {
+    const registrationNotice = props.registrationNotice;
+    if (registrationNotice) {
+        return (
+            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
+                Your request has been submitted. Our administrators will review your request and follow up via the email provided.
+            </Typography>
+        );
+    } else {
+        return null;
+    }
 }
 
 export default RegisterPage;
