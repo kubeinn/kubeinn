@@ -28,8 +28,8 @@ func main() {
 	initialize()
 
 	// Testing
-	test.TestCreateDefaultInnkeeper()
-	test.TestCreateDefaultReeve()
+	// test.TestCreateDefaultInnkeeper()
+	// test.TestCreateDefaultReeve()
 
 	// Get kubecfg
 	// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))

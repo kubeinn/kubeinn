@@ -83,7 +83,7 @@ func (pg *PostgresController) InsertPilgrim(username string, email string, passw
 REEVE
 */
 
-func (pg *PostgresController) SelectReeveByUsername(username string) (string, string, error) {
+func (pg *PostgresController) SelectReeveByUsername(username string) (string, string, string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -93,12 +93,14 @@ func (pg *PostgresController) SelectReeveByUsername(username string) (string, st
 
 	var id string
 	var password string
+	var villageID string
+
 	err = dbpool.QueryRow(context.Background(),
-		"SELECT id,passwd FROM api.reeves WHERE username=$1", username).Scan(&id, &password)
+		"SELECT id,passwd,villageID FROM api.reeves WHERE username=$1", username).Scan(&id, &password, &villageID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-	return id, password, err
+	return id, password, villageID, err
 }
 
 func (pg *PostgresController) InsertReeve(username string, email string, password string, villageID string) error {

@@ -173,7 +173,7 @@ func PostRegisterVillage(c *gin.Context) {
 		return
 	}
 	// Registration successful
-	c.JSON(http.StatusOK, gin.H{"Message": "User registered successfully."})
+	c.JSON(http.StatusOK, gin.H{"Message": "Village request submitted successfully."})
 }
 
 // Internal functions
@@ -213,7 +213,7 @@ func validatePilgrimCredentials(username string, password string) (string, error
 
 func validateReeveCredentials(username string, password string) (string, error) {
 	// Get password from database
-	dbID, dbPassword, err := global.PG_CONTROLLER.SelectReeveByUsername(username)
+	dbID, dbPassword, dbVillageID, err := global.PG_CONTROLLER.SelectReeveByUsername(username)
 	if err != nil {
 		log.Println(err)
 	}
@@ -228,7 +228,7 @@ func validateReeveCredentials(username string, password string) (string, error) 
 
 	// Password matches, proceed to create a JWT
 	claims := CustomClaims{
-		dbID,
+		dbVillageID,
 		jwt.StandardClaims{
 			Subject:   dbID,
 			Audience:  global.JWT_AUDIENCE_REEVE,
