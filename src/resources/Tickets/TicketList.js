@@ -28,7 +28,7 @@ export const TicketList = props => (
     <List {...props} >
         <Datagrid>
             <NumberField source="id" />
-            <TextField source="reeveID" />
+            <TextField source="pilgrimID" />
             <EmailField source="email" />
             <TextField source="topic" />
             <TextField source="details" />
