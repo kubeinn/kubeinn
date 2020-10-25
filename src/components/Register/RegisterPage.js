@@ -37,13 +37,15 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(3, 2),
     },
     card: {
-        margin: theme.spacing(4, 2),
-    }
+        margin: theme.spacing(4, 0),
+    },
 }));
 
 const RegisterPage = () => {
     const classes = useStyles();
+
     const [form, setForm] = useState(0);
+
     const handleChange = (event) => {
         setForm(event.target.value);
     };
@@ -69,7 +71,9 @@ const RegisterPage = () => {
                             </RadioGroup>
                         </div>
                         <Divider variant="middle" />
-                        <DisplayForm classes={classes} displayForm={form} />
+                        <div className={classes.section}>
+                            <DisplayForm classes={classes} displayForm={form} />
+                        </div>
                         <div className={classes.section}>
                             <Grid container justify="flex-end">
                                 <Grid item>
@@ -88,14 +92,14 @@ const RegisterPage = () => {
 function DisplayForm(props) {
     const displayForm = props.displayForm;
     if (displayForm === "true") {
-        return <RegisterPilgrimForm classes={props.classes} />;
+        return (
+            <RegisterPilgrimForm classes={props.classes} />
+        )
     } else if (displayForm === "false") {
         return (
-            <div className={props.classes.section}>
-                <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                    Please contact your organization representative to obtain your VIC.
-                </Typography>
-            </div>
+            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
+                Please contact your organization representative to obtain your VIC.
+            </Typography>
         );
     } else {
         return null;
