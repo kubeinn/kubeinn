@@ -5,6 +5,7 @@ CREATE SCHEMA api;
 CREATE SEQUENCE pilgrim_sequence START 1;
 CREATE SEQUENCE village_sequence START 1;
 CREATE SEQUENCE reeve_sequence START 1;
+CREATE SEQUENCE innkeeper_sequence START 1;
 
 -- Create standard tables
 CREATE TABLE IF NOT EXISTS api.villages (
@@ -15,28 +16,28 @@ CREATE TABLE IF NOT EXISTS api.villages (
 );
 CREATE TABLE IF NOT EXISTS api.pilgrims (
     id TEXT PRIMARY KEY DEFAULT 'pilgrim-' || NEXTVAL('pilgrim_sequence'),
-    villageID TEXT NOT NULL,
+    villageid TEXT NOT NULL,
     username VARCHAR(30) NOT NULL UNIQUE,
     email VARCHAR(30) NOT NULL,
     passwd CHAR(60) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS api.innkeepers (
-    id SERIAL PRIMARY KEY,
+    id TEXT PRIMARY KEY DEFAULT 'innkeeper-' || NEXTVAL('innkeeper_sequence'),
     username VARCHAR(30) NOT NULL UNIQUE,
     email VARCHAR(30) NOT NULL,
     passwd CHAR(60) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS api.reeves (
     id TEXT PRIMARY KEY DEFAULT 'reeve-' || NEXTVAL('reeve_sequence'),
-    villageID TEXT NOT NULL,
+    villageid TEXT NOT NULL,
     username VARCHAR(30) NOT NULL UNIQUE,
     email VARCHAR(30) NOT NULL,
     passwd CHAR(60) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS api.projects (
     id SERIAL PRIMARY KEY,
-    pilgrimID TEXT NOT NULL DEFAULT current_user,
-    villageID TEXT NOT NULL,
+    pilgrimid TEXT NOT NULL DEFAULT current_user,
+    villageid TEXT,
     title VARCHAR(30) NOT NULL UNIQUE,
     details TEXT NOT NULL,
     cpu INTEGER NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS api.projects (
 );
 CREATE TABLE IF NOT EXISTS api.tickets (
     id SERIAL PRIMARY KEY,
-    villageID TEXT NOT NULL DEFAULT current_user,
+    villageid TEXT NOT NULL DEFAULT current_user,
     email VARCHAR(30) NOT NULL,
     topic VARCHAR(30) NOT NULL,
     details TEXT NOT NULL,
@@ -53,10 +54,10 @@ CREATE TABLE IF NOT EXISTS api.tickets (
 );
 CREATE TABLE IF NOT EXISTS api.usage (
     id SERIAL PRIMARY KEY,
-    projectID INTEGER NOT NULL,
-    pilgrimID TEXT NOT NULL,
-    startTime TIMESTAMPTZ NOT NULL,
-    endTime TIMESTAMPTZ NOT NULL,
-    cpuMinutesUsed INTEGER NOT NULL,
-    memoryMinutesUsed INTEGER NOT NULL
+    projectid INTEGER NOT NULL,
+    pilgrimid TEXT NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+    cpu_minutes_used INTEGER NOT NULL,
+    memory_minutes_used INTEGER NOT NULL
 );
