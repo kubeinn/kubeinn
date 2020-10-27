@@ -1,5 +1,3 @@
-import { fetchUtils } from 'react-admin';
-import { stringify } from 'query-string';
 import axios from 'axios';
 
 // Production
@@ -7,17 +5,16 @@ import axios from 'axios';
 // Local
 const dataProviderUrl = process.env.REACT_APP_KUBEINN_POSTGREST_URL;
 
-// Instantiate httpClient
-const httpClient = fetchUtils.fetchJson;
-
 export default {
     getList: (resource, params) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const url = `${dataProviderUrl}/${resource}`;
 
-        return axios.get(url, {
-            headers: { 
+        return axios({
+            url: url,
+            method: 'GET',
+            headers: {
                 'Prefer': 'count=exact',
                 'Authorization': getCookie("Authorization"),
                 'Content-Type': 'application/json'
@@ -30,37 +27,49 @@ export default {
             timeout: 5000,
             responseType: 'json',
             responseEncoding: 'utf8',
-        })
-            .then(response => ({
-                data: response.data,
-                total: parseInt(response.headers['content-range'].split('/').pop(), 10),
-            }));
+        }).then(response => ({
+            data: response.data,
+            total: parseInt(response.headers['content-range'].split('/').pop(), 10),
+        }));
     },
 
-    create: (resource, params) =>
-        httpClient(`${dataProviderUrl}/${resource}`, {
+    create: (resource, params) => {
+        const url = `${dataProviderUrl}/${resource}`;
+
+        return axios({
+            url: url,
             method: 'POST',
-            body: JSON.stringify(params.data),
+            headers: {
+                'Authorization': getCookie("Authorization"),
+            },
+            data: params.data,
+            timeout: 5000,
+            responseType: 'json',
+            responseEncoding: 'utf8',
         }).then(({ json }) => ({
             data: { ...params.data },
-        })),
+        }));
+    },
 
     delete: (resource, params) => {
         const url = `${dataProviderUrl}/${resource}`;
         const paramsId = "eq." + params.id;
 
-        return axios.delete(url, {
-            headers: {},
+        return axios({
+            url: url,
+            method: 'DELETE',
+            headers: {
+                'Authorization': getCookie("Authorization"),
+            },
             params: {
                 id: paramsId,
             },
-            timeout: 1000,
+            timeout: 5000,
             responseType: 'json',
             responseEncoding: 'utf8',
-        })
-            .then(response => ({
-                data: response.data,
-            }));
+        }).then(response => ({
+            data: response.data,
+        }));
     },
 
     deleteMany: (resource, params) => {
@@ -74,78 +83,22 @@ export default {
         }
         paramsId = paramsId + ")";
 
-        return axios.delete(url, {
-            headers: {},
+        return axios({
+            url: url,
+            method: 'DELETE',
+            headers: {
+                'Authorization': getCookie("Authorization"),
+            },
             params: {
                 or: paramsId,
             },
-            timeout: 1000,
+            timeout: 5000,
             responseType: 'json',
             responseEncoding: 'utf8',
-        })
-            .then(response => ({
-                data: response.data,
-            }));
+        }).then(response => ({
+            data: response.data,
+        }));
     },
-
-    // {
-    //     const query = {
-    //         filter: JSON.stringify({ id: params.ids }),
-    //     };
-    //     return httpClient(`${dataProviderUrl}/${resource}?${stringify(query)}`, {
-    //         method: 'DELETE',
-    //         body: JSON.stringify(params.data),
-    //     }).then(({ json }) => ({ data: json }));
-    // },
-
-    // getOne: (resource, params) =>
-    //     httpClient(`${dataProviderUrl}/${resource}/${params.id}`)
-    //     .then(({ json }) => ({
-    //         data: json,
-    //     })),
-
-    // getMany: (resource, params) => {
-    //     const query = {
-    //         filter: JSON.stringify({ id: params.ids }),
-    //     };
-    //     const url = `${dataProviderUrl}/${resource}?${stringify(query)}`;
-    //     return httpClient(url).then(({ json }) => ({ data: json }));
-    // },
-
-    // getManyReference: (resource, params) => {
-    //     const { page, perPage } = params.pagination;
-    //     const { field, order } = params.sort;
-    //     const query = {
-    //         sort: JSON.stringify([field, order]),
-    //         range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
-    //         filter: JSON.stringify({
-    //             ...params.filter,
-    //             [params.target]: params.id,
-    //         }),
-    //     };
-    //     const url = `${dataProviderUrl}/${resource}?${stringify(query)}`;
-
-    //     return httpClient(url).then(({ headers, json }) => ({
-    //         data: json,
-    //         total: parseInt(headers.get('content-range').split('/').pop(), 10),
-    //     }));
-    // },
-
-    // update: (resource, params) =>
-    //     httpClient(`${dataProviderUrl}/${resource}/${params.id}`, {
-    //         method: 'PUT',
-    //         body: JSON.stringify(params.data),
-    //     }).then(({ json }) => ({ data: json })),
-
-    // updateMany: (resource, params) => {
-    //     const query = {
-    //         filter: JSON.stringify({ id: params.ids }),
-    //     };
-    //     return httpClient(`${dataProviderUrl}/${resource}?${stringify(query)}`, {
-    //         method: 'PUT',
-    //         body: JSON.stringify(params.data),
-    //     }).then(({ json }) => ({ data: json }));
-    // },
 };
 
 function setCookie(name, value, days) {
