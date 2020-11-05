@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	jwt "github.com/dgrijalva/jwt-go"
 	gin "github.com/gin-gonic/gin"
 	global "github.com/kubeinn/schutterij/internal/global"
@@ -33,21 +34,21 @@ func PostCheckAuthHandler(c *gin.Context) {
 	// Retrieve token from header
 	reqToken := c.Request.Header.Get("Authorization")
 	if reqToken == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "No Authorization header provided."})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "No Authorization header provided."})
 		return
 	}
 	splitToken := strings.Split(reqToken, "Bearer")
 	if len(splitToken) != 2 {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid authorization token."})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Invalid authorization token."})
 		return
 	}
 	tokenString := strings.TrimSpace(strings.Split(reqToken, "Bearer")[1])
 	log.Println("Fetching from cache: " + tokenString)
 	_, found := global.SESSION_CACHE.Get(tokenString)
 	if found {
-		c.JSON(http.StatusOK, gin.H{"Message": "Cache entry valid."})
+		c.JSON(http.StatusOK, gin.H{"message": "Cache entry valid."})
 	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"Message": "Cache entry invalid."})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Cache entry invalid."})
 	}
 }
 
@@ -57,13 +58,13 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 	var loginRequest LoginRequest
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Unable to read request body."})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unable to read request body."})
 		return
 	}
 	log.Println("body: " + string(b))
 	err = json.Unmarshal(b, &loginRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Unable to unmarshall username and password."})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unable to unmarshall username and password."})
 		return
 	}
 	username := loginRequest.Username
@@ -79,7 +80,7 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		jwt, err := validateInnkeeperCredentials(username, password)
 		if err != nil {
 			// Authentication failed
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials provided."})
 			return
 		}
 		// Authentication successful
@@ -91,7 +92,7 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		jwt, err := validatePilgrimCredentials(username, password)
 		if err != nil {
 			// Authentication failed
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials provided."})
 			return
 		}
 		// Authentication successful
@@ -102,7 +103,7 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		jwt, err := validateReeveCredentials(username, password)
 		if err != nil {
 			// Authentication failed
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials provided."})
 			return
 		}
 		// Authentication successful
@@ -110,39 +111,42 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		global.SESSION_CACHE.Set(jwt, "true", go_cache.DefaultExpiration)
 		c.JSON(http.StatusOK, gin.H{"Authorization": jwt})
 	} else {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Invalid credentials provided."})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials provided."})
 		return
 	}
 }
 
-// PostRegisterPilgrim is ...
-func PostRegisterPilgrim(c *gin.Context) {
+// PostRegisterPilgrimHandler is ...
+func PostRegisterPilgrimHandler(c *gin.Context) {
 	subject := c.GetHeader("Subject")
-	vic := c.Query("vic")
-	username := c.Query("username")
-	email := c.Query("email")
+	regcode := c.Query("regcode")
 	password := c.Query("password")
 
 	log.Println("===============================")
 	log.Println("subject: " + subject)
-	log.Println("vic: " + vic)
-	log.Println("username: " + username)
-	log.Println("email: " + email)
+	log.Println("regcode: " + regcode)
 	log.Println("password: " + password)
 	log.Println("===============================")
 
-	err := RegisterPilgrim(vic, username, email, password)
+	id, _, err := global.PG_CONTROLLER.SelectPilgrimByRegistrationCode(regcode)
 	if err != nil {
 		// Registration failed
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Registration error."})
+		return
+	}
+
+	err = RegisterPilgrim(id, password)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Registration error."})
 		return
 	}
 	// Registration successful
-	c.JSON(http.StatusOK, gin.H{"Message": "User registered successfully."})
+	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully."})
 }
 
-// PostRegisterVillage is ...
-func PostRegisterVillage(c *gin.Context) {
+// PostRegisterVillageHandler is ...
+func PostRegisterVillageHandler(c *gin.Context) {
 	subject := c.GetHeader("Subject")
 	organization := c.Query("organization")
 	description := c.Query("description")
@@ -162,18 +166,39 @@ func PostRegisterVillage(c *gin.Context) {
 	err := RegisterVillage(organization, description)
 	if err != nil {
 		// Registration failed
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Registration error."})
 		return
 	}
 
 	err = RegisterReeve(organization, username, email, password)
 	if err != nil {
 		// Registration failed
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Message": "Registration error."})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Registration error."})
 		return
 	}
 	// Registration successful
-	c.JSON(http.StatusOK, gin.H{"Message": "Village request submitted successfully."})
+	c.JSON(http.StatusOK, gin.H{"message": "Village request submitted successfully."})
+}
+
+// PostValidateRegcodeHandler is ...
+func PostValidateRegcodeHandler(c *gin.Context) {
+	subject := c.GetHeader("Subject")
+	regcode := c.Query("regcode")
+
+	log.Println("===============================")
+	log.Println("subject: " + subject)
+	log.Println("regcode: " + regcode)
+	log.Println("===============================")
+
+	_, username, err := global.PG_CONTROLLER.SelectPilgrimByRegistrationCode(regcode)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Registration error."})
+		return
+	}
+
+	// Registration successful
+	c.JSON(http.StatusOK, gin.H{"message": "Registration code is valid.", "username": username})
 }
 
 // Internal functions
@@ -213,12 +238,19 @@ func validatePilgrimCredentials(username string, password string) (string, error
 
 func validateReeveCredentials(username string, password string) (string, error) {
 	// Get password from database
-	dbID, dbPassword, dbVillageID, err := global.PG_CONTROLLER.SelectReeveByUsername(username)
+	dbID, dbPassword, dbVillageID, status, err := global.PG_CONTROLLER.SelectReeveByUsername(username)
 	if err != nil {
 		log.Println(err)
 	}
 	log.Println("dbID: " + string(dbID))
 	log.Println("dbPassword: " + dbPassword)
+	log.Println("status: " + status)
+
+	if status != "accepted" {
+		log.Println("status of reeve account is not accepted")
+		return "", errors.New("status of reeve account is not accepted")
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
 	if err != nil {
 		log.Println("Failed to authenticate user: " + username)
@@ -277,13 +309,7 @@ func validateInnkeeperCredentials(username string, password string) (string, err
 	return ss, nil
 }
 
-func RegisterPilgrim(vic string, username string, email string, password string) error {
-	villageID, err := global.PG_CONTROLLER.SelectVillageByVIC(vic)
-	if err != nil {
-		log.Println("Failed to retrieve corresponding villageID: " + err.Error())
-		return err
-	}
-
+func RegisterPilgrim(id string, password string) error {
 	// Hash password
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -292,7 +318,7 @@ func RegisterPilgrim(vic string, username string, email string, password string)
 	}
 
 	// Add user to database
-	err = global.PG_CONTROLLER.InsertPilgrim(username, email, string(passwordHash), villageID)
+	err = global.PG_CONTROLLER.UpdatePilgrimPassword(id, string(passwordHash))
 	if err != nil {
 		log.Println(err)
 		return err

@@ -20,6 +20,7 @@ docker run --rm -d -p 5432:5432 \
 
 # Get shell into the Postgres container
 docker exec -it <mycontainer> bash
+docker exec -it 87cc82e6e6d3 bash
 
 # Start psql
 psql -U postgres

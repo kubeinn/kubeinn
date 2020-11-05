@@ -28,8 +28,8 @@ func main() {
 	initialize()
 
 	// Testing
-	// test.TestCreateDefaultInnkeeper()
-	// test.TestCreateDefaultReeve()
+	test.TestCreateDefaultInnkeeper()
+	test.TestCreateDefaultReeve()
 
 	// Get kubecfg
 	// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
@@ -63,8 +63,9 @@ func main() {
 	authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
 	{
 		authAPI.POST("/login", auth_handler.PostValidateCredentialsHandler)
-		authAPI.POST("/register-pilgrim", auth_handler.PostRegisterPilgrim)
-		authAPI.POST("/register-village", auth_handler.PostRegisterVillage)
+		authAPI.POST("/register/pilgrim", auth_handler.PostRegisterPilgrimHandler)
+		authAPI.POST("/register/village", auth_handler.PostRegisterVillageHandler)
+		authAPI.POST("/validate-regcode", auth_handler.PostValidateRegcodeHandler)
 		authAPI.POST("/check-auth", auth_handler.PostCheckAuthHandler)
 	}
 
