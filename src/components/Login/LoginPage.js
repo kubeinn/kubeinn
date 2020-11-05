@@ -13,8 +13,14 @@ import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
+
+// Production
+// const reeveUrl = window._env_.KUBEINN_POSTGREST_URL;
+// Local
+const reeveUrl = process.env.REACT_APP_KUBEINN_REEVE_URL;
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -34,14 +40,18 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
+    section: {
+        margin: theme.spacing(3, 2),
+    },
 }));
 
-const LoginPage = () => {
-    const classes = useStyles();
+const LoginForm = (props) => {
+    const notify = useNotify();
+    const login = useLogin();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const login = useLogin();
-    const notify = useNotify();
+
     const submit = (e) => {
         e.preventDefault();
         login({ username, password })
@@ -49,57 +59,71 @@ const LoginPage = () => {
     };
 
     return (
+        <form className={props.classes.form} onSubmit={submit} noValidate>
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="username"
+                label="Username"
+                name="username"
+                autoComplete="username"
+                autoFocus
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+            />
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+            />
+            <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={props.classes.submit}
+            >
+                LOG IN
+                </Button>
+        </form>
+    );
+}
+
+const LoginPage = () => {
+    const classes = useStyles();
+
+    return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
                 <Card className={classes.root}>
                     <CardContent>
-                        <Typography component="h1" variant="h5">Pilgrim User Portal</Typography>
-                        <form className={classes.form} onSubmit={submit} noValidate>
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="username"
-                                label="Username"
-                                name="username"
-                                autoComplete="username"
-                                autoFocus
-                                value={username}
-                                onChange={e => setUsername(e.target.value)}
-                            />
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                            />
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classes.submit}
-                            >
-                                LOG IN
-                </Button>
-                            <Grid container>
-                                <Grid item xs></Grid>
+                        <div className={classes.section}>
+                            <Typography component="h1" variant="h5">Pilgrim User Portal</Typography>
+                        </div>
+                        <Divider variant="middle" />
+                        <div className={classes.section}>
+                            <LoginForm classes={classes} />
+                        </div>
+                        <div className={classes.section}>
+                            <Grid container justify="flex-end">
                                 <Grid item>
                                     <Link href="register" variant="body2">
                                         {"Don't have an account? Register"}
                                     </Link>
                                 </Grid>
                             </Grid>
-                        </form>
+                        </div>
                         <Notification />
                     </CardContent>
                 </Card>

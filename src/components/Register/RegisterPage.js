@@ -17,8 +17,14 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import RegisterPilgrimForm from './RegisterPilgrimForm';
+import PasswordForm from './PasswordForm';
+import RegcodeForm from './RegcodeForm';
 import Container from '@material-ui/core/Container';
+
+// Production
+// const reeveUrl = window._env_.KUBEINN_POSTGREST_URL;
+// Local
+const reeveUrl = process.env.REACT_APP_KUBEINN_REEVE_URL;
 
 const useStyles = makeStyles(theme => ({
     paper: {
@@ -44,10 +50,20 @@ const useStyles = makeStyles(theme => ({
 const RegisterPage = () => {
     const classes = useStyles();
 
-    const [form, setForm] = useState(0);
+    const [regcodeForm, setRegcodeForm] = useState(true);
+    const [passwordForm, setPasswordForm] = useState(false);
+    const [username, setUsername] = useState("default");
+    const [regcode, setRegcode] = useState("");
 
-    const handleChange = (event) => {
-        setForm(event.target.value);
+    const onValidRegcode = (username, regcode) => {
+        setPasswordForm(true);
+        setRegcodeForm(false);
+        setUsername(username);
+        setRegcode(regcode);
+    };
+
+    const onPasswordSet = () => {
+        setPasswordForm(false);
     };
 
     return (
@@ -60,20 +76,16 @@ const RegisterPage = () => {
                             <Typography component="h1" variant="h5">Registration</Typography>
                         </div>
                         <Divider variant="middle" />
-
-                        <div className={classes.section}>
-                            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                                A Village Identification Code (VIC) is required for registration.
-                            </Typography>
-                            <RadioGroup aria-label="VIC" name="vic" value={form} onChange={handleChange}>
-                                <FormControlLabel value="true" control={<Radio />} label="I know my VIC." />
-                                <FormControlLabel value="false" control={<Radio />} label="I do not know my VIC." />
-                            </RadioGroup>
-                        </div>
+                        <RegcodeForm classes={classes} form={regcodeForm} onValidRegcode={onValidRegcode} />
+                        <PasswordForm classes={classes} form={passwordForm} username={username} regcode={regcode} onPasswordSet={onPasswordSet} />
+                        <RegistrationNotice classes={classes} regcodeForm={regcodeForm} passwordForm={passwordForm} />
                         <Divider variant="middle" />
                         <div className={classes.section}>
-                            <DisplayForm classes={classes} displayForm={form} />
+                            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
+                                If you are the representative for your organization, click <Link href={reeveUrl} variant="body2">here</Link>.
+                            </Typography>
                         </div>
+                        <Divider variant="middle" />
                         <div className={classes.section}>
                             <Grid container justify="flex-end">
                                 <Grid item>
@@ -89,17 +101,14 @@ const RegisterPage = () => {
     );
 }
 
-function DisplayForm(props) {
-    const displayForm = props.displayForm;
-    if (displayForm === "true") {
+const RegistrationNotice = (props) => {
+    if (!props.regcodeForm && !props.passwordForm) {
         return (
-            <RegisterPilgrimForm classes={props.classes} />
-        )
-    } else if (displayForm === "false") {
-        return (
-            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                Please contact your organization representative to obtain your VIC.
-            </Typography>
+            <div className={props.classes.section}>
+                <Button variant="contained" fullWidth color="primary" href="/login">
+                    PROCEED TO SIGN IN.
+                </Button>
+            </div>
         );
     } else {
         return null;
