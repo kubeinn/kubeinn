@@ -65,7 +65,7 @@ const RegisterPage = () => {
 
                         <div className={classes.section}>
                             <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                                To use this platform, organization representatives must first request for a Village Identification Code (VIC).
+                                This form should only be filled in by your organization representative.
                             </Typography>
                         </div>
                         <Divider variant="middle" />

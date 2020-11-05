@@ -42,7 +42,7 @@ const RegisterVillageForm = (props) => {
         notify('Registering new village...')
         return axios({
             method: 'POST',
-            url: authProviderUrl + "/register-village",
+            url: authProviderUrl + "/register/village",
             headers: {
 
             },
@@ -58,7 +58,7 @@ const RegisterVillageForm = (props) => {
                 if (response.status < 200 || response.status >= 300) {
                     notify(response.statusText);
                 } else {
-                    notify(response.data["Message"]);
+                    notify(response.data["message"]);
                     props.onSuccessfulRegistration();
                 }
                 return;
@@ -131,7 +131,7 @@ const RegisterVillageForm = (props) => {
                     />
                     <FormControlLabel
                         control={<Checkbox checked={checkedTerms} onChange={handleChangeCheckbox} name="checkbox" />}
-                        label="I understand that I am responsible for users registered under my VIC."
+                        label="I understand that I will be held responsible for all users registered under my organization."
                     />
                     <Button
                         type="submit"
