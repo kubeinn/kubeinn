@@ -1,58 +1,42 @@
 import * as React from "react";
 import {
-    Show,
-    ShowButton,
-    SimpleShowLayout,
-    RichTextField,
-    DateField,
-    Pagination,
-    useListContext,
     List,
     Edit,
     Create,
     Datagrid,
-    ReferenceField,
     TextField,
     EmailField,
-    NumberField,
-    EditButton,
-    ReferenceInput,
-    SelectInput,
     SimpleForm,
     TextInput,
-    PasswordInput,
-    Filter,
+    EditButton,
 } from 'react-admin';
 
 export const InnkeeperList = props => (
     <List {...props} >
         <Datagrid>
-            <NumberField source="id" />
-            <TextField source="username" />
-            <EmailField source="email" />
+            <TextField source="id" label="InnkeeperID" />
+            <TextField source="username" label="Username" />
+            <EmailField source="email" label="Email" />
         </Datagrid>
     </List>
 );
 
-export const InnkeeperCreate = props => (
-    <Create {...props}>
-        <SimpleForm>
-            <TextInput source="username" />
-            <TextInput source="email" />
-            <PasswordInput label="Password" source="passwd" helperText="Default password: innkeeper" initiallyVisible/>
-        </SimpleForm>
-    </Create>
-);
-
-// export const InnkeeperEdit = props => (
-//     <Edit {...props}>
+// export const InnkeeperCreate = props => (
+//     <Create {...props}>
 //         <SimpleForm>
-//             <TextInput disabled source="id" />
-//             <ReferenceInput source="id" reference="id">
-//                 <SelectInput optionText="name" />
-//             </ReferenceInput>
-//             <TextInput source="username" />
-//             <TextInput source="email" />
+//             <TextInput source="username" label="Username" />
+//             <TextInput source="email" label="Email" />
+//             <PasswordInput label="Password" source="passwd" helperText="Default password: innkeeper" initiallyVisible/>
 //         </SimpleForm>
-//     </Edit>
+//     </Create>
 // );
+
+// export const InnkeeperEdit = (props) => {
+//     return (
+//         <Edit {...props} >
+//             <SimpleForm>
+//                 <TextInput source="email" label="Email" />
+//             </SimpleForm>
+//         </Edit>
+//     );
+// }

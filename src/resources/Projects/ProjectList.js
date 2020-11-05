@@ -1,50 +1,37 @@
 import * as React from "react";
 import {
-    Show,
-    ShowButton,
-    SimpleShowLayout,
-    RichTextField,
-    DateField,
-    Pagination,
-    useListContext,
     List,
-    Edit,
     Create,
     Datagrid,
-    ReferenceField,
     TextField,
-    EmailField,
     NumberField,
-    EditButton,
-    ReferenceInput,
-    SelectInput,
     SimpleForm,
     TextInput,
     NumberInput,
-    Filter,
 } from 'react-admin';
 
 export const ProjectList = props => (
     <List {...props} >
         <Datagrid>
-            <NumberField source="id" />
-            <TextField source="title" />
-            <TextField source="details" />
-            <NumberField source="cpu" />
-            <NumberField source="memory" />
-            <NumberField source="storage" />
+            <NumberField source="id" label="ProjectID" />
+            <TextField source="pilgrimid" label="PilgrimID" />
+            <TextField source="title" label="Title" />
+            <TextField source="details" label="Details" />
+            <NumberField source="cpu" label="CPU Limits (number)" />
+            <NumberField source="memory" label="Memory Limits (bytes)" />
+            <NumberField source="storage" label="Storage Requests (bytes)" />
         </Datagrid>
     </List>
 );
 
-export const ProjectCreate = props => (
-    <Create {...props}>
-        <SimpleForm>
-            <TextInput source="title" />
-            <TextInput source="details" fullWidth='true' />
-            <NumberInput source="cpu" />
-            <NumberInput source="memory" />
-            <NumberInput source="storage" />
-        </SimpleForm>
-    </Create>
-);
+// export const ProjectCreate = props => (
+//     <Create {...props}>
+//         <SimpleForm>
+//             <TextInput source="title" />
+//             <TextInput source="details" fullWidth='true' />
+//             <NumberInput source="cpu" />
+//             <NumberInput source="memory" />
+//             <NumberInput source="storage" />
+//         </SimpleForm>
+//     </Create>
+// );

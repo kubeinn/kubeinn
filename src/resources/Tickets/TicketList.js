@@ -17,6 +17,7 @@ import {
     NumberField,
     EditButton,
     ReferenceInput,
+    NumberInput,
     SelectInput,
     SimpleForm,
     TextInput,
@@ -27,12 +28,13 @@ import {
 export const TicketList = props => (
     <List {...props} >
         <Datagrid>
-            <NumberField source="id" />
-            <TextField source="username" />
-            <EmailField source="email" />
-            <TextField source="topic" />
-            <TextField source="details" />
-            <TextField source="status" />
+            <TextField source="id" label="TicketID" />
+            <TextField source="villageid" label="VillageID" />
+            <EmailField source="email" label="Email" />
+            <TextField source="topic" label="Topic" />
+            <TextField source="details" label="Details" />
+            <TextField source="status" label="Status" />
+            <EditButton />
         </Datagrid>
     </List>
 );
@@ -40,14 +42,28 @@ export const TicketList = props => (
 export const TicketCreate = props => (
     <Create {...props}>
         <SimpleForm>
-            <TextInput source="username" />
-            <TextInput source="email" />
-            <TextInput source="topic" />
-            <TextInput source="details" fullWidth='true' />
-            <RadioButtonGroupInput source="status" choices={[
+            <TextInput source="villageid" label="VillageID" />
+            <TextInput source="email" label="Email" />
+            <TextInput source="topic" label="Topic" />
+            <TextInput source="details" label="Details" />
+            <RadioButtonGroupInput source="status" label="Status" choices={[
                 { id: 'Open', name: 'Open' },
                 { id: 'Closed', name: 'Closed' },
             ]} />
         </SimpleForm>
     </Create>
+);
+
+export const TicketEdit = props => (
+    <Edit {...props}>
+        <SimpleForm>
+            <TextInput source="email" label="Email" />
+            <TextInput source="topic" label="Topic" />
+            <TextInput source="details" label="Details" />
+            <RadioButtonGroupInput source="status" label="Status" choices={[
+                { id: 'Open', name: 'Open' },
+                { id: 'Closed', name: 'Closed' },
+            ]} />
+        </SimpleForm>
+    </Edit>
 );
