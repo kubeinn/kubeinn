@@ -61,64 +61,64 @@ VALUES ('test-village-14', 'This is an example village.');
 INSERT INTO api.villages (organization, description)
 VALUES ('test-village-15', 'This is an example village.');
 -- Populate api.pilgrims
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-01', 'test-email-2', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-02', 'test-email-3', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-03', 'test-email-4', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-04', 'test-email-5', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-05', 'test-email-6', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-06', 'test-email-7', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-07', 'test-email-8', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-08', 'test-email-9', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-09', 'test-email-10', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-10', 'test-email-11', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-11', 'test-email-12', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-12', 'test-email-13', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-13', 'test-email-14', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-14', 'test-email-15', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-15', 'test-email-1', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-16', 'test-email-2', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-17', 'test-email-3', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-18', 'test-email-4', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-19', 'test-email-5', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-20', 'test-email-6', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-21', 'test-email-7', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-22', 'test-email-8', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-23', 'test-email-9', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-24', 'test-email-10', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-25', 'test-email-11', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-26', 'test-email-12', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-27', 'test-email-13', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-28', 'test-email-14', 'test-password');
-INSERT INTO api.pilgrims (villageid, username, email, passwd)
-VALUES ('village-1', 'test-user-29', 'test-email-15', 'test-password');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-01', 'test-email-2');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-02', 'test-email-3');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-03', 'test-email-4');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-04', 'test-email-5');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-05', 'test-email-6');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-06', 'test-email-7');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-07', 'test-email-8');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-08', 'test-email-9');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-09', 'test-email-10');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-10', 'test-email-11');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-11', 'test-email-12');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-12', 'test-email-13');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-13', 'test-email-14');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-14', 'test-email-15');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-15', 'test-email-1');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-16', 'test-email-2');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-17', 'test-email-3');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-18', 'test-email-4');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-19', 'test-email-5');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-20', 'test-email-6');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-21', 'test-email-7');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-22', 'test-email-8');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-23', 'test-email-9');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-24', 'test-email-10');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-25', 'test-email-11');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-26', 'test-email-12');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-27', 'test-email-13');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-28', 'test-email-14');
+INSERT INTO api.pilgrims (villageid, username, email)
+VALUES ('village-1', 'test-user-29', 'test-email-15');
 -- Populate api.innkeepers
 INSERT INTO api.innkeepers (username, email, passwd)
 VALUES ('test-user-00', 'test-email-1', 'test-password');

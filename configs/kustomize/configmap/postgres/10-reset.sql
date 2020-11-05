@@ -3,6 +3,7 @@ DROP SCHEMA IF EXISTS api CASCADE;
 -- Drop all sequences
 DROP SEQUENCE IF EXISTS pilgrim_sequence;
 DROP SEQUENCE IF EXISTS village_sequence;
+DROP SEQUENCE IF EXISTS innkeeper_sequence;
 DROP SEQUENCE IF EXISTS reeve_sequence;
 -- Drop all pilgrim roles
 DO $do$ 
@@ -21,6 +22,26 @@ BEGIN FOR temprow IN
 SELECT rolname
 FROM pg_roles
 WHERE rolname SIMILAR TO 'village-[0-9]*' LOOP 
+EXECUTE FORMAT('DROP ROLE "%s";', temprow.rolname);
+END LOOP;
+END $do$;
+-- Drop all innkeeper roles
+DO $do$ 
+DECLARE temprow record;
+BEGIN FOR temprow IN
+SELECT rolname
+FROM pg_roles
+WHERE rolname SIMILAR TO 'innkeeper-[0-9]*' LOOP 
+EXECUTE FORMAT('DROP ROLE "%s";', temprow.rolname);
+END LOOP;
+END $do$;
+-- Drop all reeve roles
+DO $do$ 
+DECLARE temprow record;
+BEGIN FOR temprow IN
+SELECT rolname
+FROM pg_roles
+WHERE rolname SIMILAR TO 'reeve-[0-9]*' LOOP 
 EXECUTE FORMAT('DROP ROLE "%s";', temprow.rolname);
 END LOOP;
 END $do$;
