@@ -5,10 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
-	// pilgrim_handler "github.com/kubeinn/schutterij/internal/api/pilgrim"
+	// innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
 	auth_handler "github.com/kubeinn/schutterij/internal/api/auth"
+	pilgrim_handler "github.com/kubeinn/schutterij/internal/api/pilgrim"
 	db_controller "github.com/kubeinn/schutterij/internal/controllers/dbcontroller"
+	kube_controller "github.com/kubeinn/schutterij/internal/controllers/kubecontroller"
 	global "github.com/kubeinn/schutterij/internal/global"
 	middleware "github.com/kubeinn/schutterij/internal/middleware"
 	test "github.com/kubeinn/schutterij/test"
@@ -16,8 +17,8 @@ import (
 
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
-	// clientcmd "k8s.io/client-go/tools/clientcmd"
-	// homedir "k8s.io/client-go/util/homedir"
+	kubernetes "k8s.io/client-go/kubernetes"
+	clientcmd "k8s.io/client-go/tools/clientcmd"
 )
 
 func main() {
@@ -31,9 +32,6 @@ func main() {
 	test.TestCreateDefaultInnkeeper()
 	test.TestCreateDefaultReeve()
 
-	// Get kubecfg
-	// global.KUBE_CONFIG, err = clientcmd.BuildConfigFromFlags("", c.String("kubecfg"))
-
 	// Start web server
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
@@ -45,19 +43,19 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// Setup route group for the innkeeper API endpoint
-	innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX)
-	innkeeperAPI.Use(middleware.TokenAuthMiddleware())
-	{
-		innkeeperAPI.GET("/test", innkeeper_handler.GetTestValidation)
-	}
-
-	// // Setup route group for the pilgrim API endpoint
-	// innkeeperAPI := router.Group(global.PILGRIM_ROUTE_PREFIX)
+	// // Setup route group for the innkeeper API endpoint
+	// innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX)
 	// innkeeperAPI.Use(middleware.TokenAuthMiddleware())
 	// {
-	// 	innkeeperAPI.POST("/", innkeeper_handler.PostExtraResourcesHandler)
+	// 	innkeeperAPI.GET("/test", innkeeper_handler.GetTestValidation)
 	// }
+
+	// Setup route group for the pilgrim API endpoint
+	pilgrimAPI := router.Group(global.PILGRIM_ROUTE_PREFIX)
+	pilgrimAPI.Use(middleware.TokenAuthMiddleware())
+	{
+		pilgrimAPI.POST("/create-project", pilgrim_handler.PostCreateProject)
+	}
 
 	// Setup route group for the authentication API endpoint
 	authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
@@ -86,4 +84,7 @@ func initialize() {
 	dbUser := os.Getenv("PGUSER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
+	// Create KUBE_CONTROLLER
+
+	global.KUBE_CONTROLLER = *kubecontroller.New(clientcmd.BuildConfigFromFlags("", global.KUBE_CONFIG_ABSOLUTE_PATH))
 }

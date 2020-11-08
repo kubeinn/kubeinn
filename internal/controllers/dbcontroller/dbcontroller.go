@@ -6,7 +6,6 @@ import (
 	"os"
 
 	pgxpool "github.com/jackc/pgx/v4/pgxpool"
-	// global "github.com/kubeinn/schutterij/internal/global"
 )
 
 type PostgresController struct {

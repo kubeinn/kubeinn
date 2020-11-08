@@ -2,14 +2,16 @@ package global
 
 import (
 	dbcontroller "github.com/kubeinn/schutterij/internal/controllers/dbcontroller"
+	kubecontroller "github.com/kubeinn/schutterij/internal/controllers/kubecontroller"
 	go_cache "github.com/patrickmn/go-cache"
-	rest "k8s.io/client-go/rest"
 )
 
 var JWT_SIGNING_KEY []byte
 var PG_CONTROLLER dbcontroller.PostgresController
-var KUBE_CONFIG *rest.Config
+var KUBE_CONTROLLER kubecontroller.KubeController
 var SESSION_CACHE *go_cache.Cache
+
+const KUBE_CONFIG_ABSOLUTE_PATH string = "~/.kube/config"
 
 const JWT_AUDIENCE_INNKEEPER string = "Innkeeper"
 const JWT_AUDIENCE_PILGRIM string = "Pilgrim"
