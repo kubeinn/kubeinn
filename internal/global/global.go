@@ -11,7 +11,7 @@ var PG_CONTROLLER dbcontroller.PostgresController
 var KUBE_CONTROLLER kubecontroller.KubeController
 var SESSION_CACHE *go_cache.Cache
 
-const KUBE_CONFIG_ABSOLUTE_PATH string = "~/.kube/config"
+const KUBE_CONFIG_ABSOLUTE_PATH string = "/root/.kube/admin-config"
 
 const JWT_AUDIENCE_INNKEEPER string = "Innkeeper"
 const JWT_AUDIENCE_PILGRIM string = "Pilgrim"

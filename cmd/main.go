@@ -8,8 +8,8 @@ import (
 	// innkeeper_handler "github.com/kubeinn/schutterij/internal/api/innkeeper"
 	auth_handler "github.com/kubeinn/schutterij/internal/api/auth"
 	pilgrim_handler "github.com/kubeinn/schutterij/internal/api/pilgrim"
-	db_controller "github.com/kubeinn/schutterij/internal/controllers/dbcontroller"
-	kube_controller "github.com/kubeinn/schutterij/internal/controllers/kubecontroller"
+	dbcontroller "github.com/kubeinn/schutterij/internal/controllers/dbcontroller"
+	kubecontroller "github.com/kubeinn/schutterij/internal/controllers/kubecontroller"
 	global "github.com/kubeinn/schutterij/internal/global"
 	middleware "github.com/kubeinn/schutterij/internal/middleware"
 	test "github.com/kubeinn/schutterij/test"
@@ -17,8 +17,6 @@ import (
 
 	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
-	kubernetes "k8s.io/client-go/kubernetes"
-	clientcmd "k8s.io/client-go/tools/clientcmd"
 )
 
 func main() {
@@ -29,8 +27,8 @@ func main() {
 	initialize()
 
 	// Testing
-	test.TestCreateDefaultInnkeeper()
-	test.TestCreateDefaultReeve()
+	// test.TestCreateDefaultInnkeeper()
+	// test.TestCreateDefaultReeve()
 
 	// Start web server
 	// Set the router as the default one shipped with Gin
@@ -83,8 +81,8 @@ func initialize() {
 	dbPort, _ := strconv.Atoi(os.Getenv("PGPORT"))
 	dbUser := os.Getenv("PGUSER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	global.PG_CONTROLLER = *db_controller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
-	// Create KUBE_CONTROLLER
+	global.PG_CONTROLLER = *dbcontroller.NewPostgresController(dbName, dbHost, dbPort, dbUser, dbPassword)
 
-	global.KUBE_CONTROLLER = *kubecontroller.New(clientcmd.BuildConfigFromFlags("", global.KUBE_CONFIG_ABSOLUTE_PATH))
+	// Create KUBE_CONTROLLER
+	global.KUBE_CONTROLLER = *kubecontroller.NewKubeController(global.KUBE_CONFIG_ABSOLUTE_PATH)
 }
