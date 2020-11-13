@@ -126,7 +126,7 @@ func (kc *KubeController) CreateRole(namespace string) error {
 		rbac.PolicyRule{
 			Verbs:     []string{"*"},
 			Resources: []string{"*"},
-			APIGroups: []string{"", "batch", "extensions", "apps"},
+			APIGroups: []string{"", "batch", "extensions", "apps", "autoscaling"},
 		},
 	}
 
@@ -208,7 +208,7 @@ func (kc *KubeController) GenerateKubeConfiguration(namespace string) error {
 	}
 
 	// Get secret containing authentication data
-	secret := secretList.Items[0]
+	secret := secretList.Items[1]
 
 	clusters := make(map[string]*clientcmdapi.Cluster)
 	clusters["default-cluster"] = &clientcmdapi.Cluster{
