@@ -8,6 +8,8 @@ import {
     SimpleForm,
     TextInput,
     NumberInput,
+    Toolbar,
+    SaveButton,
 } from 'react-admin';
 
 export const ProjectList = props => (
@@ -25,7 +27,7 @@ export const ProjectList = props => (
 
 export const ProjectCreate = props => (
     <Create {...props}>
-        <SimpleForm>
+        <SimpleForm toolbar={<ProjectCreateToolbar />}>
             <TextInput source="title" label="Title" />
             <TextInput source="details" fullWidth='true' label="Details" />
             <NumberInput source="cpu" label="CPU Limits (number)" helperText="Across all pods in a non-terminal state, the sum of CPU limits cannot exceed this value." />
@@ -33,4 +35,12 @@ export const ProjectCreate = props => (
             <NumberInput source="storage" label="Storage Requests (bytes)" helperText="Across all persistent volume claims, the sum of storage requests cannot exceed this value." />
         </SimpleForm>
     </Create>
+);
+
+const ProjectCreateToolbar = props => (
+    <Toolbar {...props}>
+        <SaveButton
+            transform={data => ({ ...data, createProject: true })}
+        />
+    </Toolbar>
 );

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CreateProjectByPilgrim, DeleteProjectByPilgrim, DeleteProjectsByPilgrim } from '../Pilgrim/Pilgrim';
 
 // Production
 // const dataProviderUrl = window._env_.KUBEINN_POSTGREST_URL;
@@ -35,27 +36,36 @@ export default {
 
     create: (resource, params) => {
         const url = `${dataProviderUrl}/${resource}`;
+        const { createProject, ...record } = params.data;
 
-        return axios({
+        let updateDatabase = axios({
             url: url,
             method: 'POST',
             headers: {
                 'Authorization': getCookie("Authorization"),
             },
-            data: params.data,
+            data: record,
             timeout: 5000,
             responseType: 'json',
             responseEncoding: 'utf8',
         }).then(({ json }) => ({
             data: { ...params.data },
         }));
+
+        if (createProject) {
+            console.log("createProject is true.")
+            return CreateProjectByPilgrim(params).then(
+                updateDatabase
+            );
+        }
+        return updateDatabase;
     },
 
     delete: (resource, params) => {
         const url = `${dataProviderUrl}/${resource}`;
         const paramsId = "eq." + params.id;
 
-        return axios({
+        let updateDatabase = axios({
             url: url,
             method: 'DELETE',
             headers: {
@@ -70,6 +80,15 @@ export default {
         }).then(response => ({
             data: response.data,
         }));
+
+        console.log(resource)
+        if (resource == 'projects') {
+            console.log("deleteProject is true.")
+            return DeleteProjectByPilgrim(params).then(
+                updateDatabase
+            );
+        }
+        return updateDatabase;
     },
 
     deleteMany: (resource, params) => {
@@ -83,7 +102,7 @@ export default {
         }
         paramsId = paramsId + ")";
 
-        return axios({
+        let updateDatabase = axios({
             url: url,
             method: 'DELETE',
             headers: {
@@ -98,6 +117,15 @@ export default {
         }).then(response => ({
             data: response.data,
         }));
+
+        console.log(resource)
+        if (resource == 'projects') {
+            console.log("deleteProjects is true.")
+            return DeleteProjectsByPilgrim(params).then(
+                updateDatabase
+            );
+        }
+        return updateDatabase;
     },
 };
 
