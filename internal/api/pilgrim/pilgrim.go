@@ -60,3 +60,25 @@ func PostCreateProject(c *gin.Context) {
 
 	c.String(http.StatusOK, "Project created!")
 }
+
+// PostDeleteProject is ...
+func PostDeleteProject(c *gin.Context) {
+	id := c.Query("id")
+
+	// Get title from database
+	dbTitle, err := global.PG_CONTROLLER.SelectProjectById(id)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Error deleting namespace (cannot find title)"})
+		return
+	}
+
+	err = global.KUBE_CONTROLLER.DeleteNamespace(dbTitle)
+	if err != nil {
+		// Registration failed
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Error deleting namespace"})
+		return
+	}
+
+	c.String(http.StatusOK, "Project deleted!")
+}

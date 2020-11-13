@@ -241,3 +241,14 @@ func (kc *KubeController) GenerateKubeConfiguration(namespace string) error {
 
 	return nil
 }
+
+func (kc *KubeController) DeleteNamespace(namespace string) error {
+	fmt.Println("Deleting namespace...")
+
+	err := kc.clientset.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}

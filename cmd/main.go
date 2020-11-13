@@ -53,6 +53,7 @@ func main() {
 	pilgrimAPI.Use(middleware.TokenAuthMiddleware())
 	{
 		pilgrimAPI.POST("/create-project", pilgrim_handler.PostCreateProject)
+		pilgrimAPI.POST("/delete-project", pilgrim_handler.PostDeleteProject)
 	}
 
 	// Setup route group for the authentication API endpoint

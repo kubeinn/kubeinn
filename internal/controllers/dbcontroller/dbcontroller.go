@@ -274,3 +274,24 @@ func (pg *PostgresController) InsertVillage(organization string, description str
 	}
 	return nil
 }
+
+/*
+PROJECTS
+*/
+// SelectProjectById is ...
+func (pg *PostgresController) SelectProjectById(id string) (string, error) {
+	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	var title string
+	err = dbpool.QueryRow(context.Background(),
+		"SELECT title FROM api.projects WHERE id=$1", id).Scan(&title)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+	}
+	return title, err
+}

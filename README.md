@@ -20,7 +20,7 @@ docker run --rm -d -p 5432:5432 \
 
 # Get shell into the Postgres container
 docker exec -it <mycontainer> bash
-docker exec -it 87cc82e6e6d3 bash
+docker exec -it fde9238d0681 bash
 
 # Start psql
 psql -U postgres
@@ -35,6 +35,9 @@ docker run --rm --net=host -p 3000:3000 \
 
 go build -o ./build ./cmd/main.go
 ./build/main
+
+sudo mv exampleproject-config ~/.kube/config
+kubectl create -f test/test-deployment.yaml
 ```
 
 ## Production
