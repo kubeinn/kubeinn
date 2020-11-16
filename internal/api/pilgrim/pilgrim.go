@@ -51,14 +51,14 @@ func PostCreateProject(c *gin.Context) {
 		return
 	}
 
-	err = global.KUBE_CONTROLLER.GenerateKubeConfiguration(namespace)
+	kubecfg, err := global.KUBE_CONTROLLER.GenerateKubeConfiguration(namespace)
 	if err != nil {
 		// Registration failed
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Error generating kube configuration"})
 		return
 	}
 
-	c.String(http.StatusOK, "Project created!")
+	c.JSON(http.StatusOK, gin.H{"kubecfg": kubecfg})
 }
 
 // PostDeleteProject is ...

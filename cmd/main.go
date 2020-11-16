@@ -27,7 +27,7 @@ func main() {
 	initialize()
 
 	// Testing
-	// test.TestCreateDefaultInnkeeper()
+	test.TestCreateDefaultInnkeeper()
 	// test.TestCreateDefaultReeve()
 
 	// Start web server

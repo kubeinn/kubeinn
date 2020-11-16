@@ -3,6 +3,7 @@ package kubecontroller
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -198,13 +199,15 @@ func (kc *KubeController) CreateRoleBinding(namespace string) error {
 	return err
 }
 
-func (kc *KubeController) GenerateKubeConfiguration(namespace string) error {
+func (kc *KubeController) GenerateKubeConfiguration(namespace string) (string, error) {
 	fmt.Println("Generating kube config...")
+
+	filepath := "/var/tmp/kubeinn/" + namespace + ".kubeconfig"
 
 	// Get secret list for namespace
 	secretList, err := kc.clientset.CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Get secret containing authentication data
@@ -237,9 +240,14 @@ func (kc *KubeController) GenerateKubeConfiguration(namespace string) error {
 		AuthInfos:      authinfos,
 	}
 
-	clientcmd.WriteToFile(clientConfig, namespace+"-config")
+	clientcmd.WriteToFile(clientConfig, filepath)
 
-	return nil
+	kubecfg, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	return string(kubecfg), nil
 }
 
 func (kc *KubeController) DeleteNamespace(namespace string) error {
