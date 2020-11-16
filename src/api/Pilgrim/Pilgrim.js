@@ -5,12 +5,12 @@ import axios from 'axios';
 // Local
 const pilgrimAPI = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/pilgrim';
 
-export function CreateProjectByPilgrim(params) {
+export async function CreateProjectByPilgrim(params) {
     console.log("Creating project...");
 
     const url = `${pilgrimAPI}/create-project`;
 
-    return axios({
+    var response = await axios({
         url: url,
         method: 'POST',
         headers: {
@@ -26,6 +26,8 @@ export function CreateProjectByPilgrim(params) {
         responseType: 'json',
         responseEncoding: 'utf8',
     });
+
+    return response;
 }
 
 export function DeleteProjectByPilgrim(params) {
@@ -48,19 +50,16 @@ export function DeleteProjectByPilgrim(params) {
     });
 }
 
-export function DeleteProjectsByPilgrim(params) {
+export async function DeleteProjectsByPilgrim(params) {
     console.log("Deleting projects...");
 
     const url = `${pilgrimAPI}/delete-project`;
-
     var arrayLength = params.ids.length;
-
     var promises = []; // store all promise
-    
-    async function loop() {
-        for (let i = 0; i < arrayLength; i++) {
-            promises.push(
-             axios({
+
+    for (let i = 0; i < arrayLength; i++) {
+        promises.push(
+            axios({
                 url: url,
                 method: 'POST',
                 headers: {
@@ -73,11 +72,9 @@ export function DeleteProjectsByPilgrim(params) {
                 responseType: 'json',
                 responseEncoding: 'utf8',
             }));
-        }
-        await Promise.all(promises);
-        return Promise.resolve();
-    };
-    return loop();
+    }
+    await Promise.all(promises);
+    return;
 }
 
 function getCookie(name) {

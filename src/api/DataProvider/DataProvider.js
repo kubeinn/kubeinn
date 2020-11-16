@@ -34,64 +34,72 @@ export default {
         }));
     },
 
-    create: (resource, params) => {
+    create: async (resource, params) => {
         const url = `${dataProviderUrl}/${resource}`;
         const { createProject, ...record } = params.data;
 
-        let updateDatabase = axios({
-            url: url,
-            method: 'POST',
-            headers: {
-                'Authorization': getCookie("Authorization"),
-            },
-            data: record,
-            timeout: 5000,
-            responseType: 'json',
-            responseEncoding: 'utf8',
-        }).then(({ json }) => ({
-            data: { ...params.data },
-        }));
+        async function updateDatabase() {
+            var data = await axios({
+                url: url,
+                method: 'POST',
+                headers: {
+                    'Authorization': getCookie("Authorization"),
+                    'Prefer': 'return=representation',
+                },
+                data: record,
+                timeout: 5000,
+                responseType: 'json',
+                responseEncoding: 'utf8',
+            }).then((response) => ({
+                data: { ...params.data, id: response.id },
+            }));
+            return data;
+        }
 
         if (createProject) {
-            console.log("createProject is true.")
-            return CreateProjectByPilgrim(params).then(
-                updateDatabase
-            );
+            console.log("createProject is true.");
+            var response = await CreateProjectByPilgrim(params);
+            console.log(response)
+            record["kube_configuration"] = response.data.kubecfg;
+            return updateDatabase();
         }
-        return updateDatabase;
+
+        return updateDatabase();
     },
 
     delete: (resource, params) => {
         const url = `${dataProviderUrl}/${resource}`;
         const paramsId = "eq." + params.id;
 
-        let updateDatabase = axios({
-            url: url,
-            method: 'DELETE',
-            headers: {
-                'Authorization': getCookie("Authorization"),
-            },
-            params: {
-                id: paramsId,
-            },
-            timeout: 5000,
-            responseType: 'json',
-            responseEncoding: 'utf8',
-        }).then(response => ({
-            data: response.data,
-        }));
+        async function updateDatabase() {
+            var data = await axios({
+                url: url,
+                method: 'DELETE',
+                headers: {
+                    'Authorization': getCookie("Authorization"),
+                },
+                params: {
+                    id: paramsId,
+                },
+                timeout: 5000,
+                responseType: 'json',
+                responseEncoding: 'utf8',
+            }).then(response => ({
+                data: response.data,
+            }));
+            return data;
+        };
 
-        console.log(resource)
+        console.log(resource);
         if (resource == 'projects') {
-            console.log("deleteProject is true.")
-            return DeleteProjectByPilgrim(params).then(
-                updateDatabase
-            );
+            console.log("deleteProject is true.");
+            DeleteProjectByPilgrim(params);
+            return updateDatabase();
         }
-        return updateDatabase;
+        return updateDatabase();
     },
 
-    deleteMany: (resource, params) => {
+    deleteMany: async (resource, params) => {
         const url = `${dataProviderUrl}/${resource}`;
 
         var arrayLength = params.ids.length;
@@ -102,30 +110,32 @@ export default {
         }
         paramsId = paramsId + ")";
 
-        let updateDatabase = axios({
-            url: url,
-            method: 'DELETE',
-            headers: {
-                'Authorization': getCookie("Authorization"),
-            },
-            params: {
-                or: paramsId,
-            },
-            timeout: 5000,
-            responseType: 'json',
-            responseEncoding: 'utf8',
-        }).then(response => ({
-            data: response.data,
-        }));
+        async function updateDatabase() {
+            var data = await axios({
+                url: url,
+                method: 'DELETE',
+                headers: {
+                    'Authorization': getCookie("Authorization"),
+                },
+                params: {
+                    or: paramsId,
+                },
+                timeout: 5000,
+                responseType: 'json',
+                responseEncoding: 'utf8',
+            }).then(response => ({
+                data: response.data,
+            }));
+            return data;
+        };
 
         console.log(resource)
         if (resource == 'projects') {
-            console.log("deleteProjects is true.")
-            return DeleteProjectsByPilgrim(params).then(
-                updateDatabase
-            );
+            console.log("deleteProjects is true.");
+            await DeleteProjectsByPilgrim(params);
+            return updateDatabase();
         }
-        return updateDatabase;
+        return updateDatabase();
     },
 };
 
