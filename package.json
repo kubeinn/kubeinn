@@ -1,0 +1,41 @@
+{
+  "name": "innkeeper",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.11.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "axios": "^0.20.0",
+    "prop-types": "^15.7.2",
+    "ra-data-json-server": "^3.8.4",
+    "ra-data-simple-rest": "^3.8.3",
+    "react": "^16.13.1",
+    "react-admin": "^3.8.4",
+    "react-dom": "^16.13.1",
+    "react-scripts": "^3.4.3"
+  },
+  "scripts": {
+    "start": "PORT=8001 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "homepage": "/innkeeper/"
+}
