@@ -1,1 +1,3 @@
-node_modules
+apps/innkeeper/node_modules
+apps/pilgrim/node_modules
+apps/reeve/node_modules
