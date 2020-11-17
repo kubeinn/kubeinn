@@ -21,7 +21,7 @@ import (
 
 func main() {
 	// Testing
-	test.TestInitEnvironmentVars()
+	// test.TestInitEnvironmentVars()
 
 	// Initialize variables
 	initialize()

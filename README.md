@@ -1,5 +1,5 @@
-# schutterij
-Backend and middleware component
+# kubeinn-backend
+Backend and middleware components
 
 ## Local
 ### Build and run
@@ -43,7 +43,7 @@ kubectl create -f test/test-deployment.yaml
 ## Production
 ### Build and push container image
 ```
-docker build -t jordan396/schutterij .
-docker push jordan396/schutterij
-docker run jordan396/schutterij
+docker build -t jordan396/kubeinn-backend .
+docker push jordan396/kubeinn-backend
+docker run jordan396/kubeinn-backend
 ```
