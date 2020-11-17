@@ -1,49 +1,59 @@
-# Schutterij is exposed on a NodePort
+# PostgREST is exposed on a NodePort
 apiVersion: v1
 kind: Service
 metadata:
-  name: schutterij-node-port-service
+  name: postgrest-node-port-service
 spec:
   type: NodePort
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 3000
+      targetPort: 3000
       nodePort: 30001
   selector:
-    component: schutterij
+    component: postgrest
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: schutterij-cluster-ip-service
+  name: postgrest-cluster-ip-service
 spec:
   type: ClusterIP
   selector:
-    component: schutterij
+    component: postgrest
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 3000
+      targetPort: 3000
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: schutterij-deployment
+  name: postgrest-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: schutterij
+      component: postgrest
   template:
     metadata:
       labels:
-        component: schutterij
+        component: postgrest
     spec:
       serviceAccountName: service-account
       containers:
-        - name: schutterij
-          image: jordan396/schutterij
+        - name: postgrest
+          image: postgrest/postgrest
           ports:
-            - containerPort: 8080
+            - containerPort: 3000
+          volumeMounts:
+            - name: tmp-files
+              mountPath: "/etc/postgrest.conf"
+              subPath: "postgrest.conf"
+      initContainers:
+        - name: set-db-uri
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - cp /configmap/postgrest.conf /tmp/files/; echo -e "db-uri = \"postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)\" \njwt-secret = \"$(JWT_SIGNING_KEY)\"" >> /tmp/files/postgrest.conf;
           env:
             - name: PGHOST
               value: $(POSTGRES_CLUSTER_IP_SERVICE)
@@ -62,7 +72,7 @@ spec:
                 configMapKeyRef:
                   name: postgres-conf
                   key: PGDATABASE
-            - name: POSTGRES_PASSWORD
+            - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   name: pgpassword
@@ -72,5 +82,15 @@ spec:
                 secretKeyRef:
                   name: jwt-signing-key
                   key: JWT_SIGNING_KEY
-          command: ["/app/main"]
-          args: ["--kubecfg", "/app/configs/.kube/config"]
+          volumeMounts:
+            - name: postgrest-conf
+              mountPath: "/configmap"
+              readOnly: true
+            - name: tmp-files
+              mountPath: "/tmp/files"
+      volumes:
+        - name: postgrest-conf
+          configMap:
+            name: postgrest-conf
+        - name: tmp-files
+          emptyDir: {}

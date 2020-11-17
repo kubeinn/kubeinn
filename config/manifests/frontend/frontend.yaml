@@ -1,0 +1,91 @@
+# NodePort is for debugging purposes
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-node-port-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30000
+  selector:
+    component: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-cluster-ip-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    component: frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: frontend
+  template:
+    metadata:
+      labels:
+        component: frontend
+    spec:
+      serviceAccountName: service-account
+      containers:
+        - name: frontend
+          image: jordan396/kubeinn-frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-volume
+              mountPath: "/etc/nginx/conf.d"
+            - name: tmp-files-innkeeper
+              mountPath: "/usr/share/nginx/html/innkeeper/config"
+            - name: tmp-files-pilgrim
+              mountPath: "/usr/share/nginx/html/pilgrim/config"
+            - name: tmp-files-reeve
+              mountPath: "/usr/share/nginx/html/reeve/config"
+      initContainers:
+        - name: create-env-config
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              "cp /configmap/.env /tmp/files/ && cp /configmap/env.sh /tmp/files/ && cd /tmp/files/ && /bin/sh ./env.sh && cp env-config.js ../innkeeper && cp env-config.js ../pilgrim && cp env-config.js ../reeve",
+            ]
+          volumeMounts:
+            - name: react-env-volume
+              mountPath: "/configmap"
+              readOnly: true
+            - name: tmp-files
+              mountPath: "/tmp/files"
+            - name: tmp-files-innkeeper
+              mountPath: "/tmp/innkeeper"
+            - name: tmp-files-pilgrim
+              mountPath: "/tmp/pilgrim"
+            - name: tmp-files-reeve
+              mountPath: "/tmp/reeve"
+      volumes:
+        - name: react-env-volume
+          configMap:
+            name: frontend-conf
+        - name: nginx-volume
+          configMap:
+            name: nginx-conf
+        - name: tmp-files
+          emptyDir: {}
+        - name: tmp-files-innkeeper
+          emptyDir: {}
+        - name: tmp-files-pilgrim
+          emptyDir: {}
+        - name: tmp-files-reeve
+          emptyDir: {}

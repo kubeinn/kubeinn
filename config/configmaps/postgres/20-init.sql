@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS api.projects (
     details TEXT NOT NULL,
     cpu INTEGER NOT NULL,
     memory INTEGER NOT NULL,
-    storage INTEGER NOT NULL
+    storage INTEGER NOT NULL,
+    kube_configuration TEXT
 );
 CREATE TABLE IF NOT EXISTS api.tickets (
     id SERIAL PRIMARY KEY,

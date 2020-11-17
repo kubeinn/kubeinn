@@ -42,12 +42,8 @@ resources:
   - ./manifests/metrics/kube-state-metrics.yaml
   - ./manifests/metrics/node-exporter.yaml
   - ./manifests/metrics/prometheus.yaml
-  - ./manifests/grafana/grafana.yaml
-  - ./manifests/innkeeper/innkeeper.yaml
-  - ./manifests/pilgrim/pilgrim.yaml
-  - ./manifests/schutterij/schutterij.yaml
-  - ./manifests/crossroads/crossroads.yaml
-  - ./manifests/ingress/ingress-service.yaml
+  - ./manifests/frontend/frontend.yaml
+  - ./manifests/backend/backend.yaml
 
 # Each entry in this list results in the creation of
 # one ConfigMap resource (it's a generator of n maps).
@@ -59,28 +55,29 @@ resources:
 # replace an existing configMap from the parent.
 configMapGenerator:
   - name: postgres-conf
-    env: ./configmap/postgres/postgres.env
+    env: ./configmaps/postgres/postgres.env
   - name: postgres-init-db-conf
     files:
-      - ./configmap/postgres/10-init.sql
-      - ./configmap/postgres/20-policies.sql
-      - ./configmap/postgres/90-insert-example-rows.sql
+      - ./configmaps/postgres/10-reset.sql
+      - ./configmaps/postgres/20-init.sql
+      - ./configmaps/postgres/30-policies.sql
+      - ./configmaps/postgres/40-triggers.sql
   - name: postgrest-conf
     files:
-      - ./configmap/postgrest/postgrest.conf
+      - ./configmaps/postgrest/postgrest.conf
   - name: prometheus-conf
     files:
-      - ./configmap/prometheus/prometheus.yaml
-  - name: react-env-conf
+      - ./configmaps/prometheus/prometheus.yaml
+  - name: frontend-conf
     files:
-      - ./configmap/react-env/.env
-      - ./configmap/react-env/env.sh
-  - name: grafana-dashboards-prov-conf
+      - ./configmaps/frontend/.env
+      - ./configmaps/frontend/env.sh
+  - name: nginx-conf
     files:
-      - ./configmap/grafana/provisioning/dashboards.yaml
-  - name: grafana-datasources-prov-conf
+      - ./configmaps/frontend/default.conf
+  - name: backend-conf
     files:
-      - ./configmap/grafana/provisioning/datasources.yaml
+      - ./configmaps/backend/admin-config
 
 # Each entry in this list results in the creation of
 # one Secret resource (it's a generator of n secrets).
@@ -224,26 +221,6 @@ generatorOptions:
 # To do so, add an entry to `vars:` as follows:
 #
 vars:
-  - name: CROSSROADS_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: crossroads-cluster-ip-service
-      apiVersion: v1
-  - name: INNKEEPER_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: innkeeper-cluster-ip-service
-      apiVersion: v1
-  - name: PILGRIM_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: pilgrim-cluster-ip-service
-      apiVersion: v1
-  - name: SCHUTTERIJ_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: schutterij-cluster-ip-service
-      apiVersion: v1
   - name: POSTGREST_CLUSTER_IP_SERVICE
     objref:
       kind: Service
@@ -254,16 +231,22 @@ vars:
       kind: Service
       name: postgres-cluster-ip-service
       apiVersion: v1
-  - name: GRAFANA_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: grafana-cluster-ip-service
-      apiVersion: v1
   - name: PROMETHEUS_CLUSTER_IP_SERVICE
     objref:
       kind: Service
       name: prometheus-cluster-ip-service
       apiVersion: v1
+  - name: FRONTEND_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: frontend-cluster-ip-service
+      apiVersion: v1
+  - name: BACKEND_CLUSTER_IP_SERVICE
+    objref:
+      kind: Service
+      name: backend-cluster-ip-service
+      apiVersion: v1
+  
     # fieldref:
     #   fieldpath: metadata.name
     # - name: SOME_SECRET_NAME
