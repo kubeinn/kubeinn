@@ -35,12 +35,19 @@ secretGenerator:
       - JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
 ```
 
-## 4. Create namespace
+## 4. Copy kube config
+```bash
+# kube config is usually located at /root/.kube/config
+# May differ according to your cloud provider
+cp /root/.kube/config config/configmaps/backend/admin-config
+```
+
+## 5. Create namespace
 ```bash
 kubectl create namespace kubeinn
 ```
 
-## 5. Install using kustomize
+## 6. Install using kustomize
 ```
 kubectl apply -k ./config
 ```
