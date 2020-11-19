@@ -1,6 +1,6 @@
 # Kubeinn [![GitHub issues](https://img.shields.io/github/issues/kubeinn/kubeinn)](https://github.com/kubeinn/kubeinn/issues)[![GitHub forks](https://img.shields.io/github/forks/kubeinn/kubeinn)](https://github.com/kubeinn/kubeinn/network)[![GitHub stars](https://img.shields.io/github/stars/kubeinn/kubeinn)](https://github.com/kubeinn/kubeinn/stargazers)[![GitHub license](https://img.shields.io/github/license/kubeinn/kubeinn)](https://github.com/kubeinn/kubeinn/blob/master/LICENSE)
 
-<img src="./img/logo.png" title="" alt="" width="200">
+<img src="./docs/img/logo.png" title="" alt="" width="200">
 
 Kubeinn is an open source manager for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the basic tools to manage tenants of a shared Kubernetes cluster. Originally designed for [SingAREN](https://www.singaren.net.sg/).
 
@@ -11,56 +11,61 @@ Built with [React](https://facebook.github.io/react/), [Material Design](https:/
     •
     <a href="#">Docs</a>
     •
-    <a href="http://51.222.35.240:30000/innkeeper/">Demo</a>
+    <a href="http://51.222.35.240:30000/">Demo</a>
 </strong>
 
 ---
 
-![](./img/kubeinn-demo.gif)
+![](./docs/img/kubeinn-demo.gif)
 
 ## Features
+- Accounts & account users to represent tenants of a shared cluster
+- Secure isolation between tenant namespaces
+- Built-in authentication and authorization using JSON Web Tokens (JWTs)
+- Self-service resource provisioning for users to launch projects with ease 
+- Resource limits and quotas to ensure fair resource allocation 
+- Vendor-agnostic to run on any platform of your choice
+- Centralised resource control for the single source of truth for your cluster
+- Simple ticketing service to raise special requests (e.g. increase resource limits, CRDs etc.) 
 
-- **Accounts & Account Users** to represent tenants in a shared Kubernetes cluster
-- **Self-Service Namespace Provisioning** for account users
-- **Account Limits** to ensure quality of service and fairness among users 
-- **Vendor-Agnostic** for you to run on the platform of your choice
-
-## Getting Started
+## Installation
+You can deploy Kubeinn on any Kubernetes 1.9+ cluster in a matter of minutes, if not seconds. 
 ### Prerequisites
-
 - Kubernetes version 1.9 or higher
 - Persistent Volume Claims
-
-### Installation
-
+### 1. Clone this repository
 ```bash
-# Ceate namespace
+git clone https://github.com/kubeinn/kubeinn.git
+cd kubeinn
+```
+### 2. Set environment variables
+```
+# ./config/configmaps/frontend/.env
+KUBEINN_SCHUTTERIJ_URL=http://[YOUR-KUBERNETES-NODE-IP]:30002
+KUBEINN_POSTGREST_URL=http://[YOUR-KUBERNETES-NODE-IP]:30001
+```
+### 3. Set kustomization secrets
+```
+# ./config/kustomization.yaml
+secretGenerator:
+  - name: pgpassword
+    literals:
+      - POSTGRES_PASSWORD=[YOUR-POSTGRES-PASSWORD]
+  - name: jwt-signing-key
+    literals:
+      - JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
+```
+### 4. Create namespace
+```bash
 kubectl create namespace kubeinn
-
-# Install using kustomize
+```
+### 5. Install using kustomize
+```
 kubectl apply -k ./config
 ```
 
 ## Documentation
-
-There are three types of users in Kubeinn:
-
-- **Innkeepers**
-  - Represent cluster administrators 
-  - Full cluster privileges
-  - Demo link: [Innkeeper Administration Portal](http://51.222.35.240:30000/innkeeper/login)
-
-- **Reeves** 
-  - Represent project managers 
-  - Acts as the point of contact for all users of a project
-  - Demo link: [Reeve Management Portal](http://51.222.35.240:30000/reeve/)
-
-- **Pilgrims** 
-  - Represent project users 
-  - Can create and delete projects
-  - Demo link: [Pilgrim User Portal](http://51.222.35.240:30000/pilgrim/)
-
-A more comprehensive documentation will be provided in the future.
+Refer to the 
 
 ## Contributing
 
