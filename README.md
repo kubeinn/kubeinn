@@ -65,7 +65,7 @@ kubectl apply -k ./config
 ```
 
 ## Documentation
-Refer to the 
+Refer to the [docs](https://kubeinn.github.io/kubeinn/) page.
 
 ## Contributing
 
