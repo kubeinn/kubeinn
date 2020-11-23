@@ -18,3 +18,10 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA api TO PUBLIC;
 GRANT USAGE ON SCHEMA api TO PUBLIC; 
 GRANT ALL PRIVILEGES ON api.projects TO PUBLIC; 
 GRANT ALL PRIVILEGES ON api.pilgrims TO PUBLIC; 
+-- Grant permissions to role groups
+GRANT ALL PRIVILEGES ON api.tickets TO villages;
+GRANT ALL PRIVILEGES ON api.usage TO villages;
+GRANT ALL PRIVILEGES ON api.projects TO villages; 
+GRANT ALL PRIVILEGES ON api.pilgrims TO villages; 
+GRANT ALL PRIVILEGES ON api.projects TO pilgrims; 
+GRANT ALL PRIVILEGES ON api.pilgrims TO pilgrims; 

@@ -3,6 +3,7 @@ CREATE OR REPLACE FUNCTION create_pilgrim_role_function() RETURNS TRIGGER
 AS $$ 
 BEGIN 
     EXECUTE FORMAT('CREATE ROLE "%s";', NEW.id);
+    EXECUTE FORMAT('GRANT pilgrims TO "%s";',NEW.id);
     RETURN NEW;
 END;
 $$
@@ -12,9 +13,7 @@ CREATE OR REPLACE FUNCTION create_village_role_function() RETURNS TRIGGER
 AS $$ 
 BEGIN 
     EXECUTE FORMAT('CREATE ROLE "%s" CREATEROLE;', NEW.id);
-    EXECUTE FORMAT('GRANT USAGE ON SCHEMA api TO "%s";',NEW.id);
-    EXECUTE FORMAT('GRANT ALL PRIVILEGES ON api.tickets TO "%s";', NEW.id);
-    EXECUTE FORMAT('GRANT ALL PRIVILEGES ON api.usage TO "%s";', NEW.id);
+    EXECUTE FORMAT('GRANT villages TO "%s";',NEW.id);
     RETURN NEW;
 END;
 $$

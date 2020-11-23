@@ -7,6 +7,11 @@ CREATE SEQUENCE api.village_sequence START 1;
 CREATE SEQUENCE api.reeve_sequence START 1;
 CREATE SEQUENCE api.innkeeper_sequence START 1;
 
+-- Create group roles
+CREATE ROLE pilgrims;
+CREATE ROLE villages;
+CREATE ROLE innkeepers;
+
 -- Create standard tables
 CREATE TABLE IF NOT EXISTS api.villages (
     id TEXT PRIMARY KEY DEFAULT 'village-' || NEXTVAL('api.village_sequence'),

@@ -5,6 +5,10 @@ DROP SEQUENCE IF EXISTS pilgrim_sequence;
 DROP SEQUENCE IF EXISTS village_sequence;
 DROP SEQUENCE IF EXISTS innkeeper_sequence;
 DROP SEQUENCE IF EXISTS reeve_sequence;
+-- Drop all group roles
+DROP ROLE IF EXISTS pilgrims;
+DROP ROLE IF EXISTS villages;
+DROP ROLE IF EXISTS innkeepers;
 -- Drop all pilgrim roles
 DO $do$ 
 DECLARE temprow record;
