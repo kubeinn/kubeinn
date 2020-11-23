@@ -1,21 +1,28 @@
+# Build crossroads
+FROM node:15.2.0-alpine3.12 as crossroads-builder
+WORKDIR /usr/src/app
+COPY ./apps/crossroads ./
+RUN npm install
+RUN npm run build ./build/
+
 # Build innkeeper
 FROM node:15.2.0-alpine3.12 as innkeeper-builder
 WORKDIR /usr/src/app
-COPY ./app/innkeeper ./
+COPY ./apps/innkeeper ./
 RUN npm install
 RUN npm run build ./build/
 
 # Build pilgrim
 FROM node:15.2.0-alpine3.12 as pilgrim-builder
 WORKDIR /usr/src/app
-COPY ./app/pilgrim ./
+COPY ./apps/pilgrim ./
 RUN npm install
 RUN npm run build ./build/
 
 # Build reeve
 FROM node:15.2.0-alpine3.12 as reeve-builder
 WORKDIR /usr/src/app
-COPY ./app/reeve ./
+COPY ./apps/reeve ./
 RUN npm install
 RUN npm run build ./build/
 
@@ -24,6 +31,7 @@ FROM nginx:1.19
 RUN mkdir /usr/share/nginx/html/innkeeper
 RUN mkdir /usr/share/nginx/html/pilgrim
 RUN mkdir /usr/share/nginx/html/reeve
+COPY --from=crossroads-builder /usr/src/app/build /usr/share/nginx/html
 COPY --from=innkeeper-builder /usr/src/app/build /usr/share/nginx/html/innkeeper
 COPY --from=pilgrim-builder /usr/src/app/build /usr/share/nginx/html/pilgrim
 COPY --from=reeve-builder /usr/src/app/build /usr/share/nginx/html/reeve
