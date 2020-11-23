@@ -15,7 +15,7 @@ func TestInitEnvironmentVars() {
 }
 
 func TestCreateDefaultInnkeeper() {
-	auth_handler.RegisterInnkeeper("admin", "admin", "admin")
+	auth_handler.RegisterInnkeeper("admin", "admin", "eUjhGxtEg2naFPRW")
 }
 
 func TestCreateDefaultReeve() {
