@@ -20,8 +20,8 @@ import (
 )
 
 func main() {
-	// Testing
-	// test.TestInitEnvironmentVars()
+	// Testing (comment for production)
+	test.TestInitEnvironmentVars()
 
 	// Initialize variables
 	initialize()

@@ -11,6 +11,8 @@ CREATE SEQUENCE api.innkeeper_sequence START 1;
 CREATE ROLE pilgrims;
 CREATE ROLE villages;
 CREATE ROLE innkeepers;
+CREATE ROLE postgrest LOGIN PASSWORD 'pgpassword' NOINHERIT;
+GRANT postgres TO postgrest;
 
 -- Create standard tables
 CREATE TABLE IF NOT EXISTS api.villages (

@@ -4,6 +4,7 @@ AS $$
 BEGIN 
     EXECUTE FORMAT('CREATE ROLE "%s";', NEW.id);
     EXECUTE FORMAT('GRANT pilgrims TO "%s";',NEW.id);
+    EXECUTE FORMAT('GRANT "%s" TO postgrest;',NEW.id);
     RETURN NEW;
 END;
 $$
@@ -14,6 +15,7 @@ AS $$
 BEGIN 
     EXECUTE FORMAT('CREATE ROLE "%s" CREATEROLE;', NEW.id);
     EXECUTE FORMAT('GRANT villages TO "%s";',NEW.id);
+    EXECUTE FORMAT('GRANT "%s" TO postgrest;',NEW.id);
     RETURN NEW;
 END;
 $$

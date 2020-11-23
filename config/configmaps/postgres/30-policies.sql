@@ -12,12 +12,11 @@ CREATE POLICY usage_pilgrim_policy ON api.usage FOR ALL USING (pilgrimid = curre
 CREATE POLICY ticket_village_policy ON api.tickets FOR ALL USING (villageid = current_user);
 CREATE POLICY project_village_policy ON api.projects FOR ALL USING (villageid = current_user);
 CREATE POLICY pilgrim_village_policy ON api.pilgrims FOR ALL USING (villageid = current_user);
--- Grant permissions on sequences
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA api TO PUBLIC; 
--- Grant permissions to schema and publically accessible tables
-GRANT USAGE ON SCHEMA api TO PUBLIC; 
-GRANT ALL PRIVILEGES ON api.projects TO PUBLIC; 
-GRANT ALL PRIVILEGES ON api.pilgrims TO PUBLIC; 
+-- Grant permission for schema and sequences to group roles
+GRANT USAGE ON SCHEMA api TO pilgrims;
+GRANT USAGE ON SCHEMA api TO villages;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA api TO pilgrims;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA api TO villages;
 -- Grant permissions to role groups
 GRANT ALL PRIVILEGES ON api.tickets TO villages;
 GRANT ALL PRIVILEGES ON api.usage TO villages;

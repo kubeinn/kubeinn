@@ -2,6 +2,63 @@
 
 Welcome to Kubeinn, it's great to have you here! We thank you in advance for your contributions.
 
+## To start developing Kubeinn
+We recommend developing Kubeinn locally first, before testing it on an actual Kubernetes cluster. You need to have a working [Go](https://golang.org/doc/install) and [docker](https://docs.docker.com/engine) environment.
+
+**Local development**
+```
+# postgres
+docker run --rm -d -p 5432:5432 \
+    --name postgres \
+    -e POSTGRES_PASSWORD=pgpassword \
+    -e PGDATA=/var/lib/postgresql/data/pgdata \
+    -v /var/lib/postgresql/data:/var/lib/postgresql/data \
+    postgres:13.0-alpine
+# get shell into the Postgres container
+docker exec -it <mycontainer> bash
+# start psql
+psql -U postgres
+
+# postgrest
+docker run --rm --net=host -p 3000:3000 \
+  -e PGRST_DB_URI="postgres://postgrest:pgpassword@localhost:5432/postgres" \
+  -e PGRST_DB_ANON_ROLE="none" \
+  -e PGRST_DB_SCHEMA="api" \
+  -e PGRST_JWT_SECRET="bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK" \
+  postgrest/postgrest:v7.0.1
+
+# frontend
+cd src/frontend/apps/
+# building innkeeper
+cd innkeeper
+npm start
+# building pilgrim
+cd pilgrim
+npm start
+# building reeve
+cd reeve
+npm start
+
+# backend
+cd src/backend/
+go build -o ./build ./cmd/main.go
+./build/main
+```
+Once you are satisfied with your local changes, you can build and push the container images.
+```
+# backend
+cd /src/backend/
+docker build -t [YOUR-DOCKERHUB-REPO]/kubeinn-backend .
+docker push [YOUR-DOCKERHUB-REPO]/kubeinn-backend
+
+# frontend
+cd /src/frontend/
+docker build -t [YOUR-DOCKERHUB-REPO]/kubeinn-frontend .
+docker push [YOUR-DOCKERHUB-REPO]/kubeinn-frontend
+```
+Finally, ensure that the changes are reflected in a Kubernetes cluster environment. Follow the installation instructions [here](https://github.com/kubeinn/kubeinn#installation).
+
+
 ## Pull Request Process
 
 1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
