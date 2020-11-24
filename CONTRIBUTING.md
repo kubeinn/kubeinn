@@ -57,6 +57,10 @@ docker build -t [YOUR-DOCKERHUB-REPO]/kubeinn-frontend .
 docker push [YOUR-DOCKERHUB-REPO]/kubeinn-frontend
 ```
 Finally, ensure that the changes are reflected in a Kubernetes cluster environment. Follow the installation instructions [here](https://github.com/kubeinn/kubeinn#installation).
+```
+# debugging 
+kubectl exec --stdin --tty -n kubeinn <mycontainer> -- /bin/bash
+```
 
 
 ## Pull Request Process

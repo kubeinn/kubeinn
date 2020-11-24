@@ -1,5 +1,5 @@
 # Introduction
-> Kubeinn is an open source manager for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the basic tools to manage tenants of a shared Kubernetes cluster. Originally designed for [SingAREN](https://www.singaren.net.sg/).
+> Kubeinn is an open source manager for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the basic tools to manage tenants of a shared Kubernetes cluster.
 
 ![](./img/kubeinn-demo.gif)
 
