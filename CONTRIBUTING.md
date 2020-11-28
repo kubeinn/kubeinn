@@ -35,9 +35,6 @@ npm start
 # building pilgrim
 cd pilgrim
 npm start
-# building reeve
-cd reeve
-npm start
 
 # backend
 cd src/backend/

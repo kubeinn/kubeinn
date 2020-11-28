@@ -10,26 +10,41 @@ import {
     SimpleForm,
     TextInput,
     RadioButtonGroupInput,
+    DeleteButton,
+    useNotify,
+    useRefresh,
+    useRedirect,
 } from 'react-admin';
 
 export const TicketList = props => (
-    <List {...props} >
+    <List {...props} bulkActionButtons={false} >
         <Datagrid>
             <TextField source="id" label="TicketID" />
-            <TextField source="villageid" label="VillageID" />
+            <TextField source="pilgrimid" label="PilgrimID" />
             <EmailField source="email" label="Email" />
             <TextField source="topic" label="Topic" />
             <TextField source="details" label="Details" />
             <TextField source="status" label="Status" />
             <EditButton />
+            <DeleteButton />
         </Datagrid>
     </List>
 );
 
-export const TicketCreate = props => (
+export const TicketCreate = props => {
+    const notify = useNotify();
+    const refresh = useRefresh();
+    const redirect = useRedirect();
+    const onCreateSuccess = ({ data }) => {
+        notify("Element created.")
+        redirect('/pilgrims');
+        refresh();
+    };
+
+    return (
     <Create {...props}>
-        <SimpleForm>
-            <TextInput source="villageid" label="VillageID" />
+            <SimpleForm onSuccess={onCreateSuccess}>
+            <TextInput source="pilgrimid" label="PilgrimID" />
             <TextInput source="email" label="Email" />
             <TextInput source="topic" label="Topic" />
             <TextInput source="details" label="Details" />
@@ -39,7 +54,8 @@ export const TicketCreate = props => (
             ]} />
         </SimpleForm>
     </Create>
-);
+    )
+};
 
 export const TicketEdit = props => (
     <Edit {...props}>

@@ -3,10 +3,10 @@ import axios from 'axios';
 var dataProviderUrl;
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     // dev code
-    dataProviderUrl = process.env.REACT_APP_KUBEINN_POSTGREST_URL;
+    dataProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/innkeeper/postgrest';
 } else {
     // production code
-    dataProviderUrl = window._env_.KUBEINN_POSTGREST_URL;
+    dataProviderUrl = window._env_.KUBEINN_SCHUTTERIJ_URL + '/innkeeper/postgrest';
 }
 console.log(dataProviderUrl)
 
@@ -73,35 +73,7 @@ export default {
             responseType: 'json',
             responseEncoding: 'utf8',
         }).then(response => ({
-            data: response.data,
-        }));
-    },
-
-    deleteMany: (resource, params) => {
-        const url = `${dataProviderUrl}/${resource}`;
-
-        var arrayLength = params.ids.length;
-        var paramsId = "(id.eq." + params.ids[0];
-        for (var i = 1; i < arrayLength; i++) {
-            console.log(paramsId[i]);
-            paramsId = paramsId + ",id.eq." + params.ids[i];
-        }
-        paramsId = paramsId + ")";
-
-        return axios({
-            url: url,
-            method: 'DELETE',
-            headers: {
-                'Authorization': getCookie("Authorization"),
-            },
-            params: {
-                or: paramsId,
-            },
-            timeout: 5000,
-            responseType: 'json',
-            responseEncoding: 'utf8',
-        }).then(response => ({
-            data: response.data,
+            data: params.id,
         }));
     },
 
@@ -116,7 +88,7 @@ export default {
                 'Content-Type': 'application/json'
             },
             params: {
-                id: 'eq.'+params.id,
+                id: 'eq.' + params.id,
             },
             timeout: 5000,
             responseType: 'json',

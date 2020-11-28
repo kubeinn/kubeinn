@@ -40,10 +40,10 @@ const RegisterVillageForm = (props) => {
             return;
         }
 
-        notify('Registering new village...')
+        notify('Registering new pilgrim...')
         return axios({
             method: 'POST',
-            url: authProviderUrl + "/register/village",
+            url: authProviderUrl + "/register/pilgrim",
             headers: {
 
             },

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Notification } from 'react-admin';
-import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -9,19 +8,8 @@ import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import PasswordForm from './PasswordForm';
-import RegcodeForm from './RegcodeForm';
+import RegisterPilgrimForm from './RegisterPilgrimForm';
 import Container from '@material-ui/core/Container';
-
-var reeveUrl;
-if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-    // dev code
-    reeveUrl = process.env.REACT_APP_KUBEINN_REEVE_URL;
-} else {
-    // production code
-    reeveUrl = '/reeve/';
-}
-console.log(reeveUrl)
 
 const useStyles = makeStyles(theme => ({
     paper: {
@@ -41,27 +29,19 @@ const useStyles = makeStyles(theme => ({
     },
     card: {
         margin: theme.spacing(4, 0),
-    },
+    }
 }));
 
 const RegisterPage = () => {
     const classes = useStyles();
 
-    const [regcodeForm, setRegcodeForm] = useState(true);
-    const [passwordForm, setPasswordForm] = useState(false);
-    const [username, setUsername] = useState("default");
-    const [regcode, setRegcode] = useState("");
+    const [registrationNotice, setRegistrationNotice] = useState(false);
+    const [form, setForm] = useState(true);
 
-    const onValidRegcode = (username, regcode) => {
-        setPasswordForm(true);
-        setRegcodeForm(false);
-        setUsername(username);
-        setRegcode(regcode);
-    };
-
-    const onPasswordSet = () => {
-        setPasswordForm(false);
-    };
+    const handleChange = () => {
+        setForm(false);
+        setRegistrationNotice(true);
+    }
 
     return (
         <Container component="main" maxWidth="xs" >
@@ -72,21 +52,16 @@ const RegisterPage = () => {
                         <div className={classes.section}>
                             <Typography component="h1" variant="h5">Registration</Typography>
                         </div>
-                        <Divider variant="middle" />
-                        <RegcodeForm classes={classes} form={regcodeForm} onValidRegcode={onValidRegcode} />
-                        <PasswordForm classes={classes} form={passwordForm} username={username} regcode={regcode} onPasswordSet={onPasswordSet} />
-                        <RegistrationNotice classes={classes} regcodeForm={regcodeForm} passwordForm={passwordForm} />
+
                         <Divider variant="middle" />
                         <div className={classes.section}>
-                            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                                If you are the representative for your organization, click <Link href={reeveUrl} variant="body2">here</Link>.
-                            </Typography>
+                            <RegisterPilgrimForm classes={classes} form={form} onSuccessfulRegistration={handleChange} />
+                            <DisplayRegistrationNotice classes={classes} registrationNotice={registrationNotice} />
                         </div>
-                        <Divider variant="middle" />
                         <div className={classes.section}>
                             <Grid container justify="flex-end">
                                 <Grid item>
-                                    <Link href="/pilgrim/login" variant="body2">Already have an account? Sign in</Link>
+                                    <Link href="/reeve/login" variant="body2">Already have an account? Sign in</Link>
                                 </Grid>
                             </Grid>
                         </div>
@@ -98,14 +73,13 @@ const RegisterPage = () => {
     );
 }
 
-const RegistrationNotice = (props) => {
-    if (!props.regcodeForm && !props.passwordForm) {
+function DisplayRegistrationNotice(props) {
+    const registrationNotice = props.registrationNotice;
+    if (registrationNotice) {
         return (
-            <div className={props.classes.section}>
-                <Button variant="contained" fullWidth color="primary" href="/pilgrim/login">
-                    PROCEED TO SIGN IN.
-                </Button>
-            </div>
+            <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
+                Your request has been submitted. Our administrators will review your request and follow up via the email provided.
+            </Typography>
         );
     } else {
         return null;

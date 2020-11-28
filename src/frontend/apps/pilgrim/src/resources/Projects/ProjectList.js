@@ -35,8 +35,6 @@ export const ProjectList = props => (
             <NumberField source="memory" label="Memory Limits (bytes)" />
             <NumberField source="storage" label="Storage Requests (bytes)" />
             <CopyKubecfgField source="kube_configuration" label="KUBECONFIG" sortable={false} />
-
-
         </Datagrid>
     </List>
 );

@@ -6,19 +6,15 @@ import customRoutes from './customRoutes';
 
 import DataProvider from './api/DataProvider/DataProvider';
 import AuthProvider from './api/AuthProvider/AuthProvider';
-import { InnkeeperList } from './resources/Innkeepers/Innkeeper';
-import { PilgrimList } from './resources/Pilgrims/PilgrimList';
-import { VillageCreate, VillageList } from './resources/Villages/VillageList';
+import { InnkeeperCreate, InnkeeperEdit, InnkeeperList } from './resources/Innkeepers/Innkeeper';
+import { PilgrimList, PilgrimCreate, PilgrimEdit } from './resources/Pilgrims/PilgrimList';
 import { TicketList, TicketCreate, TicketEdit } from './resources/Tickets/TicketList';
-import { ReeveList, ReeveEdit } from './resources/Reeves/ReeveList';
-import { ProjectList } from './resources/Projects/ProjectList';
+import { ProjectList, ProjectCreate } from './resources/Projects/ProjectList';
 
 import LoginPage from './components/Login/LoginPage';
 import LogoutButton from './components/Logout/LogoutButton';
 
-import HouseIcon from '@material-ui/icons/House';
 import FaceIcon from '@material-ui/icons/Face';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
@@ -26,11 +22,9 @@ import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 function App() {
   return (
     <Admin customRoutes={customRoutes} loginPage={LoginPage} logoutButton={LogoutButton} history={history} authProvider={AuthProvider} dataProvider={DataProvider}>
-      <Resource name="innkeepers" icon={FaceIcon} list={InnkeeperList} />
-      <Resource name="villages" icon={HouseIcon} list={VillageList} create={VillageCreate} />
-      <Resource name="reeves" icon={SupervisorAccountIcon} list={ReeveList} edit={ReeveEdit} />
-      <Resource name="pilgrims" icon={SupervisedUserCircleIcon} list={PilgrimList} />
-      <Resource name="projects" icon={LibraryBooksIcon} list={ProjectList} />
+      <Resource name="innkeepers" icon={FaceIcon} list={InnkeeperList} create={InnkeeperCreate} edit={InnkeeperEdit} />
+      <Resource name="pilgrims" icon={SupervisedUserCircleIcon} list={PilgrimList} create={PilgrimCreate} edit={PilgrimEdit} />
+      <Resource name="projects" icon={LibraryBooksIcon} list={ProjectList} create={ProjectCreate} />
       <Resource name="tickets" icon={ContactSupportIcon} list={TicketList} create={TicketCreate} edit={TicketEdit} />
     </Admin>
   );

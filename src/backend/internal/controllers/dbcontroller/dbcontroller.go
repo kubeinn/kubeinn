@@ -32,43 +32,7 @@ func NewPostgresController(dbName string, dbHost string, dbPort int, dbUser stri
 PILGRIM
 */
 
-func (pg *PostgresController) SelectPilgrimByUsername(username string) (string, string, error) {
-	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-
-	var id string
-	var password string
-	err = dbpool.QueryRow(context.Background(),
-		"SELECT id,passwd FROM api.pilgrims WHERE username=$1", username).Scan(&id, &password)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-	}
-	return id, password, err
-}
-
-func (pg *PostgresController) SelectPilgrimByRegistrationCode(regcode string) (string, string, error) {
-	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-
-	var id string
-	var username string
-	err = dbpool.QueryRow(context.Background(),
-		"SELECT id,username FROM api.pilgrims WHERE regcode=$1", regcode).Scan(&id, &username)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-	}
-	return id, username, err
-}
-
-func (pg *PostgresController) InsertPilgrim(username string, email string, password string, villageID string) error {
+func (pg *PostgresController) InsertPilgrim(organization string, description string, username string, email string, password string) error {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -84,7 +48,7 @@ func (pg *PostgresController) InsertPilgrim(username string, email string, passw
 	// the tx commits successfully, this is a no-op
 	defer tx.Rollback(context.Background())
 
-	_, err = tx.Exec(context.Background(), "INSERT INTO api.pilgrims (username, email, passwd, villageID) VALUES ($1, $2, $3, $4)", username, email, password, villageID)
+	_, err = tx.Exec(context.Background(), "INSERT INTO api.pilgrims (organization, description, username, email, passwd) VALUES ($1, $2, $3, $4, $5)", organization, description, username, email, password)
 	if err != nil {
 		return err
 	}
@@ -128,7 +92,7 @@ func (pg *PostgresController) UpdatePilgrimPassword(id string, password string) 
 REEVE
 */
 
-func (pg *PostgresController) SelectReeveByUsername(username string) (string, string, string, string, error) {
+func (pg *PostgresController) SelectPilgrimByUsername(username string) (string, string, string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -138,43 +102,14 @@ func (pg *PostgresController) SelectReeveByUsername(username string) (string, st
 
 	var id string
 	var password string
-	var villageID string
 	var status string
 
 	err = dbpool.QueryRow(context.Background(),
-		"SELECT id,passwd,villageid,status FROM api.reeves WHERE username=$1", username).Scan(&id, &password, &villageID, &status)
+		"SELECT id,passwd,status FROM api.pilgrims WHERE username=$1", username).Scan(&id, &password, &status)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-	return id, password, villageID, status, err
-}
-
-func (pg *PostgresController) InsertReeve(username string, email string, password string, villageID string) error {
-	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-
-	tx, err := dbpool.Begin(context.Background())
-	if err != nil {
-		return err
-	}
-	// Rollback is safe to call even if the tx is already closed, so if
-	// the tx commits successfully, this is a no-op
-	defer tx.Rollback(context.Background())
-
-	_, err = tx.Exec(context.Background(), "INSERT INTO api.reeves (username, email, passwd, villageID) VALUES ($1, $2, $3, $4)", username, email, password, villageID)
-	if err != nil {
-		return err
-	}
-
-	err = tx.Commit(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
+	return id, password, status, err
 }
 
 /*

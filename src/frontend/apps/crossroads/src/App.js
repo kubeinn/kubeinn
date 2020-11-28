@@ -61,7 +61,6 @@ function App() {
                     aria-label="vertical outlined primary button group"
                   >
                     <Button href="/innkeeper/">Cluster Administrator</Button>
-                    <Button href="/reeve/">Project Manager</Button>
                     <Button href="/pilgrim/">Project User</Button>
                   </ButtonGroup>
                 </div>

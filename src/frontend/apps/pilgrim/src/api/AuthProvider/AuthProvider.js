@@ -16,7 +16,7 @@ export default {
         return axios.post(authProviderUrl + "/login", {
             username: username,
             password: password,
-        }, { headers: { 'Subject': 'Pilgrim' } })
+        }, { headers: { 'Subject': 'Reeve' } })
             .then(response => {
                 if (response.status < 200 || response.status >= 300) {
                     throw new Error(response.statusText);
@@ -48,7 +48,7 @@ export default {
             responseEncoding: 'utf8',
         }, {
             headers: {
-                'Subject': 'Pilgrim',
+                'Subject': 'Reeve',
                 'Authorization': getCookie("Authorization")
             }
         })
