@@ -61,7 +61,7 @@ const RegisterPage = () => {
                         <div className={classes.section}>
                             <Grid container justify="flex-end">
                                 <Grid item>
-                                    <Link href="/reeve/login" variant="body2">Already have an account? Sign in</Link>
+                                    <Link href="/pilgrim/login" variant="body2">Already have an account? Sign in</Link>
                                 </Grid>
                             </Grid>
                         </div>

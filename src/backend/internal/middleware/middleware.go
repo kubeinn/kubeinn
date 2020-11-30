@@ -54,6 +54,13 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the audience field."})
 				return
 			}
+			_, ok = claims["sub"]
+			if !ok {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the subject field."})
+				return
+			}
+			sub := fmt.Sprintf("%v", claims["sub"])
+			c.Request.Header.Add("subject", sub)
 			str := fmt.Sprintf("%v", claims["aud"])
 			log.Println("audience: " + str)
 

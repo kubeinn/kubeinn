@@ -8,6 +8,9 @@ import {
     NumberField,
     SimpleForm,
     TextInput,
+    useNotify,
+    useRefresh,
+    useRedirect,
 } from 'react-admin';
 
 export const TicketList = props => (
@@ -22,12 +25,23 @@ export const TicketList = props => (
     </List>
 );
 
-export const TicketCreate = props => (
-    <Create {...props}>
-        <SimpleForm>
-            <TextInput source="email" label="Email" />
-            <TextInput source="topic" label="Topic" />
-            <TextInput source="details" fullWidth='true' label="Details" />
-        </SimpleForm>
-    </Create>
-);
+export const TicketCreate = props => {
+    const notify = useNotify();
+    const refresh = useRefresh();
+    const redirect = useRedirect();
+    const onCreateSuccess = ({ data }) => {
+        notify("Element created.")
+        redirect('/tickets');
+        refresh();
+    };
+
+    return (
+        <Create {...props}>
+            <SimpleForm onSuccess={onCreateSuccess}>
+                <TextInput source="email" label="Email" />
+                <TextInput source="topic" label="Topic" />
+                <TextInput source="details" label="Details" />
+            </SimpleForm>
+        </Create>
+    )
+};

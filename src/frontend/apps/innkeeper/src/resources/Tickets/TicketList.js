@@ -37,7 +37,7 @@ export const TicketCreate = props => {
     const redirect = useRedirect();
     const onCreateSuccess = ({ data }) => {
         notify("Element created.")
-        redirect('/pilgrims');
+        redirect('/tickets');
         refresh();
     };
 

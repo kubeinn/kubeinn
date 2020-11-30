@@ -58,7 +58,7 @@ export const ProjectCreate = props => (
 const ProjectCreateToolbar = props => (
     <Toolbar {...props}>
         <SaveButton
-            transform={data => ({ ...data, createProject: true })}
+            transform={data => ({ ...data })}
         />
     </Toolbar>
 );

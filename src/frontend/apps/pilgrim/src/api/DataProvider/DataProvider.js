@@ -20,9 +20,7 @@ export default {
             url: url,
             method: 'GET',
             headers: {
-                'Prefer': 'count=exact',
                 'Authorization': getCookie("Authorization"),
-                'Content-Type': 'application/json'
             },
             params: {
                 offset: JSON.stringify((page - 1) * perPage),
@@ -73,7 +71,7 @@ export default {
             responseType: 'json',
             responseEncoding: 'utf8',
         }).then(response => ({
-            data: response.data,
+            data: params.id,
         }));
     },
 

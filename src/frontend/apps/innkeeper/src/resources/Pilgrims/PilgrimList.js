@@ -24,7 +24,6 @@ export const PilgrimList = props => (
             <TextField source="description" label="Description" fullWidth />
             <TextField source="username" label="Username" />
             <TextField source="email" label="Email" />
-            <TextField source="passwd" label="Password" />
             <TextField source="status" label="Status" />
             <EditButton />
             <DeleteButton />

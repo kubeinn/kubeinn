@@ -22,7 +22,6 @@ export const InnkeeperList = props => (
             <TextField source="id" label="InnkeeperID" />
             <TextField source="username" label="Username" />
             <EmailField source="email" label="Email" />
-            <TextField source="passwd" label="Password" />
             <EditButton />
             <DeleteButton />
         </Datagrid>

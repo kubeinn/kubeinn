@@ -2,6 +2,7 @@ package hooks
 
 import (
 	"encoding/json"
+	"errors"
 	gin "github.com/gin-gonic/gin"
 	global "github.com/kubeinn/src/backend/internal/global"
 	bcrypt "golang.org/x/crypto/bcrypt"
@@ -52,7 +53,7 @@ type ProjectCreateRequestBody struct {
 }
 
 // PreCreateProjectHook is ...
-func PreCreateProjectHook(c *gin.Context) ([]byte, error) {
+func PreCreateProjectHook(c *gin.Context, role string) ([]byte, error) {
 	var projectCreateRequestBody ProjectCreateRequestBody
 
 	log.Println("Decoding JSON...")
@@ -100,7 +101,9 @@ func PreCreateProjectHook(c *gin.Context) ([]byte, error) {
 	}
 
 	newReqBody := make(map[string]string)
-	newReqBody["pilgrimid"] = projectCreateRequestBody.PilgrimID
+	if role == "innkeeper" {
+		newReqBody["pilgrimid"] = projectCreateRequestBody.PilgrimID
+	}
 	newReqBody["title"] = projectCreateRequestBody.Title
 	newReqBody["details"] = projectCreateRequestBody.Details
 	newReqBody["cpu"] = strconv.FormatInt(projectCreateRequestBody.CPU, 10)
@@ -115,13 +118,19 @@ func PreCreateProjectHook(c *gin.Context) ([]byte, error) {
 }
 
 // PreDeleteProjectHook is ...
-func PreDeleteProjectHook(c *gin.Context) error {
+func PreDeleteProjectHook(c *gin.Context, role string, subject string) error {
 	id := strings.TrimPrefix(c.Query("id"), "eq.")
 
 	// Get title from database
-	dbTitle, err := global.PG_CONTROLLER.SelectProjectById(id)
+	dbPilgrimID, dbTitle, err := global.PG_CONTROLLER.SelectProjectById(id)
 	if err != nil {
 		return err
+	}
+	if role != "innkeeper" {
+		if dbPilgrimID != subject {
+			log.Println("invalid subject: " + dbPilgrimID)
+			return errors.New("invalid subject")
+		}
 	}
 
 	err = global.KUBE_CONTROLLER.DeleteNamespace(dbTitle)
@@ -173,19 +182,23 @@ func PreEditInnkeeperHook(c *gin.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	// Hash password
-	log.Println("Hashing password...")
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(innkeeperEditRequestBody.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
 	newReqBody := make(map[string]string)
 	newReqBody["id"] = innkeeperEditRequestBody.ID
 	newReqBody["username"] = innkeeperEditRequestBody.Username
 	newReqBody["email"] = innkeeperEditRequestBody.Email
-	newReqBody["passwd"] = string(passwordHash)
+	if innkeeperEditRequestBody.Password != "" {
+		// Hash password
+		log.Println("Hashing password...")
+		passwordHash, err := bcrypt.GenerateFromPassword([]byte(innkeeperEditRequestBody.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		newReqBody["passwd"] = string(passwordHash)
+	} else {
+		newReqBody["passwd"] = ""
+	}
+
 	body, err := json.Marshal(newReqBody)
 	if err != nil {
 		log.Println(err)
@@ -239,22 +252,25 @@ func PreEditPilgrimHook(c *gin.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	// Hash password
-	log.Println("Hashing password...")
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pilgrimEditRequestBody.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
 	newReqBody := make(map[string]string)
 	newReqBody["id"] = pilgrimEditRequestBody.ID
 	newReqBody["organization"] = pilgrimEditRequestBody.Organization
 	newReqBody["description"] = pilgrimEditRequestBody.Description
 	newReqBody["username"] = pilgrimEditRequestBody.Username
 	newReqBody["email"] = pilgrimEditRequestBody.Email
-	newReqBody["passwd"] = string(passwordHash)
 	newReqBody["status"] = pilgrimEditRequestBody.Status
+	if pilgrimEditRequestBody.Password != "" {
+		// Hash password
+		log.Println("Hashing password...")
+		passwordHash, err := bcrypt.GenerateFromPassword([]byte(pilgrimEditRequestBody.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		newReqBody["passwd"] = string(passwordHash)
+	} else {
+		newReqBody["passwd"] = ""
+	}
 	body, err := json.Marshal(newReqBody)
 	if err != nil {
 		log.Println(err)

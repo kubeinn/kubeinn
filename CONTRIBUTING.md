@@ -26,6 +26,8 @@ docker run --rm --net=host -p 3000:3000 \
   -e PGRST_DB_SCHEMA="api" \
   -e PGRST_JWT_SECRET="bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK" \
   postgrest/postgrest:v7.0.1
+# Refresh schema cache
+killall -SIGUSR1 postgrest
 
 # frontend
 cd src/frontend/apps/

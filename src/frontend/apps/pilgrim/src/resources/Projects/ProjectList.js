@@ -10,6 +10,7 @@ import {
     NumberInput,
     Toolbar,
     SaveButton,
+    DeleteButton
 } from 'react-admin';
 import { Button } from '@material-ui/core';
 
@@ -29,13 +30,15 @@ export const ProjectList = props => (
     <List {...props} >
         <Datagrid>
             <NumberField source="id" label="ProjectID" />
+            <TextField source="pilgrimid" label="PilgrimID" />
             <TextField source="title" label="Title" />
             <TextField source="details" label="Details" />
             <NumberField source="cpu" label="CPU Limits (number)" />
             <NumberField source="memory" label="Memory Limits (bytes)" />
             <NumberField source="storage" label="Storage Requests (bytes)" />
             <CopyKubecfgField source="kube_configuration" label="KUBECONFIG" sortable={false} />
-        </Datagrid>
+            <DeleteButton />
+            </Datagrid>
     </List>
 );
 
@@ -54,7 +57,7 @@ export const ProjectCreate = props => (
 const ProjectCreateToolbar = props => (
     <Toolbar {...props}>
         <SaveButton
-            transform={data => ({ ...data, createProject: true })}
+            transform={data => ({ ...data })}
         />
     </Toolbar>
 );

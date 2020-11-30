@@ -20,9 +20,7 @@ export default {
             url: url,
             method: 'GET',
             headers: {
-                'Prefer': 'count=exact',
                 'Authorization': getCookie("Authorization"),
-                'Content-Type': 'application/json'
             },
             params: {
                 offset: JSON.stringify((page - 1) * perPage),
