@@ -112,9 +112,11 @@ GRANT INSERT,
 GRANT ALL PRIVILEGES ON api.projects TO innkeepers;
 GRANT ALL PRIVILEGES ON api.tickets TO innkeepers;
 GRANT ALL PRIVILEGES ON api.usage TO innkeepers;
+GRANT EXECUTE ON FUNCTION api.update_pilgrim TO innkeepers;
+GRANT EXECUTE ON FUNCTION api.create_pilgrim TO innkeepers;
+GRANT EXECUTE ON FUNCTION api.update_innkeeper TO innkeepers;
+GRANT EXECUTE ON FUNCTION api.create_innkeeper TO innkeepers;
 -- Grant permissions to role groups pilgrims
 GRANT ALL PRIVILEGES ON api.tickets TO pilgrims;
 GRANT ALL PRIVILEGES ON api.usage TO pilgrims;
 GRANT ALL PRIVILEGES ON api.projects TO pilgrims;
-GRANT EXECUTE ON FUNCTION update_pilgrim TO pilgrims;
-GRANT EXECUTE ON FUNCTION create_pilgrim TO pilgrims;
