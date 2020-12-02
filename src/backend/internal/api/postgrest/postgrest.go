@@ -28,7 +28,7 @@ func ReverseProxy(c *gin.Context) {
 		path = strings.TrimPrefix(c.Request.URL.Path, global.PILGRIM_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
 	}
 	subject = c.Request.Header.Get("subject")
-	url := global.POSTGREST_URL + path
+	url := "http://" + global.POSTGREST_URL + path
 	body, err := ioutil.ReadAll(c.Request.Body)
 	c.Request.Body.Close()
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))

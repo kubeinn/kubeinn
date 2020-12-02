@@ -41,7 +41,7 @@ cd kubeinn
 ### 2. Set environment variables
 ```
 # ./config/configmaps/frontend/.env
-KUBEINN_SCHUTTERIJ_URL=http://[YOUR-KUBERNETES-NODE-IP]:30002
+KUBEINN_SCHUTTERIJ_URL=http://[YOUR-KUBERNETES-NODE-IP]:[YOUR-KUBERNETES-NODE-PORT]
 ```
 ### 3. Set kustomization secrets
 ```
@@ -65,7 +65,7 @@ cp /root/.kube/config config/configmaps/backend/admin-config
 kubectl create namespace kubeinn
 ```
 ### 6. Install using kustomize
-```
+```bash
 kubectl apply -k ./config
 ```
 

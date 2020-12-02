@@ -45,6 +45,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            - name: POSTGREST_URL
+              value: $(POSTGREST_CLUSTER_IP_SERVICE)
             - name: PGHOST
               value: $(POSTGRES_CLUSTER_IP_SERVICE)
             - name: PGUSER
