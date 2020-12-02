@@ -56,6 +56,8 @@ resources:
 configMapGenerator:
   - name: postgres-conf
     env: ./configmaps/postgres/postgres.env
+  - name: backend-conf
+    env: ./configmaps/backend/backend.env
   - name: postgres-init-db-conf
     files:
       - ./configmaps/postgres/10-reset.sql
@@ -75,9 +77,9 @@ configMapGenerator:
   - name: nginx-conf
     files:
       - ./configmaps/frontend/default.conf
-  - name: backend-conf
+  - name: backend-kube-conf
     files:
-      - ./configmaps/backend/admin-config
+      - ./configmaps/secrets/admin-config
 
 # Each entry in this list results in the creation of
 # one Secret resource (it's a generator of n secrets).
