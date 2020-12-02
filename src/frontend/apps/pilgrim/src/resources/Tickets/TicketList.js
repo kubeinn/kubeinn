@@ -14,7 +14,7 @@ import {
 } from 'react-admin';
 
 export const TicketList = props => (
-    <List {...props} >
+    <List {...props} bulkActionButtons={false} >
         <Datagrid>
             <NumberField source="id" label="TicketID" />
             <EmailField source="email" label="Email" />

@@ -76,7 +76,7 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 	log.Println("password: " + password)
 	log.Println("===============================")
 
-	if subject == "Innkeeper" {
+	if subject == global.JWT_AUDIENCE_INNKEEPER {
 		jwt, err := validateInnkeeperCredentials(username, password)
 		if err != nil {
 			// Authentication failed
@@ -88,7 +88,7 @@ func PostValidateCredentialsHandler(c *gin.Context) {
 		global.SESSION_CACHE.Set(jwt, "true", go_cache.DefaultExpiration)
 		c.JSON(http.StatusOK, gin.H{"Authorization": jwt})
 
-	} else if subject == "Pilgrim" {
+	} else if subject == global.JWT_AUDIENCE_PILGRIM {
 		jwt, err := validatePilgrimCredentials(username, password)
 		if err != nil {
 			// Authentication failed
@@ -222,6 +222,7 @@ func RegisterInnkeeper(username string, email string, password string) error {
 	return nil
 }
 
+// RegisterPilgrim is ...
 func RegisterPilgrim(organization string, description string, username string, email string, password string) error {
 	// Hash password
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

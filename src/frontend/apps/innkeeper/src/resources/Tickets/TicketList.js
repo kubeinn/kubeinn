@@ -40,20 +40,19 @@ export const TicketCreate = props => {
         redirect('/tickets');
         refresh();
     };
-
     return (
-    <Create {...props}>
-            <SimpleForm onSuccess={onCreateSuccess}>
-            <TextInput source="pilgrimid" label="PilgrimID" />
-            <TextInput source="email" label="Email" />
-            <TextInput source="topic" label="Topic" />
-            <TextInput source="details" label="Details" />
-            <RadioButtonGroupInput source="status" label="Status" choices={[
-                { id: 'Open', name: 'Open' },
-                { id: 'Closed', name: 'Closed' },
-            ]} />
-        </SimpleForm>
-    </Create>
+        <Create {...props} onSuccess={onCreateSuccess}>
+            <SimpleForm >
+                <TextInput source="pilgrimid" label="PilgrimID" />
+                <TextInput source="email" label="Email" />
+                <TextInput source="topic" label="Topic" />
+                <TextInput source="details" label="Details" />
+                <RadioButtonGroupInput source="status" label="Status" choices={[
+                    { id: 'Open', name: 'Open' },
+                    { id: 'Closed', name: 'Closed' },
+                ]} />
+            </SimpleForm>
+        </Create>
     )
 };
 

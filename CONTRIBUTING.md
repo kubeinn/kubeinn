@@ -18,6 +18,8 @@ docker run --rm -d -p 5432:5432 \
 docker exec -it <mycontainer> bash
 # start psql
 psql -U postgres
+# apply DB init scripts by copying and pasting in order
+config/configmaps/postgres
 
 # postgrest
 docker run --rm --net=host -p 3000:3000 \
@@ -30,12 +32,11 @@ docker run --rm --net=host -p 3000:3000 \
 killall -SIGUSR1 postgrest
 
 # frontend
-cd src/frontend/apps/
-# building innkeeper
-cd innkeeper
+# starting innkeeper
+cd src/frontend/apps/innkeeper
 npm start
-# building pilgrim
-cd pilgrim
+# starting pilgrim
+cd src/frontend/apps/pilgrim
 npm start
 
 # backend
@@ -46,12 +47,12 @@ go build -o ./build ./cmd/main.go
 Once you are satisfied with your local changes, you can build and push the container images.
 ```
 # backend
-cd /src/backend/
+cd src/backend/
 docker build -t [YOUR-DOCKERHUB-REPO]/kubeinn-backend .
 docker push [YOUR-DOCKERHUB-REPO]/kubeinn-backend
 
 # frontend
-cd /src/frontend/
+cd src/frontend/
 docker build -t [YOUR-DOCKERHUB-REPO]/kubeinn-frontend .
 docker push [YOUR-DOCKERHUB-REPO]/kubeinn-frontend
 ```
@@ -60,7 +61,6 @@ Finally, ensure that the changes are reflected in a Kubernetes cluster environme
 # debugging 
 kubectl exec --stdin --tty -n kubeinn <mycontainer> -- /bin/bash
 ```
-
 
 ## Pull Request Process
 

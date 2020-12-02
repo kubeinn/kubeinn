@@ -21,7 +21,7 @@ GRANT USAGE ON SCHEMA api TO innkeepers;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA api TO innkeepers;
 -- Create stored procedures
 CREATE OR REPLACE FUNCTION api.update_innkeeper(id TEXT, username TEXT, email TEXT, passwd TEXT) RETURNS VOID AS $$ BEGIN IF (passwd = '') IS NOT FALSE THEN EXECUTE FORMAT(
-        'UPDATE api.innkeepers SET username=''%s'', email=''%s''s WHERE id=''%s'';',
+        'UPDATE api.innkeepers SET username=''%s'', email=''%s'' WHERE id=''%s'';',
         username,
         email,
         id

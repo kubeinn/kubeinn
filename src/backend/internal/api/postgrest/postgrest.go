@@ -15,17 +15,17 @@ import (
 
 func ReverseProxy(c *gin.Context) {
 	// Parse context request
-	var role string
+	var audience string
 	var path string
 	var subject string
 	method := c.Request.Method
 	// Identify source
-	if strings.HasPrefix(c.Request.URL.Path, "/innkeeper") {
-		role = "innkeeper"
-		path = strings.TrimPrefix(c.Request.URL.Path, "/innkeeper/postgrest")
-	} else if strings.HasPrefix(c.Request.URL.Path, "/pilgrim") {
-		role = "pilgrim"
-		path = strings.TrimPrefix(c.Request.URL.Path, "/pilgrim/postgrest")
+	if strings.HasPrefix(c.Request.URL.Path, global.INNKEEPER_ROUTE_PREFIX) {
+		audience = global.JWT_AUDIENCE_INNKEEPER
+		path = strings.TrimPrefix(c.Request.URL.Path, global.INNKEEPER_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
+	} else if strings.HasPrefix(c.Request.URL.Path, global.PILGRIM_ROUTE_PREFIX) {
+		audience = global.JWT_AUDIENCE_PILGRIM
+		path = strings.TrimPrefix(c.Request.URL.Path, global.PILGRIM_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
 	}
 	subject = c.Request.Header.Get("subject")
 	url := global.POSTGREST_URL + path
@@ -33,11 +33,11 @@ func ReverseProxy(c *gin.Context) {
 	c.Request.Body.Close()
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
-	// log.Println("===============================")
-	// log.Println("method: " + method)
-	// log.Println("path: " + path)
-	// log.Println("url: " + url)
-	// log.Println("===============================")
+	log.Println("===============================")
+	log.Println("method: " + method)
+	log.Println("path: " + path)
+	log.Println("url: " + url)
+	log.Println("===============================")
 
 	// Create proxy request
 	log.Println("Creating proxy request...")
@@ -60,7 +60,7 @@ func ReverseProxy(c *gin.Context) {
 	switch method {
 	case "POST":
 		if path == "/projects" {
-			body, err = hooks.PreCreateProjectHook(c, role)
+			body, err = hooks.PreCreateProjectHook(c, audience)
 			if err != nil {
 				log.Println(err)
 				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Error creating project"})
@@ -116,7 +116,7 @@ func ReverseProxy(c *gin.Context) {
 		}
 	case "DELETE":
 		if path == "/projects" {
-			err := hooks.PreDeleteProjectHook(c, role, subject)
+			err := hooks.PreDeleteProjectHook(c, audience, subject)
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Error deleting project"})
 				return
@@ -136,8 +136,10 @@ func ReverseProxy(c *gin.Context) {
 	}
 
 	// Create proxy request body
+	log.Println("Creating proxy request...")
 	proxyReq.Body = ioutil.NopCloser(bytes.NewReader(body))
 
+	// Dump proxy request
 	log.Println("Dumping proxy request...")
 	data, err := httputil.DumpRequest(proxyReq, true)
 	if err != nil {

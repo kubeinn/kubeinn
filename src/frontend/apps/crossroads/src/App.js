@@ -50,18 +50,13 @@ function App() {
                   <Typography component="h1" variant="h5">Welcome to Kubeinn!</Typography>
                 </div>
                 <div className={classes.section}>
-                  <Typography component="h1" variant="body1" color="textSecondary" gutterBottom>
-                    To begin, please tell me who you are:
-                  </Typography>
-                </div>
-                <div className={classes.section}>
                   <ButtonGroup
                     orientation="vertical"
                     color="primary"
                     aria-label="vertical outlined primary button group"
                   >
                     <Button href="/innkeeper/">Cluster Administrator</Button>
-                    <Button href="/pilgrim/">Project User</Button>
+                    <Button href="/pilgrim/">Cluster User</Button>
                   </ButtonGroup>
                 </div>
               </CardContent>

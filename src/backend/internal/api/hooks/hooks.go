@@ -53,7 +53,7 @@ type ProjectCreateRequestBody struct {
 }
 
 // PreCreateProjectHook is ...
-func PreCreateProjectHook(c *gin.Context, role string) ([]byte, error) {
+func PreCreateProjectHook(c *gin.Context, audience string) ([]byte, error) {
 	var projectCreateRequestBody ProjectCreateRequestBody
 
 	log.Println("Decoding JSON...")
@@ -101,7 +101,7 @@ func PreCreateProjectHook(c *gin.Context, role string) ([]byte, error) {
 	}
 
 	newReqBody := make(map[string]string)
-	if role == "innkeeper" {
+	if audience == global.JWT_AUDIENCE_INNKEEPER {
 		newReqBody["pilgrimid"] = projectCreateRequestBody.PilgrimID
 	}
 	newReqBody["title"] = projectCreateRequestBody.Title
@@ -118,7 +118,7 @@ func PreCreateProjectHook(c *gin.Context, role string) ([]byte, error) {
 }
 
 // PreDeleteProjectHook is ...
-func PreDeleteProjectHook(c *gin.Context, role string, subject string) error {
+func PreDeleteProjectHook(c *gin.Context, audience string, subject string) error {
 	id := strings.TrimPrefix(c.Query("id"), "eq.")
 
 	// Get title from database
@@ -126,7 +126,8 @@ func PreDeleteProjectHook(c *gin.Context, role string, subject string) error {
 	if err != nil {
 		return err
 	}
-	if role != "innkeeper" {
+
+	if audience != global.JWT_AUDIENCE_INNKEEPER {
 		if dbPilgrimID != subject {
 			log.Println("invalid subject: " + dbPilgrimID)
 			return errors.New("invalid subject")

@@ -21,7 +21,7 @@ import (
 
 func main() {
 	// Testing (comment for production)
-	test.TestInitEnvironmentVars()
+	// test.TestInitEnvironmentVars()
 
 	// Initialize variables
 	initialize()
@@ -62,8 +62,6 @@ func main() {
 	pilgrimAPI := router.Group(global.PILGRIM_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
 	pilgrimAPI.Use(middleware.TokenAuthMiddleware())
 	{
-		pilgrimAPI.Any("/innkeepers", postgrest_handler.ReverseProxy)
-		pilgrimAPI.Any("/pilgrims", postgrest_handler.ReverseProxy)
 		pilgrimAPI.Any("/projects", postgrest_handler.ReverseProxy)
 		pilgrimAPI.Any("/tickets", postgrest_handler.ReverseProxy)
 	}
@@ -75,8 +73,7 @@ func main() {
 func initialize() {
 	// Instantiate global variables
 
-	// Create a cache with a default expiration time of 5 minutes, and which
-	// purges expired items every 10 minutes
+	// Cache with a default expiration time of 5 minutes, and which purges expired items every 10 minutes
 	global.SESSION_CACHE = go_cache.New(15*time.Minute, 5*time.Minute)
 
 	// Import signing key

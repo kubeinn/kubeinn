@@ -27,7 +27,7 @@ function copyToClipboard(text) {
 const CopyKubecfgField = ({ source, record = {} }) => <Button variant="outlined" color="primary" onClick={e => copyToClipboard(record[source])}>COPY TO CLIPBOARD</Button>;
 
 export const ProjectList = props => (
-    <List {...props} >
+    <List {...props} bulkActionButtons={false}>
         <Datagrid>
             <NumberField source="id" label="ProjectID" />
             <TextField source="pilgrimid" label="PilgrimID" />
