@@ -80,7 +80,9 @@ func initialize() {
 	global.JWT_SIGNING_KEY = []byte(os.Getenv("JWT_SIGNING_KEY"))
 
 	// Import postgrest url
-	global.POSTGREST_URL = os.Getenv("POSTGREST_URL")
+	postgrestUrl := os.Getenv("PGTURL")
+	postgrestPort := os.Getenv("PGTPORT")
+	global.POSTGREST_URL = postgrestUrl + ":" + postgrestPort
 
 	// Create PG_CONTROLLER
 	dbName := os.Getenv("PGDATABASE")
