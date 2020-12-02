@@ -7,9 +7,9 @@ Kubeinn is an open source manager for multi-tenant [Kubernetes](https://github.c
 Built with [React](https://facebook.github.io/react/), [Material Design](https://material.io/) and [react-admin](https://github.com/marmelab/react-admin) for the frontend, [Go (Golang)](https://golang.org/) and [Gin](https://github.com/gin-gonic/gin) for the middleware and backend, and [Postgres](https://www.postgresql.org/) as the database. 
 
 <strong>
-    <a href="#">Website</a>
+    <a href="https://kubeinn.github.io/kubeinn/">Website</a>
     •
-    <a href="#">Docs</a>
+    <a href="https://kubeinn.github.io/kubeinn/">Docs</a>
     •
     <a href="http://51.222.35.240:30000/">Demo</a>
 </strong>
@@ -42,7 +42,6 @@ cd kubeinn
 ```
 # ./config/configmaps/frontend/.env
 KUBEINN_SCHUTTERIJ_URL=http://[YOUR-KUBERNETES-NODE-IP]:30002
-KUBEINN_POSTGREST_URL=http://[YOUR-KUBERNETES-NODE-IP]:30001
 ```
 ### 3. Set kustomization secrets
 ```
