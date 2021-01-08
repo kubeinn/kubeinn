@@ -1,49 +1,50 @@
-# Backend is exposed on a NodePort
+# NodePort is for exposing to external traffic
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-node-port-service
+  name: web-node-port-service
 spec:
   type: NodePort
   ports:
     - port: 8080
       targetPort: 8080
-      nodePort: 30001
+      nodePort: 30000
   selector:
-    component: backend
+    component: web
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-cluster-ip-service
+  name: web-cluster-ip-service
 spec:
   type: ClusterIP
-  selector:
-    component: backend
   ports:
     - port: 8080
       targetPort: 8080
+  selector:
+    component: web
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: web-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: backend
+      component: web
   template:
     metadata:
       labels:
-        component: backend
+        component: web
     spec:
       serviceAccountName: service-account
       containers:
-        - name: backend
-          image: jordan396/kubeinn-backend
+        - name: web
+          image: jordan396/kubeinn-web
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: PGTURL
               value: $(POSTGREST_CLUSTER_IP_SERVICE)
@@ -79,7 +80,6 @@ spec:
                 secretKeyRef:
                   name: jwt-signing-key
                   key: JWT_SIGNING_KEY
-          command: ["/app/main"]
           volumeMounts:
             - name: backend-volume
               mountPath: "/root/.kube"

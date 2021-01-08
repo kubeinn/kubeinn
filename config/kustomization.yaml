@@ -42,8 +42,7 @@ resources:
   - ./manifests/metrics/kube-state-metrics.yaml
   - ./manifests/metrics/node-exporter.yaml
   - ./manifests/metrics/prometheus.yaml
-  - ./manifests/frontend/frontend.yaml
-  - ./manifests/backend/backend.yaml
+  - ./manifests/web/web.yaml
 
 # Each entry in this list results in the creation of
 # one ConfigMap resource (it's a generator of n maps).
@@ -70,13 +69,6 @@ configMapGenerator:
   - name: prometheus-conf
     files:
       - ./configmaps/prometheus/prometheus.yaml
-  - name: frontend-conf
-    files:
-      - ./configmaps/frontend/.env
-      - ./configmaps/frontend/env.sh
-  - name: nginx-conf
-    files:
-      - ./configmaps/frontend/default.conf
   - name: backend-kube-conf
     files:
       - ./configmaps/secrets/admin-config
@@ -238,15 +230,10 @@ vars:
       kind: Service
       name: prometheus-cluster-ip-service
       apiVersion: v1
-  - name: FRONTEND_CLUSTER_IP_SERVICE
+  - name: WEB_CLUSTER_IP_SERVICE
     objref:
       kind: Service
-      name: frontend-cluster-ip-service
-      apiVersion: v1
-  - name: BACKEND_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: backend-cluster-ip-service
+      name: web-cluster-ip-service
       apiVersion: v1
   
     # fieldref:
