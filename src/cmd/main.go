@@ -15,6 +15,7 @@ import (
 	test "github.com/kubeinn/src/backend/test"
 
 	cors "github.com/gin-contrib/cors"
+	gin_static "github.com/gin-gonic/contrib/static"
 	gin "github.com/gin-gonic/gin"
 	go_cache "github.com/patrickmn/go-cache"
 )
@@ -40,8 +41,13 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	// Serve frontend static files
+	router.Use(gin_static.Serve("/", gin_static.LocalFile("./client/crossroads/build", true)))
+	router.Use(gin_static.Serve("/innkeeper", gin_static.LocalFile("./client/innkeeper/build", true)))
+	router.Use(gin_static.Serve("/pilgrim", gin_static.LocalFile("./client/pilgrim/build", true)))
+
 	// Setup route group for the authentication API endpoint
-	authAPI := router.Group(global.AUTHENTICATION_ROUTE_PREFIX)
+	authAPI := router.Group(global.API_ROUTE_PREFIX + global.AUTHENTICATION_ROUTE_PREFIX)
 	{
 		authAPI.POST("/login", auth_handler.PostValidateCredentialsHandler)
 		authAPI.POST("/register/pilgrim", auth_handler.PostRegisterPilgrimHandler)
@@ -49,7 +55,7 @@ func main() {
 	}
 
 	// Setup route group for innkeeperAPI endpoint
-	innkeeperAPI := router.Group(global.INNKEEPER_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
+	innkeeperAPI := router.Group(global.API_ROUTE_PREFIX + global.INNKEEPER_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
 	innkeeperAPI.Use(middleware.TokenAuthMiddleware())
 	{
 		innkeeperAPI.Any("/innkeepers", postgrest_handler.ReverseProxy)
@@ -59,7 +65,7 @@ func main() {
 	}
 
 	// Setup route group for pilgrimAPI endpoint
-	pilgrimAPI := router.Group(global.PILGRIM_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
+	pilgrimAPI := router.Group(global.API_ROUTE_PREFIX + global.PILGRIM_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
 	pilgrimAPI.Use(middleware.TokenAuthMiddleware())
 	{
 		pilgrimAPI.Any("/projects", postgrest_handler.ReverseProxy)

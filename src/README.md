@@ -43,7 +43,7 @@ kubectl create -f test/test-deployment.yaml
 ## Production
 ### Build and push container image
 ```
-docker build -t jordan396/kubeinn-backend .
-docker push jordan396/kubeinn-backend
+docker build -t jordan396/kubeinn-web .
+docker push jordan396/kubeinn-web
 docker run jordan396/kubeinn-backend
 ```

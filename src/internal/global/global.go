@@ -18,6 +18,7 @@ const KUBE_CONFIG_ABSOLUTE_PATH string = "/root/.kube/admin-config"
 const JWT_AUDIENCE_INNKEEPER string = "innkeeper"
 const JWT_AUDIENCE_PILGRIM string = "pilgrim"
 
+const API_ROUTE_PREFIX string = "/api"
 const AUTHENTICATION_ROUTE_PREFIX string = "/auth"
 const POSTGREST_ROUTE_PREFIX string = "/postgrest"
 const INNKEEPER_ROUTE_PREFIX string = "/innkeeper"

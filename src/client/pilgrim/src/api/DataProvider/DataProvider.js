@@ -3,10 +3,10 @@ import axios from 'axios';
 var dataProviderUrl;
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     // dev code
-    dataProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/innkeeper/postgrest';
+    dataProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/pilgrim/postgrest';
 } else {
     // production code
-    dataProviderUrl = window._env_.KUBEINN_SCHUTTERIJ_URL + '/innkeeper/postgrest';
+    dataProviderUrl = '/api/pilgrim/postgrest';
 }
 console.log(dataProviderUrl)
 

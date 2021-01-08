@@ -20,12 +20,12 @@ func ReverseProxy(c *gin.Context) {
 	var subject string
 	method := c.Request.Method
 	// Identify source
-	if strings.HasPrefix(c.Request.URL.Path, global.INNKEEPER_ROUTE_PREFIX) {
+	if strings.HasPrefix(c.Request.URL.Path, global.API_ROUTE_PREFIX+global.INNKEEPER_ROUTE_PREFIX) {
 		audience = global.JWT_AUDIENCE_INNKEEPER
-		path = strings.TrimPrefix(c.Request.URL.Path, global.INNKEEPER_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
-	} else if strings.HasPrefix(c.Request.URL.Path, global.PILGRIM_ROUTE_PREFIX) {
+		path = strings.TrimPrefix(c.Request.URL.Path, global.API_ROUTE_PREFIX+global.INNKEEPER_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
+	} else if strings.HasPrefix(c.Request.URL.Path, global.API_ROUTE_PREFIX+global.PILGRIM_ROUTE_PREFIX) {
 		audience = global.JWT_AUDIENCE_PILGRIM
-		path = strings.TrimPrefix(c.Request.URL.Path, global.PILGRIM_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
+		path = strings.TrimPrefix(c.Request.URL.Path, global.API_ROUTE_PREFIX+global.PILGRIM_ROUTE_PREFIX+global.POSTGREST_ROUTE_PREFIX)
 	}
 	subject = c.Request.Header.Get("subject")
 	url := "http://" + global.POSTGREST_URL + path

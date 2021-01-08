@@ -6,7 +6,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     authProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/auth';
 } else {
     // production code
-    authProviderUrl = window._env_.KUBEINN_SCHUTTERIJ_URL + '/auth';
+    authProviderUrl = '/api/auth';
 }
 console.log(authProviderUrl)
 
@@ -16,12 +16,12 @@ export default {
         return axios.post(authProviderUrl + "/login", {
             username: username,
             password: password,
-        }, { headers: { 'Subject': 'innkeeper' } })
+        }, { headers: { 'Subject': 'pilgrim' } })
             .then(response => {
                 if (response.status < 200 || response.status >= 300) {
                     throw new Error(response.statusText);
                 }
-                setCookie("Authorization", "Bearer " + response.data.Authorization, 1)
+                setCookie("Authorization", "Bearer "+ response.data.Authorization, 1)
                 setCookie("path", "/", 1)
                 return;
             })
@@ -48,7 +48,7 @@ export default {
             responseEncoding: 'utf8',
         }, {
             headers: {
-                'Subject': 'Innkeeper',
+                'Subject': 'Pilgrim',
                 'Authorization': getCookie("Authorization")
             }
         })
