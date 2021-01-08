@@ -56,10 +56,20 @@ cd src/frontend/
 docker build -t [YOUR-DOCKERHUB-REPO]/kubeinn-frontend .
 docker push [YOUR-DOCKERHUB-REPO]/kubeinn-frontend
 ```
+
+**Kubernetes cluster**
 Finally, ensure that the changes are reflected in a Kubernetes cluster environment. Follow the installation instructions [here](https://github.com/kubeinn/kubeinn#installation).
 ```
 # debugging 
 kubectl exec --stdin --tty -n kubeinn <mycontainer> -- /bin/bash
+```
+
+## Updating docs
+We use [docsify](https://docsify.js.org/#/) to generate our documentation website. To view the documentation website on your local environment, you'll need to [install](https://docsify.js.org/#/quickstart) docsify first. 
+
+Documentation for Kubeinn can be found in the [docs](./docs) folder. To edit documentation, update the [README](./docs/README.md) file in the docs folder, then preview the website in your browser.
+```bash
+docsify serve docs
 ```
 
 ## Pull Request Process
