@@ -4,8 +4,8 @@ import (
 	"bytes"
 
 	gin "github.com/gin-gonic/gin"
-	hooks "github.com/kubeinn/src/backend/internal/api/hooks"
-	global "github.com/kubeinn/src/backend/internal/global"
+	hooks "github.com/kubeinn/kubeinn/src/internal/api/hooks"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
 	"io/ioutil"
 	"log"
 	http "net/http"

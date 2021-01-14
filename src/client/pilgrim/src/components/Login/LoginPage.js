@@ -6,7 +6,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Link from '@material-ui/core/Link';
+import { Link } from 'react-router-dom'
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
@@ -90,9 +90,7 @@ const LoginPage = () => {
                             <Grid container>
                                 <Grid item xs></Grid>
                                 <Grid item>
-                                    <Link href="/pilgrim/register" variant="body2">
-                                        {"Don't have an account? Register"}
-                                    </Link>
+                                    <Link to="/register" variant="body2">Don't have an account? Register</Link>
                                 </Grid>
                             </Grid>
                         </form>

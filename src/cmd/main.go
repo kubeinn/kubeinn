@@ -5,14 +5,14 @@ import (
 	"strconv"
 	"time"
 
-	auth_handler "github.com/kubeinn/src/backend/internal/api/auth"
-	postgrest_handler "github.com/kubeinn/src/backend/internal/api/postgrest"
+	auth_handler "github.com/kubeinn/kubeinn/src/internal/api/auth"
+	postgrest_handler "github.com/kubeinn/kubeinn/src/internal/api/postgrest"
 
-	dbcontroller "github.com/kubeinn/src/backend/internal/controllers/dbcontroller"
-	kubecontroller "github.com/kubeinn/src/backend/internal/controllers/kubecontroller"
-	global "github.com/kubeinn/src/backend/internal/global"
-	middleware "github.com/kubeinn/src/backend/internal/middleware"
-	test "github.com/kubeinn/src/backend/test"
+	dbcontroller "github.com/kubeinn/kubeinn/src/internal/controllers/dbcontroller"
+	kubecontroller "github.com/kubeinn/kubeinn/src/internal/controllers/kubecontroller"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
+	middleware "github.com/kubeinn/kubeinn/src/internal/middleware"
+	test "github.com/kubeinn/kubeinn/src/test"
 
 	cors "github.com/gin-contrib/cors"
 	gin_static "github.com/gin-gonic/contrib/static"
@@ -45,6 +45,13 @@ func main() {
 	router.Use(gin_static.Serve("/", gin_static.LocalFile("./client/crossroads/build", true)))
 	router.Use(gin_static.Serve("/innkeeper", gin_static.LocalFile("./client/innkeeper/build", true)))
 	router.Use(gin_static.Serve("/pilgrim", gin_static.LocalFile("./client/pilgrim/build", true)))
+	// router.NoRoute(func(c *gin.Context) {
+	// 	c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+	// })
+	// router.Static("/innkeeper", "./client/innkeeper/build")
+	// router.Static("/innkeeper/*", "./client/innkeeper/build")
+	// router.Static("/pilgrim", "./client/pilgrim/build")
+	// router.Static("/pilgrim/*", "./client/pilgrim/build")
 
 	// Setup route group for the authentication API endpoint
 	authAPI := router.Group(global.API_ROUTE_PREFIX + global.AUTHENTICATION_ROUTE_PREFIX)

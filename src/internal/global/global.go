@@ -1,8 +1,8 @@
 package global
 
 import (
-	dbcontroller "github.com/kubeinn/src/backend/internal/controllers/dbcontroller"
-	kubecontroller "github.com/kubeinn/src/backend/internal/controllers/kubecontroller"
+	dbcontroller "github.com/kubeinn/kubeinn/src/internal/controllers/dbcontroller"
+	kubecontroller "github.com/kubeinn/kubeinn/src/internal/controllers/kubecontroller"
 	go_cache "github.com/patrickmn/go-cache"
 )
 

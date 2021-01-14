@@ -5,7 +5,7 @@ import (
 	"errors"
 	jwt "github.com/dgrijalva/jwt-go"
 	gin "github.com/gin-gonic/gin"
-	global "github.com/kubeinn/src/backend/internal/global"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
 	go_cache "github.com/patrickmn/go-cache"
 	bcrypt "golang.org/x/crypto/bcrypt"
 	"io/ioutil"

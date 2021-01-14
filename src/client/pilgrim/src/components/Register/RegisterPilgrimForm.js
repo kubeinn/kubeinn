@@ -13,7 +13,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     authProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/auth';
 } else {
     // production code
-    authProviderUrl = window._env_.KUBEINN_SCHUTTERIJ_URL + '/auth';
+    authProviderUrl = '/api/auth';
 }
 console.log(authProviderUrl)
 

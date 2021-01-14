@@ -1,7 +1,7 @@
 package test
 
 import (
-	auth_handler "github.com/kubeinn/src/backend/internal/api/auth"
+	auth_handler "github.com/kubeinn/kubeinn/src/internal/api/auth"
 	"os"
 )
 

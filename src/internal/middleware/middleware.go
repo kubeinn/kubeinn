@@ -5,7 +5,7 @@ import (
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	gin "github.com/gin-gonic/gin"
-	global "github.com/kubeinn/src/backend/internal/global"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
 	"log"
 	"net/http"
 	"strings"

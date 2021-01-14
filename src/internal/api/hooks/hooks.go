@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	gin "github.com/gin-gonic/gin"
-	global "github.com/kubeinn/src/backend/internal/global"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
 	bcrypt "golang.org/x/crypto/bcrypt"
 	"log"
 	"strconv"

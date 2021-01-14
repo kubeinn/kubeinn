@@ -4,7 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
-import Link from '@material-ui/core/Link';
+import { Link } from 'react-router-dom'
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -61,7 +61,7 @@ const RegisterPage = () => {
                         <div className={classes.section}>
                             <Grid container justify="flex-end">
                                 <Grid item>
-                                    <Link href="/pilgrim/login" variant="body2">Already have an account? Sign in</Link>
+                                    <Link to="/login" variant="body2">Already have an account? Sign in</Link>
                                 </Grid>
                             </Grid>
                         </div>

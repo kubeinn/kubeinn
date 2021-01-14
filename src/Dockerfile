@@ -1,22 +1,28 @@
 # Build crossroads
 FROM node:15.2.0-alpine3.12 as crossroads-builder
+ENV NODE_ENV=production
 WORKDIR /usr/src/app
-COPY ./client/crossroads ./
+COPY ["./client/crossroads/package.json", "./client/crossroads/package-lock.json*", "./"]
 RUN npm install
+COPY ./client/crossroads ./
 RUN npm run build ./build/
 
 # Build innkeeper
 FROM node:15.2.0-alpine3.12 as innkeeper-builder
+ENV NODE_ENV=production
 WORKDIR /usr/src/app
-COPY ./client/innkeeper ./
+COPY ["./client/innkeeper/package.json", "./client/innkeeper/package-lock.json*", "./"]
 RUN npm install
+COPY ./client/innkeeper ./
 RUN npm run build ./build/
 
 # Build pilgrim
 FROM node:15.2.0-alpine3.12 as pilgrim-builder
+ENV NODE_ENV=production
 WORKDIR /usr/src/app
-COPY ./client/pilgrim ./
+COPY ["./client/pilgrim/package.json", "./client/pilgrim/package-lock.json*", "./"]
 RUN npm install
+COPY ./client/pilgrim ./
 RUN npm run build ./build/
 
 # Build schutterij backend
