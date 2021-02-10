@@ -8,7 +8,7 @@
 #   ports:
 #     - port: 9090
 #       targetPort: 9090
-#       nodePort: 30006
+#       nodePort: 30010
 #   selector:
 #     app: prometheus
 ---

@@ -53,6 +53,13 @@ spec:
                 configMapKeyRef:
                   name: backend-conf
                   key: PGTPORT
+            - name: PROMETHEUS_URL
+              value: $(PROMETHEUS_CLUSTER_IP_SERVICE)
+            - name: PROMETHEUS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-conf
+                  key: PROMETHEUS_PORT
             - name: PGHOST
               value: $(POSTGRES_CLUSTER_IP_SERVICE)
             - name: PGUSER

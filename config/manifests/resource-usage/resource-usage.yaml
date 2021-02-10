@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: resource-usage-job
+spec:
+  template:
+    metadata:
+      labels:
+        name: resource-usage-job
+    spec:
+      containers:
+        - name: resource-usage
+          image: jordan396/kubeinn-resource-usage
+          imagePullPolicy: Always
+          env:
+            - name: PROMETHEUS_URL
+              value: $(PROMETHEUS_CLUSTER_IP_SERVICE)
+            - name: PGTURL
+              value: $(POSTGREST_CLUSTER_IP_SERVICE)
+            - name: PGTPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-conf
+                  key: PGTPORT
+            - name: PGHOST
+              value: $(POSTGRES_CLUSTER_IP_SERVICE)
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGUSER
+            - name: PGPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGPORT
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-conf
+                  key: PGDATABASE
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: POSTGRES_PASSWORD
+      restartPolicy: OnFailure
