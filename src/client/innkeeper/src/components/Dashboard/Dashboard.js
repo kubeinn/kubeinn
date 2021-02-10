@@ -14,10 +14,10 @@ import axios from 'axios';
 var dataProviderUrl;
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     // dev code
-    dataProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/api/pilgrim';
+    dataProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/api/innkeeper';
 } else {
     // production code
-    dataProviderUrl = '/api/pilgrim';
+    dataProviderUrl = '/api/innkeeper';
 }
 console.log(dataProviderUrl)
 
@@ -53,8 +53,8 @@ export default function Dashboard() {
 
     console.log(data);
 
-    if (data == null) {
-        return (
+    if (data == null){
+        return(
             <Card>No values to display</Card>
         );
     } else {

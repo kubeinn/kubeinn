@@ -65,7 +65,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			log.Println("audience: " + str)
 
 			// Validate innkeeper privileges
-			if strings.HasPrefix(urlPath, global.INNKEEPER_ROUTE_PREFIX) {
+			if strings.HasPrefix(urlPath, global.INNKEEPER_ROUTE_PREFIX) || strings.HasPrefix(urlPath, global.API_ROUTE_PREFIX+global.INNKEEPER_ROUTE_PREFIX) {
 				if audience != global.JWT_AUDIENCE_INNKEEPER {
 					c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the necessary privileges."})
 					return
@@ -73,8 +73,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			}
 
 			// Validate pilgrim privileges
-			if strings.HasPrefix(urlPath, global.PILGRIM_ROUTE_PREFIX) {
-				// Innkeepers can send requests to both innkeeper and pilgrim endpoints
+			if strings.HasPrefix(urlPath, global.PILGRIM_ROUTE_PREFIX) || strings.HasPrefix(urlPath, global.API_ROUTE_PREFIX+global.PILGRIM_ROUTE_PREFIX) {
 				if audience != global.JWT_AUDIENCE_PILGRIM {
 					c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "JWT does not contain the necessary privileges."})
 					return

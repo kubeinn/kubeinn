@@ -8,6 +8,7 @@ import (
 
 var JWT_SIGNING_KEY []byte
 var POSTGREST_URL string
+var PROMETHEUS_URL string
 
 var PG_CONTROLLER dbcontroller.PostgresController
 var KUBE_CONTROLLER kubecontroller.KubeController

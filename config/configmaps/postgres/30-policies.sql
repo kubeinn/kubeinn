@@ -9,10 +9,8 @@ CREATE POLICY innkeeper_innkeeper_policy ON api.innkeepers TO innkeepers USING (
 CREATE POLICY innkeeper_pilgrim_policy ON api.pilgrims TO innkeepers USING (true) WITH CHECK (true);
 CREATE POLICY innkeeper_projects_policy ON api.projects TO innkeepers USING (true) WITH CHECK (true);
 CREATE POLICY innkeeper_tickets_policy ON api.tickets TO innkeepers USING (true) WITH CHECK (true);
-CREATE POLICY innkeeper_usage_policy ON api.usage TO innkeepers USING (true) WITH CHECK (true);
 -- Set row security policies for pilgrims
 CREATE POLICY project_pilgrim_policy ON api.projects FOR ALL USING (pilgrimid = current_user);
-CREATE POLICY usage_pilgrim_policy ON api.usage FOR ALL USING (pilgrimid = current_user);
 CREATE POLICY ticket_pilgrim_policy ON api.tickets FOR ALL USING (pilgrimid = current_user);
 -- Grant permission for schema and sequences to group roles
 GRANT USAGE ON SCHEMA api TO pilgrims;

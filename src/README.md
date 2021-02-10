@@ -4,12 +4,10 @@ Backend and middleware components
 ## Local
 ### Build and run
 ```
+# Build and run web server backend
 go build -o ./build ./cmd/main.go
 ./build/main
-```
 
-### Testing with Postgres
-```
 # Create a postgres instance
 docker run --rm -d -p 5432:5432 \
     --name postgres \
@@ -17,13 +15,6 @@ docker run --rm -d -p 5432:5432 \
     -e PGDATA=/var/lib/postgresql/data/pgdata \
     -v /var/lib/postgresql/data:/var/lib/postgresql/data \
     postgres:13.0-alpine
-
-# Get shell into the Postgres container
-docker exec -it <mycontainer> bash
-docker exec -it fde9238d0681 bash
-
-# Start psql
-psql -U postgres
 
 # Create postgrest
 docker run --rm --net=host -p 3000:3000 \
@@ -36,8 +27,20 @@ docker run --rm --net=host -p 3000:3000 \
 go build -o ./build ./cmd/main.go
 ./build/main
 
+# Run example deployment
 sudo mv exampleproject-config ~/.kube/config
 kubectl create -f test/test-deployment.yaml
+
+# Get shell into the Postgres container
+docker ps
+docker exec -it <mycontainer> bash
+docker exec -it b575f0735cfa bash
+
+# Start psql
+psql -U postgres
+
+# Clear database
+sudo rm -r /var/lib/postgresql/data/pgdata
 ```
 
 ## Production

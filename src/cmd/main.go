@@ -6,7 +6,8 @@ import (
 	"time"
 
 	auth_handler "github.com/kubeinn/kubeinn/src/internal/api/auth"
-	postgrest_handler "github.com/kubeinn/kubeinn/src/internal/api/postgrest"
+	postgrest_handler "github.com/kubeinn/kubeinn/src/internal/api/rproxy/postgrest_handler"
+	prometheus_handler "github.com/kubeinn/kubeinn/src/internal/api/rproxy/prometheus_handler"
 
 	dbcontroller "github.com/kubeinn/kubeinn/src/internal/controllers/dbcontroller"
 	kubecontroller "github.com/kubeinn/kubeinn/src/internal/controllers/kubecontroller"
@@ -45,6 +46,7 @@ func main() {
 	router.Use(gin_static.Serve("/", gin_static.LocalFile("./client/crossroads/build", true)))
 	router.Use(gin_static.Serve("/innkeeper", gin_static.LocalFile("./client/innkeeper/build", true)))
 	router.Use(gin_static.Serve("/pilgrim", gin_static.LocalFile("./client/pilgrim/build", true)))
+
 	// router.NoRoute(func(c *gin.Context) {
 	// 	c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	// })
@@ -62,21 +64,23 @@ func main() {
 	}
 
 	// Setup route group for innkeeperAPI endpoint
-	innkeeperAPI := router.Group(global.API_ROUTE_PREFIX + global.INNKEEPER_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
+	innkeeperAPI := router.Group(global.API_ROUTE_PREFIX + global.INNKEEPER_ROUTE_PREFIX)
 	innkeeperAPI.Use(middleware.TokenAuthMiddleware())
 	{
-		innkeeperAPI.Any("/innkeepers", postgrest_handler.ReverseProxy)
-		innkeeperAPI.Any("/pilgrims", postgrest_handler.ReverseProxy)
-		innkeeperAPI.Any("/projects", postgrest_handler.ReverseProxy)
-		innkeeperAPI.Any("/tickets", postgrest_handler.ReverseProxy)
+		innkeeperAPI.Any("/innkeepers", postgrest_handler.PostgrestHandler)
+		innkeeperAPI.Any("/pilgrims", postgrest_handler.PostgrestHandler)
+		innkeeperAPI.Any("/projects", postgrest_handler.PostgrestHandler)
+		innkeeperAPI.Any("/tickets", postgrest_handler.PostgrestHandler)
+		innkeeperAPI.Any("/pods", prometheus_handler.PrometheusHandler)
 	}
 
 	// Setup route group for pilgrimAPI endpoint
-	pilgrimAPI := router.Group(global.API_ROUTE_PREFIX + global.PILGRIM_ROUTE_PREFIX + global.POSTGREST_ROUTE_PREFIX)
+	pilgrimAPI := router.Group(global.API_ROUTE_PREFIX + global.PILGRIM_ROUTE_PREFIX)
 	pilgrimAPI.Use(middleware.TokenAuthMiddleware())
 	{
-		pilgrimAPI.Any("/projects", postgrest_handler.ReverseProxy)
-		pilgrimAPI.Any("/tickets", postgrest_handler.ReverseProxy)
+		pilgrimAPI.Any("/projects", postgrest_handler.PostgrestHandler)
+		pilgrimAPI.Any("/tickets", postgrest_handler.PostgrestHandler)
+		pilgrimAPI.Any("/pods", prometheus_handler.PrometheusHandler)
 	}
 
 	// Start and run the server
@@ -96,6 +100,11 @@ func initialize() {
 	postgrestUrl := os.Getenv("PGTURL")
 	postgrestPort := os.Getenv("PGTPORT")
 	global.POSTGREST_URL = postgrestUrl + ":" + postgrestPort
+
+	// Import Prometheus url
+	prometheusUrl := os.Getenv("PROMETHEUS_URL")
+	prometheusPort := os.Getenv("PROMETHEUS_PORT")
+	global.PROMETHEUS_URL = prometheusUrl + ":" + prometheusPort
 
 	// Create PG_CONTROLLER
 	dbName := os.Getenv("PGDATABASE")

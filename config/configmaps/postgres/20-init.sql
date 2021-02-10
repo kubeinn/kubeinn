@@ -42,12 +42,3 @@ CREATE TABLE IF NOT EXISTS api.tickets (
     details TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'Open'
 );
-CREATE TABLE IF NOT EXISTS api.usage (
-    id SERIAL PRIMARY KEY,
-    projectid INTEGER NOT NULL,
-    pilgrimid TEXT NOT NULL,
-    start_time TIMESTAMPTZ NOT NULL,
-    end_time TIMESTAMPTZ NOT NULL,
-    cpu_minutes_used INTEGER NOT NULL,
-    memory_minutes_used INTEGER NOT NULL
-);

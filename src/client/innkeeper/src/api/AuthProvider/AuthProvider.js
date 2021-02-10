@@ -3,7 +3,7 @@ import axios from 'axios';
 var authProviderUrl;
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     // dev code
-    authProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/auth';
+    authProviderUrl = process.env.REACT_APP_KUBEINN_SCHUTTERIJ_URL + '/api/auth';
 } else {
     // production code
     authProviderUrl = '/api/auth';

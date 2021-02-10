@@ -12,7 +12,10 @@ func TestInitEnvironmentVars() {
 	os.Setenv("PGUSER", "postgres")
 	os.Setenv("POSTGRES_PASSWORD", "pgpassword")
 	os.Setenv("JWT_SIGNING_KEY", "bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK")
-	os.Setenv("POSTGREST_URL", "192.168.0.130:3000")
+	os.Setenv("PGTURL", "localhost")
+	os.Setenv("PGTPORT", "3000")
+	os.Setenv("PROMETHEUS_URL", "51.222.35.240")
+	os.Setenv("PROMETHEUS_PORT", "30010")
 }
 
 func TestCreateDefaultInnkeeper() {
