@@ -14,17 +14,15 @@ import (
 )
 
 type ReverseProxyResponseObject struct {
-	Pod                                    string `json:"pod"`
-	Namespace                              string `json:"namespace"`
-	CreatedByName                          string `json:"created_by_name"`
-	Node                                   string `json:"node"`
-	KubePodCreated                         string `json:"kube_pod_created"`
-	KubePodCompleted                       string `json:"kube_pod_completed"`
-	ContainerCPUUsageSecondsTotal          string `json:"container_cpu_usage_seconds_total"`
-	ContainerMemoryUsageBytes              string `json:"container_memory_usage_bytes"`
-	KubePodContainerStatusRunning          string `json:"kube_pod_container_status_running"`
-	KubePodContainerStatusTerminated       string `json:"kube_pod_container_status_terminated"`
-	KubePodContainerStatusTerminatedReason string `json:"kube_pod_container_status_terminated_reason"`
+	Pod                           string `json:"pod"`
+	Namespace                     string `json:"namespace"`
+	CreatedByName                 string `json:"created_by_name"`
+	Node                          string `json:"node"`
+	KubePodCreated                string `json:"kube_pod_created"`
+	KubePodCompleted              string `json:"kube_pod_completed"`
+	ContainerCPUUsageSecondsTotal string `json:"container_cpu_usage_seconds_total"`
+	ContainerMemoryUsageBytes     string `json:"container_memory_usage_bytes"`
+	KubePodStatusPhase            string `json:"kube_pod_status_phase"`
 }
 
 func newReverseProxyResponseObject() *ReverseProxyResponseObject {
@@ -37,9 +35,7 @@ func newReverseProxyResponseObject() *ReverseProxyResponseObject {
 	o.KubePodCompleted = ""
 	o.ContainerCPUUsageSecondsTotal = ""
 	o.ContainerMemoryUsageBytes = ""
-	o.KubePodContainerStatusRunning = ""
-	o.KubePodContainerStatusTerminated = ""
-	o.KubePodContainerStatusTerminatedReason = ""
+	o.KubePodStatusPhase = ""
 	return &o
 }
 
@@ -133,20 +129,8 @@ func PrometheusHandler(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	// Query PromQL for kube_pod_container_status_running
-	err = getKubePodContainerStatusRunning(reverseProxyResponseMap, projectsSlice)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Query PromQL for kube_pod_container_status_terminated
-	err = getKubePodContainerStatusTerminated(reverseProxyResponseMap, projectsSlice)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Query PromQL for kube_pod_container_status_terminated_reason
-	err = getKubePodContainerStatusTerminatedReason(reverseProxyResponseMap, projectsSlice)
+	// Query PromQL for kube_pod_status_phase
+	err = getKubePodStatusPhase(reverseProxyResponseMap, projectsSlice)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -174,13 +158,25 @@ func PrometheusHandler(c *gin.Context) {
 	// c.Data(proxyRes.StatusCode, "application/json", body)
 }
 
-func queryPromQL(metric string, labels map[string]string) ([]byte, error) {
+func queryPromQL(function string, metric string, labels map[string]string, time string) ([]byte, error) {
 	// Format request for Prometheus API
 	var labelsSlice []string
 	for k, v := range labels {
 		labelsSlice = append(labelsSlice, k+"="+v)
 	}
-	query := metric + "{" + strings.Join(labelsSlice[:], ",") + "}"
+
+	// Create query string
+	query := ""
+	if time == "" {
+		query = metric + "{" + strings.Join(labelsSlice[:], ",") + "}"
+	} else {
+		query = metric + "{" + strings.Join(labelsSlice[:], ",") + "}[" + time + "]"
+	}
+	if function != "" {
+		query = function + "(" + query + ")"
+	}
+
+	// Format remaining request params
 	url := "http://" + global.PROMETHEUS_URL + "/api/v1/query?query=" + query
 	method := "GET"
 
@@ -212,7 +208,7 @@ func getKubePodInfo(reverseProxyResponseMap map[string]ReverseProxyResponseObjec
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
 	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("kube_pod_info", labels)
+	body, err := queryPromQL("", "kube_pod_info", labels, "")
 
 	// Unmarshal response body
 	prometheusResponse, err := unmarshalPrometheusResponse(body)
@@ -268,7 +264,7 @@ func getKubePodCreated(reverseProxyResponseMap map[string]ReverseProxyResponseOb
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
 	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("kube_pod_created", labels)
+	body, err := queryPromQL("", "kube_pod_created", labels, "")
 
 	// Unmarshal response body
 	prometheusResponse, err := unmarshalPrometheusResponse(body)
@@ -286,19 +282,22 @@ func getKubePodCreated(reverseProxyResponseMap map[string]ReverseProxyResponseOb
 			return err
 		}
 
-		// get reverseProxyResponseObject
-		reverseProxyResponseObject := reverseProxyResponseMap[pod]
+		// Check if key exists
+		if _, ok := reverseProxyResponseMap[pod]; ok {
+			// get reverseProxyResponseObject
+			reverseProxyResponseObject := reverseProxyResponseMap[pod]
 
-		// fill in kube_pod_created value
-		if str, ok := result.Value[1].(string); ok {
-			reverseProxyResponseObject.KubePodCreated = str
-		} else {
-			fmt.Println(err)
-			return err
+			// fill in kube_pod_created value
+			if str, ok := result.Value[1].(string); ok {
+				reverseProxyResponseObject.KubePodCreated = str
+			} else {
+				fmt.Println(err)
+				return err
+			}
+
+			// save struct as object
+			reverseProxyResponseMap[pod] = reverseProxyResponseObject
 		}
-
-		// save struct as object
-		reverseProxyResponseMap[pod] = reverseProxyResponseObject
 	}
 	return nil
 }
@@ -307,7 +306,7 @@ func getKubePodCompleted(reverseProxyResponseMap map[string]ReverseProxyResponse
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
 	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("kube_pod_completion_time", labels)
+	body, err := queryPromQL("", "kube_pod_completion_time", labels, "")
 
 	// Unmarshal response body
 	prometheusResponse, err := unmarshalPrometheusResponse(body)
@@ -325,19 +324,22 @@ func getKubePodCompleted(reverseProxyResponseMap map[string]ReverseProxyResponse
 			return err
 		}
 
-		// get reverseProxyResponseObject
-		reverseProxyResponseObject := reverseProxyResponseMap[pod]
+		// Check if key exists
+		if _, ok := reverseProxyResponseMap[pod]; ok {
+			// get reverseProxyResponseObject
+			reverseProxyResponseObject := reverseProxyResponseMap[pod]
 
-		// fill in kube_pod_created value
-		if str, ok := result.Value[1].(string); ok {
-			reverseProxyResponseObject.KubePodCompleted = str
-		} else {
-			fmt.Println(err)
-			return err
+			// fill in kube_pod_created value
+			if str, ok := result.Value[1].(string); ok {
+				reverseProxyResponseObject.KubePodCompleted = str
+			} else {
+				fmt.Println(err)
+				return err
+			}
+
+			// save struct as object
+			reverseProxyResponseMap[pod] = reverseProxyResponseObject
 		}
-
-		// save struct as object
-		reverseProxyResponseMap[pod] = reverseProxyResponseObject
 	}
 	return nil
 }
@@ -346,7 +348,8 @@ func getContainerCPUUsageSecondsTotal(reverseProxyResponseMap map[string]Reverse
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
 	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("container_cpu_usage_seconds_total", labels)
+	labels["container"] = "\"\""
+	body, err := queryPromQL("max_over_time", "container_cpu_usage_seconds_total", labels, "4w")
 
 	// Unmarshal response body
 	prometheusResponse, err := unmarshalPrometheusResponse(body)
@@ -364,19 +367,22 @@ func getContainerCPUUsageSecondsTotal(reverseProxyResponseMap map[string]Reverse
 			return err
 		}
 
-		// get reverseProxyResponseObject
-		reverseProxyResponseObject := reverseProxyResponseMap[pod]
+		// Check if key exists
+		if _, ok := reverseProxyResponseMap[pod]; ok {
+			// get reverseProxyResponseObject
+			reverseProxyResponseObject := reverseProxyResponseMap[pod]
 
-		// fill in kube_pod_created value
-		if str, ok := result.Value[1].(string); ok {
-			reverseProxyResponseObject.ContainerCPUUsageSecondsTotal = str
-		} else {
-			fmt.Println(err)
-			return err
+			// fill in kube_pod_created value
+			if str, ok := result.Value[1].(string); ok {
+				reverseProxyResponseObject.ContainerCPUUsageSecondsTotal = str
+			} else {
+				fmt.Println(err)
+				return err
+			}
+
+			// save struct as object
+			reverseProxyResponseMap[pod] = reverseProxyResponseObject
 		}
-
-		// save struct as object
-		reverseProxyResponseMap[pod] = reverseProxyResponseObject
 	}
 	return nil
 }
@@ -385,7 +391,8 @@ func getContainerMemoryUsageBytes(reverseProxyResponseMap map[string]ReverseProx
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
 	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("container_memory_usage_bytes", labels)
+	labels["container"] = "\"\""
+	body, err := queryPromQL("max_over_time", "container_memory_usage_bytes", labels, "4w")
 
 	// Unmarshal response body
 	prometheusResponse, err := unmarshalPrometheusResponse(body)
@@ -403,106 +410,31 @@ func getContainerMemoryUsageBytes(reverseProxyResponseMap map[string]ReverseProx
 			return err
 		}
 
-		// get reverseProxyResponseObject
-		reverseProxyResponseObject := reverseProxyResponseMap[pod]
+		// Check if key exists
+		if _, ok := reverseProxyResponseMap[pod]; ok {
+			// get reverseProxyResponseObject
+			reverseProxyResponseObject := reverseProxyResponseMap[pod]
 
-		// fill in kube_pod_created value
-		if str, ok := result.Value[1].(string); ok {
-			reverseProxyResponseObject.ContainerMemoryUsageBytes = str
-		} else {
-			fmt.Println(err)
-			return err
+			// fill in kube_pod_created value
+			if str, ok := result.Value[1].(string); ok {
+				reverseProxyResponseObject.ContainerMemoryUsageBytes = str
+			} else {
+				fmt.Println(err)
+				return err
+			}
+
+			// save struct as object
+			reverseProxyResponseMap[pod] = reverseProxyResponseObject
 		}
-
-		// save struct as object
-		reverseProxyResponseMap[pod] = reverseProxyResponseObject
 	}
 	return nil
 }
 
-func getKubePodContainerStatusRunning(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
+func getKubePodStatusPhase(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
 	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("kube_pod_container_status_running", labels)
-
-	// Unmarshal response body
-	prometheusResponse, err := unmarshalPrometheusResponse(body)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	// fill response map with unmarshaled data
-	for _, result := range prometheusResponse.Data.Result {
-		// get pod value
-		pod, ok := result.Metric["pod"].(string)
-		if !ok {
-			fmt.Println(err)
-			return err
-		}
-
-		// get reverseProxyResponseObject
-		reverseProxyResponseObject := reverseProxyResponseMap[pod]
-
-		// fill in kube_pod_created value
-		if str, ok := result.Value[1].(string); ok {
-			reverseProxyResponseObject.KubePodContainerStatusRunning = str
-		} else {
-			fmt.Println(err)
-			return err
-		}
-
-		// save struct as object
-		reverseProxyResponseMap[pod] = reverseProxyResponseObject
-	}
-	return nil
-}
-
-func getKubePodContainerStatusTerminated(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
-	// Get list of containers for all projects in projectsSlice
-	labels := make(map[string]string)
-	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("kube_pod_container_status_terminated", labels)
-
-	// Unmarshal response body
-	prometheusResponse, err := unmarshalPrometheusResponse(body)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	// fill response map with unmarshaled data
-	for _, result := range prometheusResponse.Data.Result {
-		// get pod value
-		pod, ok := result.Metric["pod"].(string)
-		if !ok {
-			fmt.Println(err)
-			return err
-		}
-
-		// get reverseProxyResponseObject
-		reverseProxyResponseObject := reverseProxyResponseMap[pod]
-
-		// fill in kube_pod_created value
-		if str, ok := result.Value[1].(string); ok {
-			reverseProxyResponseObject.KubePodContainerStatusTerminated = str
-		} else {
-			fmt.Println(err)
-			return err
-		}
-
-		// save struct as object
-		reverseProxyResponseMap[pod] = reverseProxyResponseObject
-	}
-	return nil
-}
-
-func getKubePodContainerStatusTerminatedReason(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
-	// Get list of containers for all projects in projectsSlice
-	labels := make(map[string]string)
-	labels["namespace"] = "~\"" + strings.Join(projects[:], "|") + "\""
-	body, err := queryPromQL("kube_pod_container_status_terminated_reason", labels)
+	body, err := queryPromQL("", "kube_pod_status_phase", labels, "")
 
 	// Unmarshal response body
 	prometheusResponse, err := unmarshalPrometheusResponse(body)
@@ -523,13 +455,16 @@ func getKubePodContainerStatusTerminatedReason(reverseProxyResponseMap map[strin
 		// fill in kube_pod_created value
 		if str, ok := result.Value[1].(string); ok {
 			if str == "1" {
-				// get reverseProxyResponseObject
-				reverseProxyResponseObject := reverseProxyResponseMap[pod]
-				if str, ok := result.Metric["reason"].(string); ok {
-					fmt.Println("reason: " + str)
-					reverseProxyResponseObject.KubePodContainerStatusTerminatedReason = str
-					// save struct as object
-					reverseProxyResponseMap[pod] = reverseProxyResponseObject
+				// Check if key exists
+				if _, ok := reverseProxyResponseMap[pod]; ok {
+					// get reverseProxyResponseObject
+					reverseProxyResponseObject := reverseProxyResponseMap[pod]
+					if str, ok := result.Metric["phase"].(string); ok {
+						fmt.Println("phase: " + str)
+						reverseProxyResponseObject.KubePodStatusPhase = str
+						// save struct as object
+						reverseProxyResponseMap[pod] = reverseProxyResponseObject
+					}
 				} else {
 					fmt.Println(err)
 					return err

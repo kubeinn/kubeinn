@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, {  Component } from "react";
 import Card from '@material-ui/core/Card';
-import { makeStyles } from '@material-ui/core/styles';
 import { Title } from 'react-admin';
+import { connect } from "react-redux";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -27,18 +27,26 @@ function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-const useStyles = makeStyles({
-    table: {
-        minWidth: 650,
-    },
-});
+class Dashboard extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { data: [] };
+    }
 
-export default function Dashboard() {
-    const classes = useStyles();
+    componentDidMount() {
+        this.doOnMountAndWhenRefreshed();
+    }
 
-    const [data, setData] = useState([])
+    componentDidUpdate(prevProps) {
+        if (prevProps.views !== this.props.views) {
+            this.doOnMountAndWhenRefreshed();
+        }
+    }
 
-    useEffect(() => {
+    doOnMountAndWhenRefreshed = () => {
+        // This is where you do update your component:
+        // - Make API requests
+        // - Fetch data from the react-admin store, etc.
         axios({
             url: dataProviderUrl + '/pods',
             method: 'GET',
@@ -48,56 +56,61 @@ export default function Dashboard() {
             timeout: 5000,
             responseType: 'json',
             responseEncoding: 'utf8',
-        }).then(json => setData(json.data))
-    }, [])
+        }).then(json => this.setState({data: json.data}))
+    };
 
-    console.log(data);
+    render() {
+        const { views } = this.props;
 
-    if (data == null){
-        return(
-            <Card>No values to display</Card>
-        );
-    } else {
-        return (
-            <Card>
-                <Title title="Dashboard" />
-                <TableContainer component={Paper}>
-                    <Table className={classes.table} size="small" aria-label="a dense table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="right">pod</TableCell>
-                                <TableCell align="right">namespace</TableCell>
-                                <TableCell align="right">created_by_name</TableCell>
-                                <TableCell align="right">node</TableCell>
-                                <TableCell align="right">kube_pod_created</TableCell>
-                                <TableCell align="right">kube_pod_completed</TableCell>
-                                <TableCell align="right">container_cpu_usage_seconds_total</TableCell>
-                                <TableCell align="right">container_memory_usage_bytes</TableCell>
-                                <TableCell align="right">kube_pod_container_status_running</TableCell>
-                                <TableCell align="right">kube_pod_container_status_terminated</TableCell>
-                                <TableCell align="right">kube_pod_container_status_terminated_reason</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {data.map((row) => (
-                                <TableRow key={row.pod}>
-                                    <TableCell align="right">{row.pod}</TableCell>
-                                    <TableCell align="right">{row.namespace}</TableCell>
-                                    <TableCell align="right">{row.created_by_name}</TableCell>
-                                    <TableCell align="right">{row.node}</TableCell>
-                                    <TableCell align="right">{row.kube_pod_created}</TableCell>
-                                    <TableCell align="right">{row.kube_pod_completed}</TableCell>
-                                    <TableCell align="right">{row.container_cpu_usage_seconds_total}</TableCell>
-                                    <TableCell align="right">{row.container_memory_usage_bytes}</TableCell>
-                                    <TableCell align="right">{row.kube_pod_container_status_running}</TableCell>
-                                    <TableCell align="right">{row.kube_pod_container_status_terminated}</TableCell>
-                                    <TableCell align="right">{row.kube_pod_container_status_terminated_reason}</TableCell>
+        if (this.state.data == null) {
+            return (
+                <Card>No values to display</Card>
+            );
+        } else {
+            return (
+                <Card>
+                    <Title title="Dashboard" />
+                    <TableContainer component={Paper}>
+                        <Table size="small" aria-label="a dense table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="right">pod</TableCell>
+                                    <TableCell align="right">namespace</TableCell>
+                                    <TableCell align="right">created_by_name</TableCell>
+                                    <TableCell align="right">node</TableCell>
+                                    <TableCell align="right">kube_pod_created</TableCell>
+                                    <TableCell align="right">kube_pod_completed</TableCell>
+                                    <TableCell align="right">container_cpu_usage_seconds_total</TableCell>
+                                    <TableCell align="right">container_memory_usage_bytes</TableCell>
+                                    <TableCell align="right">kube_pod_status_phase</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Card>
-        );
+                            </TableHead>
+                            <TableBody>
+                                {this.state.data.map((row) => (
+                                    <TableRow key={row.pod}>
+                                        <TableCell align="right">{row.pod}</TableCell>
+                                        <TableCell align="right">{row.namespace}</TableCell>
+                                        <TableCell align="right">{row.created_by_name}</TableCell>
+                                        <TableCell align="right">{row.node}</TableCell>
+                                        <TableCell align="right">{row.kube_pod_created}</TableCell>
+                                        <TableCell align="right">{row.kube_pod_completed}</TableCell>
+                                        <TableCell align="right">{row.container_cpu_usage_seconds_total}</TableCell>
+                                        <TableCell align="right">{row.container_memory_usage_bytes}</TableCell>
+                                        <TableCell align="right">{row.kube_pod_status_phase}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Card>
+            );
+        }
     }
 }
+
+const mapStateToProps = state => ({ views: state.admin.ui.viewVersion });
+
+export default connect(
+    mapStateToProps,
+    {}
+)(Dashboard);
