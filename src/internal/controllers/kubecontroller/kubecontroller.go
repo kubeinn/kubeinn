@@ -8,6 +8,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	rbac "k8s.io/api/rbac/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -190,6 +191,56 @@ func (kc *KubeController) CreateRoleBinding(namespace string) error {
 	}
 	for i := 0; i < 10; i++ {
 		_, err := kc.clientset.RbacV1().RoleBindings(namespace).Get(context.TODO(), namespace, metav1.GetOptions{})
+		if err != nil {
+			time.Sleep(5 * time.Second)
+		} else {
+			return nil
+		}
+	}
+	return err
+}
+
+func (kc *KubeController) CreateNetworkPolicy(namespace string) error {
+	fmt.Println("Creating network policy...")
+
+	nslabels := make(map[string]string)
+	pslabels := make(map[string]string)
+	nslabels["kubeinn"] = "admin"
+
+	np := &networkingv1.NetworkPolicy{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "deny-from-other-namespaces",
+			Namespace: namespace,
+		},
+		Spec: networkingv1.NetworkPolicySpec{
+			PodSelector: metav1.LabelSelector{},
+			Ingress: []networkingv1.NetworkPolicyIngressRule{
+				networkingv1.NetworkPolicyIngressRule{
+					From: []networkingv1.NetworkPolicyPeer{
+						networkingv1.NetworkPolicyPeer{
+							NamespaceSelector: &metav1.LabelSelector{
+								MatchLabels: nslabels,
+							},
+						},
+						networkingv1.NetworkPolicyPeer{
+							PodSelector: &metav1.LabelSelector{
+								MatchLabels: pslabels,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	_, err := kc.clientset.NetworkingV1().NetworkPolicies(namespace).Create(context.TODO(), np, metav1.CreateOptions{})
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	for i := 0; i < 10; i++ {
+		_, err := kc.clientset.NetworkingV1().NetworkPolicies(namespace).Get(context.TODO(), namespace, metav1.GetOptions{})
 		if err != nil {
 			time.Sleep(5 * time.Second)
 		} else {

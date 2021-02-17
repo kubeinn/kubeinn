@@ -3,12 +3,13 @@ package hooks
 import (
 	"encoding/json"
 	"errors"
-	gin "github.com/gin-gonic/gin"
-	global "github.com/kubeinn/kubeinn/src/internal/global"
-	bcrypt "golang.org/x/crypto/bcrypt"
 	"log"
 	"strconv"
 	"strings"
+
+	gin "github.com/gin-gonic/gin"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
+	bcrypt "golang.org/x/crypto/bcrypt"
 )
 
 type InnkeeperCreateRequestBody struct {
@@ -91,6 +92,11 @@ func PreCreateProjectHook(c *gin.Context, audience string) ([]byte, error) {
 	}
 
 	err = global.KUBE_CONTROLLER.CreateRoleBinding(namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	err = global.KUBE_CONTROLLER.CreateNetworkPolicy(namespace)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ namePrefix: kubeinn-
 # "wordpress" becomes "wordpress-v2".
 # The suffix is appended before content hash
 # if resource type is ConfigMap or Secret.
-nameSuffix: -v-1-0-0-a-1
+nameSuffix: -v-1-0-0
 
 # Labels to add to all resources and selectors.
 # commonLabels:
@@ -43,7 +43,6 @@ resources:
   - ./manifests/metrics/node-exporter.yaml
   - ./manifests/metrics/prometheus.yaml
   - ./manifests/web/web.yaml
-  - ./manifests/resource-usage/resource-usage.yaml
 
 # Each entry in this list results in the creation of
 # one ConfigMap resource (it's a generator of n maps).

@@ -46,7 +46,7 @@ export default {
                 'Authorization': getCookie("Authorization"),
             },
             data: params.data,
-            timeout: 5000,
+            timeout: 120000,
             responseType: 'json',
             responseEncoding: 'utf8',
         }).then(({ json }) => ({

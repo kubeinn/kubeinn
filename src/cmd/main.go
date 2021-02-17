@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -28,7 +29,7 @@ func main() {
 	// Initialize variables
 	initialize()
 
-	// Testing
+	// Testing (comment for production)
 	test.TestCreateDefaultInnkeeper()
 
 	// Start web server
@@ -89,6 +90,11 @@ func main() {
 
 func initialize() {
 	// Instantiate global variables
+
+	// Wait 3 minutes for database to start
+	fmt.Println("Waiting 3 minutes for database to initialize...")
+	time.Sleep(3 * time.Minute)
+	fmt.Println("Wait completed.")
 
 	// Cache with a default expiration time of 5 minutes, and which purges expired items every 10 minutes
 	global.SESSION_CACHE = go_cache.New(15*time.Minute, 5*time.Minute)

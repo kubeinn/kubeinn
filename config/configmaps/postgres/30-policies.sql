@@ -3,7 +3,6 @@ ALTER TABLE api.innkeepers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api.pilgrims ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api.tickets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE api.usage ENABLE ROW LEVEL SECURITY;
 -- Set row security policies for innkeepers
 CREATE POLICY innkeeper_innkeeper_policy ON api.innkeepers TO innkeepers USING (true) WITH CHECK (true);
 CREATE POLICY innkeeper_pilgrim_policy ON api.pilgrims TO innkeepers USING (true) WITH CHECK (true);
@@ -109,12 +108,10 @@ GRANT INSERT,
     DELETE ON api.pilgrims TO innkeepers;
 GRANT ALL PRIVILEGES ON api.projects TO innkeepers;
 GRANT ALL PRIVILEGES ON api.tickets TO innkeepers;
-GRANT ALL PRIVILEGES ON api.usage TO innkeepers;
 GRANT EXECUTE ON FUNCTION api.update_pilgrim TO innkeepers;
 GRANT EXECUTE ON FUNCTION api.create_pilgrim TO innkeepers;
 GRANT EXECUTE ON FUNCTION api.update_innkeeper TO innkeepers;
 GRANT EXECUTE ON FUNCTION api.create_innkeeper TO innkeepers;
 -- Grant permissions to role groups pilgrims
 GRANT ALL PRIVILEGES ON api.tickets TO pilgrims;
-GRANT ALL PRIVILEGES ON api.usage TO pilgrims;
 GRANT ALL PRIVILEGES ON api.projects TO pilgrims;
