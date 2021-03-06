@@ -2,7 +2,7 @@
 
 <img src="./docs/img/logo.png" title="" alt="" width="200">
 
-Kubeinn is an open source manager for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the basic tools to manage tenants of a shared Kubernetes cluster. 
+Kubeinn is an open source cloud container service platform for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the tools to manage tenants of a shared Kubernetes cluster. 
 
 Built with [React](https://facebook.github.io/react/), [Material Design](https://material.io/) and [react-admin](https://github.com/marmelab/react-admin) for the frontend, [Go (Golang)](https://golang.org/) and [Gin](https://github.com/gin-gonic/gin) for the middleware and backend, and [Postgres](https://www.postgresql.org/) as the database. 
 
@@ -31,40 +31,41 @@ Built with [React](https://facebook.github.io/react/), [Material Design](https:/
 ## Installation
 You can deploy Kubeinn on any Kubernetes 1.9+ cluster in a matter of minutes, if not seconds. 
 ### Prerequisites
-- Kubernetes version 1.9 or higher
+- Kubernetes version 1.18 and above
 - Persistent Volume Claims
 ### 1. Clone this repository
 ```bash
 git clone https://github.com/kubeinn/kubeinn.git
 cd kubeinn
 ```
-### 2. Set environment variables
+### 2. Set kustomization secrets
+You will need to create the environment files below and replace the values with 256 bit keys. 
+
+```env
+# ./configmaps/secrets/jwt-signing-key.env
+POSTGRES_PASSWORD=[YOUR-256-BITS-POSTGRES-PASSWORD]
 ```
-# ./config/configmaps/frontend/.env
-KUBEINN_SCHUTTERIJ_URL=http://[YOUR-KUBERNETES-NODE-IP]:[YOUR-KUBERNETES-NODE-PORT]
+
+```env
+# ./configmaps/secrets/jwt-signing-key.env
+JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
 ```
-### 3. Set kustomization secrets
-```
-# ./config/kustomization.yaml
-secretGenerator:
-  - name: pgpassword
-    literals:
-      - POSTGRES_PASSWORD=[YOUR-POSTGRES-PASSWORD]
-  - name: jwt-signing-key
-    literals:
-      - JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
-```
-### 4. Copy kube config
+
+Keys can be generated using [https://passwordsgenerator.net/](https://passwordsgenerator.net/).
+
+<img src="./docs/img/secret_generator_config.png" title="" alt="">
+
+### 3. Copy kube config
 ```bash
 # kube config is usually located at /root/.kube/config
 # May differ according to your cloud provider
 cp /root/.kube/config config/configmaps/backend/admin-config
 ```
-### 5. Create namespace
+### 4. Create namespace
 ```bash
 kubectl create namespace kubeinn
 ```
-### 6. Install using kustomize
+### 5. Install using kustomize
 ```bash
 kubectl apply -k ./config
 ```

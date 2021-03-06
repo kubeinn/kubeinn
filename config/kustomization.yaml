@@ -77,11 +77,9 @@ configMapGenerator:
 # one Secret resource (it's a generator of n secrets).
 secretGenerator:
   - name: pgpassword
-    literals:
-      - POSTGRES_PASSWORD=pgpassword
+    env: configmaps/secrets/pgpassword.env
   - name: jwt-signing-key
-    literals:
-      - JWT_SIGNING_KEY=bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK
+    env: configmaps/secrets/jwt-signing-key.env
 
 # generatorOptions modify behavior of all ConfigMap and Secret generators
 generatorOptions:
@@ -230,12 +228,6 @@ vars:
       kind: Service
       name: prometheus-cluster-ip-service
       apiVersion: v1
-  - name: WEB_CLUSTER_IP_SERVICE
-    objref:
-      kind: Service
-      name: web-cluster-ip-service
-      apiVersion: v1
-  
     # fieldref:
     #   fieldpath: metadata.name
     # - name: SOME_SECRET_NAME
