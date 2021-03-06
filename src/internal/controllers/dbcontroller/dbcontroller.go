@@ -8,6 +8,7 @@ import (
 	pgxpool "github.com/jackc/pgx/v4/pgxpool"
 )
 
+// PostgresController helps to manage interactions with the Postgres database
 type PostgresController struct {
 	dbName     string
 	dbHost     string
@@ -17,6 +18,7 @@ type PostgresController struct {
 	connURL    string
 }
 
+// NewPostgresController is the constructor for PostgresController
 func NewPostgresController(dbName string, dbHost string, dbPort int, dbUser string, dbPassword string) *PostgresController {
 	pg := PostgresController{}
 	pg.dbName = dbName
@@ -28,10 +30,7 @@ func NewPostgresController(dbName string, dbHost string, dbPort int, dbUser stri
 	return &pg
 }
 
-/*
-PILGRIM
-*/
-
+// InsertPilgrim inserts a pilgrim record into the database
 func (pg *PostgresController) InsertPilgrim(organization string, description string, username string, email string, password string) error {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
@@ -60,72 +59,7 @@ func (pg *PostgresController) InsertPilgrim(organization string, description str
 	return nil
 }
 
-func (pg *PostgresController) UpdatePilgrimPassword(id string, password string) error {
-	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-
-	tx, err := dbpool.Begin(context.Background())
-	if err != nil {
-		return err
-	}
-	// Rollback is safe to call even if the tx is already closed, so if
-	// the tx commits successfully, this is a no-op
-	defer tx.Rollback(context.Background())
-
-	_, err = tx.Exec(context.Background(), "UPDATE api.pilgrims SET passwd = $2 WHERE id = $1", id, password)
-	if err != nil {
-		return err
-	}
-
-	err = tx.Commit(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (pg *PostgresController) SelectPilgrimByUsername(username string) (string, string, string, error) {
-	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-
-	var id string
-	var password string
-	var status string
-
-	err = dbpool.QueryRow(context.Background(),
-		"SELECT id,passwd,status FROM api.pilgrims WHERE username=$1", username).Scan(&id, &password, &status)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-	}
-	return id, password, status, err
-}
-
-func (pg *PostgresController) SelectInnkeeperByUsername(username string) (string, string, error) {
-	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer dbpool.Close()
-
-	var id string
-	var password string
-	err = dbpool.QueryRow(context.Background(),
-		"SELECT id,passwd FROM api.innkeepers WHERE username=$1", username).Scan(&id, &password)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-	}
-	return id, password, err
-}
-
+// InsertInnkeeper inserts a innkeeper record into the database
 func (pg *PostgresController) InsertInnkeeper(username string, email string, password string) error {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
@@ -154,8 +88,78 @@ func (pg *PostgresController) InsertInnkeeper(username string, email string, pas
 	return nil
 }
 
-// SelectProjectById is ...
-func (pg *PostgresController) SelectProjectById(id string) (string, string, error) {
+// UpdatePilgrimPassword updates a pilgrim password from a record in the database
+func (pg *PostgresController) UpdatePilgrimPassword(id string, password string) error {
+	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	tx, err := dbpool.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	// Rollback is safe to call even if the tx is already closed, so if
+	// the tx commits successfully, this is a no-op
+	defer tx.Rollback(context.Background())
+
+	_, err = tx.Exec(context.Background(), "UPDATE api.pilgrims SET passwd = $2 WHERE id = $1", id, password)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SelectPilgrimByUsername retrieves a pilgrim by username from the database
+func (pg *PostgresController) SelectPilgrimByUsername(username string) (string, string, string, error) {
+	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	var id string
+	var password string
+	var status string
+
+	err = dbpool.QueryRow(context.Background(),
+		"SELECT id,passwd,status FROM api.pilgrims WHERE username=$1", username).Scan(&id, &password, &status)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+	}
+	return id, password, status, err
+}
+
+// SelectInnkeeperByUsername retrieves a innkeeper by username from the database
+func (pg *PostgresController) SelectInnkeeperByUsername(username string) (string, string, error) {
+	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	var id string
+	var password string
+
+	err = dbpool.QueryRow(context.Background(),
+		"SELECT id,passwd FROM api.innkeepers WHERE username=$1", username).Scan(&id, &password)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+	}
+	return id, password, err
+}
+
+// SelectProjectByID retrieves a project by ID from the database
+func (pg *PostgresController) SelectProjectByID(id string) (string, string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -173,6 +177,7 @@ func (pg *PostgresController) SelectProjectById(id string) (string, string, erro
 	return pilgrimID, title, err
 }
 
+// SelectProjectByID retrieves all projects from the database
 func (pg *PostgresController) SelectProjects() (map[string]string, error) {
 	dbpool, err := pgxpool.Connect(context.Background(), pg.connURL)
 	if err != nil {

@@ -12,12 +12,14 @@ import (
 	bcrypt "golang.org/x/crypto/bcrypt"
 )
 
+// InnkeeperCreateRequestBody represents the HTTP request when a innkeeper is to be created
 type InnkeeperCreateRequestBody struct {
 	Username string `json:"username"`
 	Password string `json:"passwd"`
 	Email    string `json:"email"`
 }
 
+// InnkeeperEditRequestBody represents the HTTP request when details of an innkeeper are to be changed
 type InnkeeperEditRequestBody struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
@@ -25,6 +27,7 @@ type InnkeeperEditRequestBody struct {
 	Email    string `json:"email"`
 }
 
+// PilgrimCreateRequestBody represents the HTTP request when a pilgrim is to be created
 type PilgrimCreateRequestBody struct {
 	Organization string `json:"organization"`
 	Description  string `json:"description"`
@@ -34,6 +37,7 @@ type PilgrimCreateRequestBody struct {
 	Status       string `json:"status"`
 }
 
+// PilgrimEditRequestBody represents the HTTP request when details of an pilgrim are to be changed
 type PilgrimEditRequestBody struct {
 	ID           string `json:"id"`
 	Organization string `json:"organization"`
@@ -44,6 +48,7 @@ type PilgrimEditRequestBody struct {
 	Status       string `json:"status"`
 }
 
+// ProjectCreateRequestBody represents the HTTP request when a project is to be created
 type ProjectCreateRequestBody struct {
 	PilgrimID string `json:"pilgrimid"`
 	Title     string `json:"title"`
@@ -53,17 +58,21 @@ type ProjectCreateRequestBody struct {
 	Storage   int64  `json:"storage"`
 }
 
-// PreCreateProjectHook is ...
+// PreCreateProjectHook is called before a project is created.
+// This hook creates objects in the  cluster corresponding to the create project request.
+// After objects are created, a new request body is returned which will be sent to the client.
 func PreCreateProjectHook(c *gin.Context, audience string) ([]byte, error) {
+	// Instantiate project create request body
 	var projectCreateRequestBody ProjectCreateRequestBody
 
-	log.Println("Decoding JSON...")
+	// Decode JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&projectCreateRequestBody)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
+	// Retrieve parameters from projectCreateRequestBody
 	namespace := projectCreateRequestBody.Title
 	cpu := projectCreateRequestBody.CPU
 	memory := projectCreateRequestBody.Memory
@@ -71,41 +80,50 @@ func PreCreateProjectHook(c *gin.Context, audience string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Create namespace
 	err = global.KUBE_CONTROLLER.CreateNamespace(namespace)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create resource quota
 	err = global.KUBE_CONTROLLER.CreateResourceQuota(namespace, cpu, memory, storage)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create service account
 	err = global.KUBE_CONTROLLER.CreateServiceAccount(namespace)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create role
 	err = global.KUBE_CONTROLLER.CreateRole(namespace)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create role binding
 	err = global.KUBE_CONTROLLER.CreateRoleBinding(namespace)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create network policy
 	err = global.KUBE_CONTROLLER.CreateNetworkPolicy(namespace)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create kube configuration file
 	kubecfg, err := global.KUBE_CONTROLLER.GenerateKubeConfiguration(namespace)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create a request body and format with kubernetes objects created
 	newReqBody := make(map[string]string)
 	if audience == global.JWT_AUDIENCE_INNKEEPER {
 		newReqBody["pilgrimid"] = projectCreateRequestBody.PilgrimID
@@ -116,23 +134,30 @@ func PreCreateProjectHook(c *gin.Context, audience string) ([]byte, error) {
 	newReqBody["memory"] = strconv.FormatInt(projectCreateRequestBody.Memory, 10)
 	newReqBody["storage"] = strconv.FormatInt(projectCreateRequestBody.Storage, 10)
 	newReqBody["kube_configuration"] = kubecfg
+
+	// Marshal request body
 	body, err := json.Marshal(newReqBody)
 	if err != nil {
 		return nil, err
 	}
+
+	// Return request body
 	return body, nil
 }
 
-// PreDeleteProjectHook is ...
+// PreDeleteProjectHook is called before project is deleted.
+// This hook deletes objects in the  cluster corresponding to the delete project request.
 func PreDeleteProjectHook(c *gin.Context, audience string, subject string) error {
+	// Parse id
 	id := strings.TrimPrefix(c.Query("id"), "eq.")
 
 	// Get title from database
-	dbPilgrimID, dbTitle, err := global.PG_CONTROLLER.SelectProjectById(id)
+	dbPilgrimID, dbTitle, err := global.PG_CONTROLLER.SelectProjectByID(id)
 	if err != nil {
 		return err
 	}
 
+	// Check if user has the privileges to delete project
 	if audience != global.JWT_AUDIENCE_INNKEEPER {
 		if dbPilgrimID != subject {
 			log.Println("invalid subject: " + dbPilgrimID)
@@ -140,6 +165,7 @@ func PreDeleteProjectHook(c *gin.Context, audience string, subject string) error
 		}
 	}
 
+	// Delete the project
 	err = global.KUBE_CONTROLLER.DeleteNamespace(dbTitle)
 	if err != nil {
 		return err
@@ -147,11 +173,14 @@ func PreDeleteProjectHook(c *gin.Context, audience string, subject string) error
 	return nil
 }
 
-// PreCreateInnkeeperHook is ...
+// PreCreateInnkeeperHook is called before a innkeeper is created.
+// This hook prepares the proxy request to be sent to PostgREST.
+// After request is formatted, it is returned and sent to the PostgREST API.
 func PreCreateInnkeeperHook(c *gin.Context) ([]byte, error) {
+	// Instantiate innkeeperCreateRequestBody
 	var innkeeperCreateRequestBody InnkeeperCreateRequestBody
 
-	log.Println("Decoding JSON...")
+	// Decode JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&innkeeperCreateRequestBody)
 	if err != nil {
 		log.Println(err)
@@ -166,6 +195,7 @@ func PreCreateInnkeeperHook(c *gin.Context) ([]byte, error) {
 		return nil, err
 	}
 
+	// Create request body
 	newReqBody := make(map[string]string)
 	newReqBody["username"] = innkeeperCreateRequestBody.Username
 	newReqBody["email"] = innkeeperCreateRequestBody.Email
@@ -178,21 +208,28 @@ func PreCreateInnkeeperHook(c *gin.Context) ([]byte, error) {
 	return body, nil
 }
 
-// PreEditInnkeeperHook is ...
+// PreEditInnkeeperHook is called before a innkeeper is edited.
+// This hook prepares the proxy request to be sent to PostgREST.
+// After request is formatted, it is returned and sent to the PostgREST API.
 func PreEditInnkeeperHook(c *gin.Context) ([]byte, error) {
+	// Instantiate innkeeperEditRequestBody
 	var innkeeperEditRequestBody InnkeeperEditRequestBody
 
-	log.Println("Decoding JSON...")
+	// Decode JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&innkeeperEditRequestBody)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
+	// Create new request body
 	newReqBody := make(map[string]string)
 	newReqBody["id"] = innkeeperEditRequestBody.ID
 	newReqBody["username"] = innkeeperEditRequestBody.Username
 	newReqBody["email"] = innkeeperEditRequestBody.Email
+
+	// Check if there are any changes to password
+	// If none, return empty string
 	if innkeeperEditRequestBody.Password != "" {
 		// Hash password
 		log.Println("Hashing password...")
@@ -206,6 +243,7 @@ func PreEditInnkeeperHook(c *gin.Context) ([]byte, error) {
 		newReqBody["passwd"] = ""
 	}
 
+	// Marshal request body
 	body, err := json.Marshal(newReqBody)
 	if err != nil {
 		log.Println(err)
@@ -214,11 +252,14 @@ func PreEditInnkeeperHook(c *gin.Context) ([]byte, error) {
 	return body, nil
 }
 
-// PreCreatePilgrimHook is ...
+// PreCreatePilgrimHook is called before a pilgrim is created.
+// This hook prepares the proxy request to be sent to PostgREST.
+// After request is formatted, it is returned and sent to the PostgREST API.
 func PreCreatePilgrimHook(c *gin.Context) ([]byte, error) {
+	// Instantiate pilgrimCreateRequestBody
 	var pilgrimCreateRequestBody PilgrimCreateRequestBody
 
-	log.Println("Decoding JSON...")
+	// Decode JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&pilgrimCreateRequestBody)
 	if err != nil {
 		log.Println(err)
@@ -233,6 +274,7 @@ func PreCreatePilgrimHook(c *gin.Context) ([]byte, error) {
 		return nil, err
 	}
 
+	// Create new request body
 	newReqBody := make(map[string]string)
 	newReqBody["organization"] = pilgrimCreateRequestBody.Organization
 	newReqBody["description"] = pilgrimCreateRequestBody.Description
@@ -248,17 +290,21 @@ func PreCreatePilgrimHook(c *gin.Context) ([]byte, error) {
 	return body, nil
 }
 
-// PreEditPilgrimHook is ...
+// PreEditPilgrimHook is called before a pilgrim is edited.
+// This hook prepares the proxy request to be sent to PostgREST.
+// After request is formatted, it is returned and sent to the PostgREST API.
 func PreEditPilgrimHook(c *gin.Context) ([]byte, error) {
+	// Instantiate pilgrimEditRequestBody
 	var pilgrimEditRequestBody PilgrimEditRequestBody
 
-	log.Println("Decoding JSON...")
+	// Decode JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&pilgrimEditRequestBody)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
+	// Create new request body
 	newReqBody := make(map[string]string)
 	newReqBody["id"] = pilgrimEditRequestBody.ID
 	newReqBody["organization"] = pilgrimEditRequestBody.Organization
@@ -266,6 +312,9 @@ func PreEditPilgrimHook(c *gin.Context) ([]byte, error) {
 	newReqBody["username"] = pilgrimEditRequestBody.Username
 	newReqBody["email"] = pilgrimEditRequestBody.Email
 	newReqBody["status"] = pilgrimEditRequestBody.Status
+
+	// Check if there are any changes to password
+	// If none, return empty string
 	if pilgrimEditRequestBody.Password != "" {
 		// Hash password
 		log.Println("Hashing password...")
@@ -278,6 +327,8 @@ func PreEditPilgrimHook(c *gin.Context) ([]byte, error) {
 	} else {
 		newReqBody["passwd"] = ""
 	}
+
+	// Marshal request body
 	body, err := json.Marshal(newReqBody)
 	if err != nil {
 		log.Println(err)

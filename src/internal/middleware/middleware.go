@@ -1,17 +1,19 @@
 package middleware
 
 import (
-	// "errors"
 	"fmt"
-	jwt "github.com/dgrijalva/jwt-go"
-	gin "github.com/gin-gonic/gin"
-	global "github.com/kubeinn/kubeinn/src/internal/global"
 	"log"
 	"net/http"
 	"strings"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	gin "github.com/gin-gonic/gin"
+	global "github.com/kubeinn/kubeinn/src/internal/global"
 )
 
-// TokenAuthMiddleware is ...
+// TokenAuthMiddleware handles all requests arriving at the server.
+// This middleware checks if the request is authorized with respect to the endpoint
+// it is attempting to reach.
 func TokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Retrieve token from header

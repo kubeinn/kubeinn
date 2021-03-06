@@ -1,18 +1,18 @@
 package prometheus_handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	http "net/http"
 	"strings"
 
-	"encoding/json"
-
 	gin "github.com/gin-gonic/gin"
 	global "github.com/kubeinn/kubeinn/src/internal/global"
 )
 
+// ReverseProxyResponseObject represents the structure of the HTTP proxy response
 type ReverseProxyResponseObject struct {
 	Pod                           string `json:"pod"`
 	Namespace                     string `json:"namespace"`
@@ -25,6 +25,7 @@ type ReverseProxyResponseObject struct {
 	KubePodStatusPhase            string `json:"kube_pod_status_phase"`
 }
 
+// newReverseProxyResponseObject is the constructor for the ReverseProxyResponseObject
 func newReverseProxyResponseObject() *ReverseProxyResponseObject {
 	o := ReverseProxyResponseObject{}
 	o.Pod = ""
@@ -39,21 +40,25 @@ func newReverseProxyResponseObject() *ReverseProxyResponseObject {
 	return &o
 }
 
+// PrometheusResponse represents the response from prometheus
 type PrometheusResponse struct {
 	Status string              `json:"status"`
 	Data   PrometheusDataField `json:"data"`
 }
 
+// PrometheusDataField represents the Data field from the PrometheusResponse struct
 type PrometheusDataField struct {
 	ResultType string                      `json:"resultType"`
 	Result     []PrometheusDataResultField `json:"result"`
 }
 
+// PrometheusDataResultField represents the Result field from the PrometheusDataField struct
 type PrometheusDataResultField struct {
 	Metric map[string]interface{} `json:"metric"`
 	Value  []interface{}          `json:"value"`
 }
 
+// unmarshalPrometheusResponse unmarshals a raw byte response to a PrometheusResponse structure
 func unmarshalPrometheusResponse(b []byte) (PrometheusResponse, error) {
 	prometheusResponse := PrometheusResponse{}
 	err := json.Unmarshal(b, &prometheusResponse)
@@ -63,6 +68,7 @@ func unmarshalPrometheusResponse(b []byte) (PrometheusResponse, error) {
 	return prometheusResponse, nil
 }
 
+// PrometheusHandler handles HTTP request that involves interactions with the Prometheus API
 func PrometheusHandler(c *gin.Context) {
 	// Parse context request
 	var audience string
@@ -147,17 +153,9 @@ func PrometheusHandler(c *gin.Context) {
 	}
 	fmt.Println(string(b))
 	c.Data(http.StatusOK, "application/json", b)
-
-	// //  Write response headers
-	// for header, values := range proxyRes.Header {
-	// 	for _, value := range values {
-	// 		log.Println(header + ": " + value)
-	// 		c.Writer.Header().Set(header, value)
-	// 	}
-	// }
-	// c.Data(proxyRes.StatusCode, "application/json", body)
 }
 
+// queryPromQL sends a HTTP request to the Prometheus API and returns the response body
 func queryPromQL(function string, metric string, labels map[string]string, time string) ([]byte, error) {
 	// Format request for Prometheus API
 	var labelsSlice []string
@@ -180,14 +178,15 @@ func queryPromQL(function string, metric string, labels map[string]string, time 
 	url := "http://" + global.PROMETHEUS_URL + "/api/v1/query?query=" + query
 	method := "GET"
 
+	// Create request
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
+	// Send the request
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
@@ -195,15 +194,17 @@ func queryPromQL(function string, metric string, labels map[string]string, time 
 	}
 	defer res.Body.Close()
 
+	// Read the response body
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 	return body, nil
-
 }
 
+// getKubePodInfo queries the Prometheus API for kube pod info and
+// formats the result in the reverseProxyResponseMap
 func getKubePodInfo(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
@@ -260,6 +261,8 @@ func getKubePodInfo(reverseProxyResponseMap map[string]ReverseProxyResponseObjec
 	return nil
 }
 
+// getKubePodCreated queries the Prometheus API for kube pod creation time and
+// formats the result in the reverseProxyResponseMap
 func getKubePodCreated(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
@@ -302,6 +305,8 @@ func getKubePodCreated(reverseProxyResponseMap map[string]ReverseProxyResponseOb
 	return nil
 }
 
+// getKubePodCompleted queries the Prometheus API for kube pod terminated time and
+// formats the result in the reverseProxyResponseMap
 func getKubePodCompleted(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
@@ -344,6 +349,8 @@ func getKubePodCompleted(reverseProxyResponseMap map[string]ReverseProxyResponse
 	return nil
 }
 
+// getContainerCPUUsageSecondsTotal queries the Prometheus API for total container CPU usage and
+// formats the result in the reverseProxyResponseMap
 func getContainerCPUUsageSecondsTotal(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
@@ -387,6 +394,8 @@ func getContainerCPUUsageSecondsTotal(reverseProxyResponseMap map[string]Reverse
 	return nil
 }
 
+// getContainerMemoryUsageBytes queries the Prometheus API for total container memory usage and
+// formats the result in the reverseProxyResponseMap
 func getContainerMemoryUsageBytes(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)
@@ -430,6 +439,8 @@ func getContainerMemoryUsageBytes(reverseProxyResponseMap map[string]ReverseProx
 	return nil
 }
 
+// getKubePodStatusPhase queries the Prometheus API for kube pod status phase and
+// formats the result in the reverseProxyResponseMap
 func getKubePodStatusPhase(reverseProxyResponseMap map[string]ReverseProxyResponseObject, projects []string) error {
 	// Get list of containers for all projects in projectsSlice
 	labels := make(map[string]string)

@@ -14,7 +14,6 @@ import (
 	kubecontroller "github.com/kubeinn/kubeinn/src/internal/controllers/kubecontroller"
 	global "github.com/kubeinn/kubeinn/src/internal/global"
 	middleware "github.com/kubeinn/kubeinn/src/internal/middleware"
-	test "github.com/kubeinn/kubeinn/src/test"
 
 	cors "github.com/gin-contrib/cors"
 	gin_static "github.com/gin-gonic/contrib/static"
@@ -23,16 +22,12 @@ import (
 )
 
 func main() {
-	// Testing (comment for production)
-	// test.TestInitEnvironmentVars()
-
 	// Initialize variables
 	initialize()
 
-	// Testing (comment for production)
-	test.TestCreateDefaultInnkeeper()
+	// Create default admin account
+	auth_handler.RegisterInnkeeper("admin", "admin", "admin")
 
-	// Start web server
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -48,13 +43,10 @@ func main() {
 	router.Use(gin_static.Serve("/innkeeper", gin_static.LocalFile("./client/innkeeper/build", true)))
 	router.Use(gin_static.Serve("/pilgrim", gin_static.LocalFile("./client/pilgrim/build", true)))
 
-	// router.NoRoute(func(c *gin.Context) {
-	// 	c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
-	// })
-	// router.Static("/innkeeper", "./client/innkeeper/build")
-	// router.Static("/innkeeper/*", "./client/innkeeper/build")
-	// router.Static("/pilgrim", "./client/pilgrim/build")
-	// router.Static("/pilgrim/*", "./client/pilgrim/build")
+	// Serve 404 page when page not found
+	router.NoRoute(func(c *gin.Context) {
+		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+	})
 
 	// Setup route group for the authentication API endpoint
 	authAPI := router.Group(global.API_ROUTE_PREFIX + global.AUTHENTICATION_ROUTE_PREFIX)
@@ -88,9 +80,8 @@ func main() {
 	router.Run(":8080")
 }
 
+// initialize instantiates global variables
 func initialize() {
-	// Instantiate global variables
-
 	// Wait 3 minutes for database to start
 	fmt.Println("Waiting 3 minutes for database to initialize...")
 	time.Sleep(3 * time.Minute)

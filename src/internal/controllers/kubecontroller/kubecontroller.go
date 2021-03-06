@@ -18,11 +18,13 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
+// KubeController helps to manage interactions with the Kubernetes API server
 type KubeController struct {
 	clientset  *kubernetes.Clientset
 	restconfig *rest.Config
 }
 
+// NewKubeController is the constructor for KubeController
 func NewKubeController(path string) *KubeController {
 	kc := KubeController{}
 	fmt.Println("Loading kubeconfig from: " + path)
@@ -41,6 +43,7 @@ func NewKubeController(path string) *KubeController {
 	return &kc
 }
 
+// CreateNamespace creates a namespace in the cluster
 func (kc *KubeController) CreateNamespace(namespace string) error {
 	fmt.Println("Creating namespace...")
 
@@ -61,6 +64,7 @@ func (kc *KubeController) CreateNamespace(namespace string) error {
 	return err
 }
 
+// CreateResourceQuota creates a resource quota for the specified namespace in the cluster
 func (kc *KubeController) CreateResourceQuota(namespace string, cpu int64, memory int64, storage int64) error {
 	fmt.Println("Creating resource quota...")
 
@@ -95,6 +99,7 @@ func (kc *KubeController) CreateResourceQuota(namespace string, cpu int64, memor
 	return err
 }
 
+// CreateServiceAccount creates a service account for the specified namespace in the cluster
 func (kc *KubeController) CreateServiceAccount(namespace string) error {
 	fmt.Println("Creating service account...")
 
@@ -121,6 +126,7 @@ func (kc *KubeController) CreateServiceAccount(namespace string) error {
 	return err
 }
 
+// CreateRole creates a role for the specified namespace in the cluster
 func (kc *KubeController) CreateRole(namespace string) error {
 	fmt.Println("Creating role...")
 
@@ -157,6 +163,7 @@ func (kc *KubeController) CreateRole(namespace string) error {
 	return err
 }
 
+// CreateRoleBinding creates a role binding for the specified namespace in the cluster
 func (kc *KubeController) CreateRoleBinding(namespace string) error {
 	fmt.Println("Creating role binding...")
 
@@ -200,6 +207,7 @@ func (kc *KubeController) CreateRoleBinding(namespace string) error {
 	return err
 }
 
+// CreateNetworkPolicy creates a network policy for the specified namespace in the cluster
 func (kc *KubeController) CreateNetworkPolicy(namespace string) error {
 	fmt.Println("Creating network policy...")
 
@@ -250,6 +258,7 @@ func (kc *KubeController) CreateNetworkPolicy(namespace string) error {
 	return err
 }
 
+// GenerateKubeConfiguration generates a kube configuration file
 func (kc *KubeController) GenerateKubeConfiguration(namespace string) (string, error) {
 	fmt.Println("Generating kube config...")
 
@@ -301,6 +310,7 @@ func (kc *KubeController) GenerateKubeConfiguration(namespace string) (string, e
 	return string(kubecfg), nil
 }
 
+// DeleteNamespace deletes a namespace from the cluster
 func (kc *KubeController) DeleteNamespace(namespace string) error {
 	fmt.Println("Deleting namespace...")
 

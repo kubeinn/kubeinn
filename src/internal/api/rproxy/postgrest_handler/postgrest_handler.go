@@ -2,7 +2,6 @@ package postgrest_handler
 
 import (
 	"bytes"
-
 	"io/ioutil"
 	"log"
 	http "net/http"
@@ -14,6 +13,7 @@ import (
 	global "github.com/kubeinn/kubeinn/src/internal/global"
 )
 
+// PostgrestHandler handles HTTP request that involves interactions with the PostgREST API
 func PostgrestHandler(c *gin.Context) {
 	// Parse context request
 	var audience string
@@ -36,12 +36,6 @@ func PostgrestHandler(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	c.Request.Body.Close()
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-	log.Println("===============================")
-	log.Println("method: " + method)
-	log.Println("path: " + path)
-	log.Println("url: " + url)
-	log.Println("===============================")
 
 	// Create proxy request
 	log.Println("Creating proxy request...")
@@ -136,7 +130,6 @@ func PostgrestHandler(c *gin.Context) {
 			proxyReq.URL.RawQuery = c.Request.URL.RawQuery + "&select=id,organization,description,username,email,status"
 		}
 	default:
-
 	}
 
 	// Create proxy request body
@@ -161,22 +154,7 @@ func PostgrestHandler(c *gin.Context) {
 	}
 	defer proxyRes.Body.Close()
 
-	// PostHooks
-	// switch method {
-	// case "POST":
-	//
-	// 	}
-	// default:
-
-	// }
-
-	// log.Println("Dumping proxy response...")
-	// data, err = httputil.DumpResponse(proxyRes, true)
-	// if err != nil {
-	// 	log.Fatal("Error")
-	// }
-	// log.Println(string(data))
-
+	// Read proxy response body
 	body, err = ioutil.ReadAll(proxyRes.Body)
 
 	//  Write response headers

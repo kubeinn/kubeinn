@@ -1,52 +1,46 @@
 # Introduction
-> Kubeinn is an open source manager for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the basic tools to manage tenants of a shared Kubernetes cluster.
+> Kubeinn is a cloud container service platform for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the tools to manage a shared Kubernetes cluster with ease.
 
-![](./img/kubeinn-demo.gif)
+![](./img/kubeinn-demo.png)
 
-# Installation
+## Installation
 You can deploy Kubeinn on any Kubernetes 1.9+ cluster in a matter of minutes, if not seconds. 
-
-## Prerequisites
-- Kubernetes version 1.9 or higher
+### Prerequisites
+- Kubernetes version 1.18 and above
 - Persistent Volume Claims
-
-## 1. Clone this repository
+### 1. Clone this repository
 ```bash
 git clone https://github.com/kubeinn/kubeinn.git
 cd kubeinn
 ```
+### 2. Set kustomization secrets
+You will need to create the environment files below and replace the values with 256 bit keys. 
 
-## 2. Set environment variables
-```
-# ./config/configmaps/frontend/.env
-KUBEINN_SCHUTTERIJ_URL=http://[YOUR-KUBERNETES-NODE-IP]:[YOUR-KUBERNETES-NODE-PORT]
-```
-
-## 3. Set kustomization secrets
-```
-# ./config/kustomization.yaml
-secretGenerator:
-  - name: pgpassword
-    literals:
-      - POSTGRES_PASSWORD=[YOUR-POSTGRES-PASSWORD]
-  - name: jwt-signing-key
-    literals:
-      - JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
+```env
+# ./configmaps/secrets/jwt-signing-key.env
+POSTGRES_PASSWORD=[YOUR-256-BITS-POSTGRES-PASSWORD]
 ```
 
-## 4. Copy kube config
+```env
+# ./configmaps/secrets/jwt-signing-key.env
+JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
+```
+
+Keys can be generated using [https://passwordsgenerator.net/](https://passwordsgenerator.net/).
+
+<img src="./docs/img/secret_generator_config.png" title="" alt="">
+
+### 3. Copy kube config
 ```bash
 # kube config is usually located at /root/.kube/config
 # May differ according to your cloud provider
 cp /root/.kube/config config/configmaps/backend/admin-config
 ```
-
-## 5. Create namespace
+### 4. Create namespace
 ```bash
 kubectl create namespace kubeinn
 ```
-
-## 6. Install using kustomize
+### 5. Install using kustomize
 ```bash
 kubectl apply -k ./config
 ```
@@ -69,9 +63,8 @@ Pilgrims interact with Kubeinn via the Pilgrim User Portal.
 
 ## Registration
 ### Account Registration
-Kubeinn is designed to be a self-service resource provisioner, meaning that innkeepers should have as little involvement in the registration process as possible. However, as there is still a need to ensure that users on the platform are legitimate, pilgrim accounts must be approved by an innkeeper before the project supervisor is allowed to use the cluster.
 
-The responsibility of managing users under a project is dedicated to the pilgrims, as they can choose who they wish to share their access configuration with.
+To register for an account, users need to fill in the registratration form. Administrators must first approve the registration of a user prior to the user being able to login to his or her account. The responsibility of managing users under a project is dedicated to the pilgrims, as they can choose who they wish to share their access configuration with.
 
 The account registration process is as follows:
 1. Pilgrim submits a registration request.
@@ -79,6 +72,8 @@ The account registration process is as follows:
 3. If approved, pilgrims will now be able to log into Kubeinn.
 
 ### Project Registration
+Kubeinn is designed to be a self-service resource provisioner. 
+
 Following the creation of a pilgrim account, pilgrims can create projects. To create a project, select the project tab, click create, enter the project's details and click submit. Once a project has been created, the team member may copy the kube configuration file to the clipboard. 
 
 Instructions on how to access a Kubernetes cluster using a kube configuration file can be found [here](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#).
@@ -86,7 +81,7 @@ Instructions on how to access a Kubernetes cluster using a kube configuration fi
 The kube configuration file may be shared with other members of the project.
 
 ## Tickets
-We understand that there will be times when intervention by cluster administrators is necessary. For example, project members might wish to install Custom Resource Definitions (CRDs) which may potentially affect other cluster users.
+There will be times when intervention by cluster administrators is necessary. For example, project members might wish to install Custom Resource Definitions (CRDs) which may potentially affect other cluster users.
 
 That's why we have introduced a simplified ticket management service. A project supervisor may raise a ticket, while innkeepers may view these tickets and take the necessary actions.
 

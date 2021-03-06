@@ -2,31 +2,31 @@
 
 <img src="./docs/img/logo.png" title="" alt="" width="200">
 
-Kubeinn is an open source cloud container service platform for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the tools to manage tenants of a shared Kubernetes cluster. 
+Kubeinn is a cloud container service platform for multi-tenant [Kubernetes](https://github.com/kubernetes/kubernetes) clusters. It provides cluster administrators with the tools to manage a shared Kubernetes cluster with ease. 
 
 Built with [React](https://facebook.github.io/react/), [Material Design](https://material.io/) and [react-admin](https://github.com/marmelab/react-admin) for the frontend, [Go (Golang)](https://golang.org/) and [Gin](https://github.com/gin-gonic/gin) for the middleware and backend, and [Postgres](https://www.postgresql.org/) as the database. 
 
 <strong>
     <a href="https://kubeinn.github.io/kubeinn/">Website</a>
     •
-    <a href="https://kubeinn.github.io/kubeinn/">Docs</a>
+    <a href="https://pkg.go.dev/github.com/kubeinn/kubeinn/src">Docs</a>
     •
     <a href="http://51.222.35.240:30000/">Demo</a>
 </strong>
 
 ---
 
-![](./docs/img/kubeinn-demo.gif)
+![](./docs/img/kubeinn-demo.png)
 
 ## Features
 - Accounts & account users to represent tenants of a shared cluster
 - Secure isolation between tenant namespaces
 - Built-in authentication and authorization using JSON Web Tokens (JWTs)
-- Self-service resource provisioning for users to launch projects with ease 
+- Self-service resource provisioning 
 - Resource limits and quotas to ensure fair resource allocation 
 - Vendor-agnostic to run on any platform of your choice
 - Centralised resource control for the single source of truth for your cluster
-- Simple ticketing service to raise special requests (e.g. increase resource limits, CRDs etc.) 
+- Simple ticketing service to raise requests (e.g. increase resource limits, CRDs etc.) 
 
 ## Installation
 You can deploy Kubeinn on any Kubernetes 1.9+ cluster in a matter of minutes, if not seconds. 
