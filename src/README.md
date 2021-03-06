@@ -1,8 +1,7 @@
-# kubeinn-backend
-Backend and middleware components
+# kubeinn source
+This folder contains the source code for the kubeinn frontend and backend components.
 
 ## Local
-### Build and run
 ```
 # Build and run web server backend
 go build -o ./build ./cmd/main.go
@@ -24,9 +23,6 @@ docker run --rm --net=host -p 3000:3000 \
   -e PGRST_JWT_SECRET="bh3lfEY6f0hQ7TxHv0n8zj6s76ubN1hK" \
   postgrest/postgrest:v7.0.1
 
-go build -o ./build ./cmd/main.go
-./build/main
-
 # Run example deployment
 sudo mv exampleproject-config ~/.kube/config
 kubectl create -f test/test-deployment.yaml
@@ -34,7 +30,6 @@ kubectl create -f test/test-deployment.yaml
 # Get shell into the Postgres container
 docker ps
 docker exec -it <mycontainer> bash
-docker exec -it b575f0735cfa bash
 
 # Start psql
 psql -U postgres
@@ -44,7 +39,6 @@ sudo rm -r /var/lib/postgresql/data/pgdata
 ```
 
 ## Production
-### Build and push container image
 ```
 docker build -t jordan396/kubeinn-web .
 docker push jordan396/kubeinn-web
