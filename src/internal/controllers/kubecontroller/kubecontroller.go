@@ -16,6 +16,8 @@ import (
 	rest "k8s.io/client-go/rest"
 	clientcmd "k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 // KubeController helps to manage interactions with the Kubernetes API server
@@ -36,6 +38,8 @@ func NewKubeController(path string) *KubeController {
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
+		fmt.Println("Error creating clientset.")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	kc.clientset = clientset

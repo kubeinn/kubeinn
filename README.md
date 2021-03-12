@@ -29,7 +29,7 @@ Built with [React](https://facebook.github.io/react/), [Material Design](https:/
 - Simple ticketing service to raise requests (e.g. increase resource limits, CRDs etc.) 
 
 ## Installation
-You can deploy Kubeinn on any Kubernetes 1.9+ cluster in a matter of minutes, if not seconds. 
+You can deploy Kubeinn on any Kubernetes 1.18+ cluster in a matter of minutes, if not seconds. 
 ### Prerequisites
 - Kubernetes version 1.18 and above
 - Persistent Volume Claims
@@ -42,12 +42,12 @@ cd kubeinn
 You will need to create the environment files below and replace the values with 256 bit keys. 
 
 ```env
-# ./configmaps/secrets/jwt-signing-key.env
+# ./config/configmaps/secrets/pgpassword.env
 POSTGRES_PASSWORD=[YOUR-256-BITS-POSTGRES-PASSWORD]
 ```
 
 ```env
-# ./configmaps/secrets/jwt-signing-key.env
+# ./config/configmaps/secrets/jwt-signing-key.env
 JWT_SIGNING_KEY=[YOUR-256-BITS-JWT-SIGNING-KEY]
 ```
 
@@ -59,7 +59,7 @@ Keys can be generated using [https://passwordsgenerator.net/](https://passwordsg
 ```bash
 # kube config is usually located at /root/.kube/config
 # May differ according to your cloud provider
-cp /root/.kube/config config/configmaps/backend/admin-config
+cp /root/.kube/config config/configmaps/secrets/admin-config
 ```
 ### 4. Create namespace
 ```bash
